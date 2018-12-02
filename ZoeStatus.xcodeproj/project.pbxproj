@@ -12,6 +12,8 @@
 		9A512FAA21B2DDCB007EFAAB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FA821B2DDCB007EFAAB /* Main.storyboard */; };
 		9A512FAC21B2DDCD007EFAAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FAB21B2DDCD007EFAAB /* Assets.xcassets */; };
 		9A512FAF21B2DDCD007EFAAB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FAD21B2DDCD007EFAAB /* LaunchScreen.storyboard */; };
+		9A512FB721B3F74C007EFAAB /* ServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */; };
+		9A512FB921B3FE71007EFAAB /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FB821B3FE71007EFAAB /* Settings.bundle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +24,8 @@
 		9A512FAB21B2DDCD007EFAAB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9A512FAE21B2DDCD007EFAAB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9A512FB021B2DDCD007EFAAB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceConnection.swift; sourceTree = "<group>"; };
+		9A512FB821B3FE71007EFAAB /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,8 +58,10 @@
 		9A512FA321B2DDCB007EFAAB /* ZoeStatus */ = {
 			isa = PBXGroup;
 			children = (
+				9A512FB821B3FE71007EFAAB /* Settings.bundle */,
 				9A512FA421B2DDCB007EFAAB /* AppDelegate.swift */,
 				9A512FA621B2DDCB007EFAAB /* ViewController.swift */,
+				9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */,
 				9A512FA821B2DDCB007EFAAB /* Main.storyboard */,
 				9A512FAB21B2DDCD007EFAAB /* Assets.xcassets */,
 				9A512FAD21B2DDCD007EFAAB /* LaunchScreen.storyboard */,
@@ -122,6 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A512FB921B3FE71007EFAAB /* Settings.bundle in Resources */,
 				9A512FAF21B2DDCD007EFAAB /* LaunchScreen.storyboard in Resources */,
 				9A512FAC21B2DDCD007EFAAB /* Assets.xcassets in Resources */,
 				9A512FAA21B2DDCB007EFAAB /* Main.storyboard in Resources */,
@@ -135,6 +142,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A512FB721B3F74C007EFAAB /* ServiceConnection.swift in Sources */,
 				9A512FA721B2DDCB007EFAAB /* ViewController.swift in Sources */,
 				9A512FA521B2DDCB007EFAAB /* AppDelegate.swift in Sources */,
 			);
