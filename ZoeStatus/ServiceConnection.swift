@@ -21,7 +21,7 @@ class ServiceConnection {
     let baseURL = "https://www.services.renault-ze.com/api"
     
     
-    func login () {
+    func login (callback:@escaping(Bool)->Void) {
     
         struct Credentials: Codable {
             let username: String
@@ -111,6 +111,9 @@ class ServiceConnection {
                     self.activationCode = result.user.vehicle_details.activation_code
                     self.refresh_token = result.refresh_token
                     self.token = result.token
+                    DispatchQueue.main.async {
+                        callback(true)
+                    }
 
                     
                 } catch {
@@ -130,10 +133,9 @@ class ServiceConnection {
     }
     
     
-    
 
 
-    func batteryState (delegate:ViewController) {
+    func batteryState (callback:@escaping (Bool, Bool, UInt8, Float, UInt64, String?, Int?)->()) {
         
         let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/battery"
 
@@ -163,33 +165,80 @@ class ServiceConnection {
                 
                 
                 
-                struct batteryStatus: Codable{
+                struct batteryStatusAlways: Codable{
                     var charging: Bool
                     var plugged: Bool
                     var charge_level: UInt8
                     var remaining_range: Float
                     var last_update: UInt64 //TimeInterval
-              //      var charging_point: String
-              //      var remaining_time: Int
+                }
+                struct batteryStatusPlugged: Codable{
+                    var charging: Bool
+                    var plugged: Bool
+                    var charge_level: UInt8
+                    var remaining_range: Float
+                    var last_update: UInt64 //TimeInterval
+                    var charging_point: String
+                }
+                struct batteryStatusPluggedAndCharging: Codable{
+                    var charging: Bool
+                    var plugged: Bool
+                    var charge_level: UInt8
+                    var remaining_range: Float
+                    var last_update: UInt64 //TimeInterval
+                    var charging_point: String
+                    var remaining_time: Int
                 }
                 /*
-                 The remaining_range is in Kilometres. The last_update is a Unix timestamp. The remaining_time is in minutes. The charging_point is available only when plugged is true. The remaining_time is available only when charging is true.
+                 The remaining_range is in Kilometres.
+                 The last_update is a Unix timestamp. The remaining_time is in minutes.
+                 
+                 The charging_point is available only when plugged is true.
+                 The remaining_time is available only when charging is true.
                  */
                 
-                do{
-                    let decoder = JSONDecoder()
-                    let product = try decoder.decode(batteryStatus.self, from: data)
-                    print(product.charge_level)
-                    
-                    DispatchQueue.main.async {
-                        delegate.batteryState.text = String(format: "%3d%%", product.charge_level)
-
+                let decoder = JSONDecoder()
+                if let resultAlways = try? decoder.decode(batteryStatusAlways.self, from: data){
+                    if resultAlways.plugged {
+                        if let resultPlugged = try? decoder.decode(batteryStatusPlugged.self, from: data){
+                            if  resultPlugged.charging {
+                                if let resultPluggedAndCharging = try? decoder.decode(batteryStatusPluggedAndCharging.self, from: data)
+                                { // plugged and charging
+                                    DispatchQueue.main.async {
+                                        callback(resultPluggedAndCharging.charging,
+                                                 resultPluggedAndCharging.plugged,
+                                                 resultPluggedAndCharging.charge_level,
+                                                 resultPluggedAndCharging.remaining_range,
+                                                 resultPluggedAndCharging.last_update,
+                                                 resultPluggedAndCharging.charging_point,
+                                                 resultPluggedAndCharging.remaining_time)
+                                    }
+                                }
+                            } else { // not charging
+                                DispatchQueue.main.async {
+                                    callback(resultPlugged.charging,
+                                             resultPlugged.plugged,
+                                             resultPlugged.charge_level,
+                                             resultPlugged.remaining_range,
+                                             resultPlugged.last_update,
+                                             resultPlugged.charging_point,
+                                             nil)
+                                }
+                            }
+                        }
+                    } else { // not plugged
+                        DispatchQueue.main.async {
+                            callback(resultAlways.charging,
+                                     resultAlways.plugged,
+                                     resultAlways.charge_level,
+                                     resultAlways.remaining_range,
+                                     resultAlways.last_update,
+                                     nil,
+                                     nil)                        }
                     }
-                    
-                    
-                } catch {
-                    print (error)
                 }
+                    
+                
                 
                 
                 

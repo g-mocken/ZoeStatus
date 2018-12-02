@@ -44,20 +44,42 @@ class ViewController: UIViewController {
         sc.userName = userDefaults.string(forKey: "userName_preference")
         sc.password = userDefaults.string(forKey: "password_preference")
 
-        sc.login()
+        sc.login(){(result:Bool)->() in
+            if result {
+                print("YES!")
+                self.refreshButton.isEnabled=true
+            }
+        }
 
 
     }
 
-    @IBOutlet var batteryState: UILabel!
+    @IBOutlet var level: UILabel!
+    @IBOutlet var range: UILabel!
+    @IBOutlet var update: UILabel!
+    @IBOutlet var charger: UILabel!
+    @IBOutlet var remaining: UILabel!
+    @IBOutlet var charging: UILabel!
+    @IBOutlet var plugged: UILabel!
     
+    @IBOutlet var refreshButton: UIButton!
     
 
     @IBAction func refreshButtonPressed(_ sender: Any) {
-        
-        sc.batteryState(delegate:self)
-        
-       
+        sc.batteryState(callback: {(charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->() in
+            self.level.text = String(format: "%3d%%", charge_level)
+            self.range.text = String(format: "%3.1f km", remaining_range)
+            self.update.text = String(format: "%d", last_update)
+            if plugged {
+                self.charger.text = charging_point!
+            }
+            if charging {
+                self.remaining.text = String(format: "%d", remaining_time!)
+            }
+            self.plugged.text = plugged ? "Plugged in" : "Not plugged in"
+            self.charging.text = charging ? "Charging" : "Not charging"
+
+        })
     }
  
 }
