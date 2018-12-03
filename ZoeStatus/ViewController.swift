@@ -83,21 +83,21 @@ class ViewController: UIViewController {
 
     @IBAction func refreshButtonPressed(_ sender: Any) {
         sc.batteryState(callback: {(charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->() in
-            self.level.text = String(format: "%3d%%", charge_level)
-            self.range.text = String(format: "%3.1f km", remaining_range)
+            self.level.text = String(format: "🔋 %3d%%", charge_level)
+            self.range.text = String(format: "📏 %3.1f km", remaining_range)
             
             
 //            self.update.text = String(format: "%d", last_update)
             
-            self.update.text = self.timestampToDateString(timestamp: last_update)
+            self.update.text = "📅⏰ " + self.timestampToDateString(timestamp: last_update)
             if plugged {
-                self.charger.text = charging_point!
+                self.charger.text = "⛽️ " + charging_point!
             }
             if charging {
-                self.remaining.text = String(format: "%d min", remaining_time!)
+                self.remaining.text = String(format: "⏳ %d min", remaining_time!)
             }
-            self.plugged.text = plugged ? "Plugged in" : "Not plugged in"
-            self.charging.text = charging ? "Charging" : "Not charging"
+            self.plugged.text = plugged ? "🔌 ✅" : "🔌 ❌"
+            self.charging.text = charging ? "⚡️ ✅" : "⚡️ ❌"
 
         })
     }
