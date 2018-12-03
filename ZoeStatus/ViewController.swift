@@ -16,6 +16,22 @@ class ViewController: UIViewController {
     
     var sc=ServiceConnection()
     
+    
+    func timestampToDateString(timestamp: UInt64) -> String{
+        var strDate = "undefined"
+        
+        if let unixTime = Double(exactly:timestamp/1000) {
+            let date = Date(timeIntervalSince1970: unixTime)
+            let dateFormatter = DateFormatter()
+            let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+            dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+            dateFormatter.locale = NSLocale.current
+            dateFormatter.dateFormat = "dd.MM.yyyy HH:mm:ss" //Specify your format that you want
+            strDate = dateFormatter.string(from: date)
+        }
+        return strDate
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -69,12 +85,16 @@ class ViewController: UIViewController {
         sc.batteryState(callback: {(charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->() in
             self.level.text = String(format: "%3d%%", charge_level)
             self.range.text = String(format: "%3.1f km", remaining_range)
-            self.update.text = String(format: "%d", last_update)
+            
+            
+//            self.update.text = String(format: "%d", last_update)
+            
+            self.update.text = self.timestampToDateString(timestamp: last_update)
             if plugged {
                 self.charger.text = charging_point!
             }
             if charging {
-                self.remaining.text = String(format: "%d", remaining_time!)
+                self.remaining.text = String(format: "%d min", remaining_time!)
             }
             self.plugged.text = plugged ? "Plugged in" : "Not plugged in"
             self.charging.text = charging ? "Charging" : "Not charging"

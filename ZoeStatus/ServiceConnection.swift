@@ -27,7 +27,10 @@ class ServiceConnection {
             let username: String
             let password: String
         }
-        
+        guard (userName != nil && password != nil) else{
+            callback(false)
+            return
+        }
         let credentials = Credentials(username: userName!,
                           password: password!)
         guard let uploadData = try? JSONEncoder().encode(credentials) else {
@@ -191,10 +194,10 @@ class ServiceConnection {
                 }
                 /*
                  The remaining_range is in Kilometres.
-                 The last_update is a Unix timestamp. The remaining_time is in minutes.
+                 The last_update is a Unix timestamp.
                  
                  The charging_point is available only when plugged is true.
-                 The remaining_time is available only when charging is true.
+                 The remaining_time is available only when charging is true. The remaining_time is in minutes.
                  */
                 
                 let decoder = JSONDecoder()
