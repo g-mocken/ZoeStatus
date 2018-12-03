@@ -92,9 +92,14 @@ class ViewController: UIViewController {
             self.update.text = "📅⏰ " + self.timestampToDateString(timestamp: last_update)
             if plugged {
                 self.charger.text = "⛽️ " + charging_point!
+            } else {
+                self.charger.text = "⛽️ …"
             }
+            
             if charging {
                 self.remaining.text = String(format: "⏳ %d min", remaining_time!)
+            } else {
+                self.remaining.text = "⏳ …"
             }
             self.plugged.text = plugged ? "🔌 ✅" : "🔌 ❌"
             self.charging.text = charging ? "⚡️ ✅" : "⚡️ ❌"

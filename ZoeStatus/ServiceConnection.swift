@@ -9,6 +9,23 @@
 import Foundation
 import UIKit
 
+
+
+extension String { // taken from https://stackoverflow.com/a/35360697/1149188
+    
+    func fromBase64() -> String? {
+        guard let data = Data(base64Encoded: self) else {
+            return nil
+        }
+        
+        return String(data: data, encoding: .utf8)
+    }
+    
+    func toBase64() -> String {
+        return Data(self.utf8).base64EncodedString()
+    }
+}
+
 class ServiceConnection {
 
     var activationCode: String?
@@ -16,6 +33,7 @@ class ServiceConnection {
     var password:String?
     var vehicleIdentification:String?
     var token:String?
+    var tokenExpiry:UInt64?
     var refresh_token:String?
     
     let baseURL = "https://www.services.renault-ze.com/api"
@@ -114,6 +132,51 @@ class ServiceConnection {
                     self.activationCode = result.user.vehicle_details.activation_code
                     self.refresh_token = result.refresh_token
                     self.token = result.token
+                    if let token = self.token{
+                        let indexFirstPeriod = token.firstIndex(of: ".") ?? token.startIndex
+                        let header = String(token[..<indexFirstPeriod]).fromBase64()
+                        print("Header: \(header!)")
+                        let indexSecondPeriod = token[token.index(after:indexFirstPeriod)...].firstIndex(of: ".") ?? token.endIndex
+
+                        if let payload = String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]).fromBase64()
+                        {
+                                print("Payload: \(payload)")
+                            
+                            struct payloadResult: Codable{
+                                let sub: String
+                                let jti: String
+                                let iat: UInt64
+                                let exp: UInt64
+                            }
+                            
+                            let decoder = JSONDecoder()
+
+                            if let payloadData = payload.data(using: .utf8){
+                                let result = try? decoder.decode(payloadResult.self, from: payloadData)
+                                if let result = result {
+                                    self.tokenExpiry = result.exp
+                                    
+                                    print("Expires \(result.exp)")
+                                    let date = Date()
+                                    let interval = UInt64(date.timeIntervalSince1970)
+                                    print("Current \(interval)")
+
+                                    
+                                    // human readable time and date:
+                                    if let unixTime = Double(exactly:result.exp) {
+                                        let date = Date(timeIntervalSince1970: unixTime)
+                                        let dateFormatter = DateFormatter()
+                                        let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+                                        dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+                                        dateFormatter.locale = NSLocale.current
+                                        dateFormatter.dateFormat = "dd.MM.yyyy HH:mm:ss" //Specify your format that you want
+                                        let strDate = dateFormatter.string(from: date)
+                                        print("Expires: \(strDate)")
+                                    }
+                                }
+                            }
+                        }
+                    }
                     DispatchQueue.main.async {
                         callback(true)
                     }
@@ -139,6 +202,17 @@ class ServiceConnection {
 
 
     func batteryState (callback:@escaping (Bool, Bool, UInt8, Float, UInt64, String?, Int?)->()) {
+        
+        
+        let date = Date()
+        let now = UInt64(date.timeIntervalSince1970)
+        if (  tokenExpiry != nil && tokenExpiry! > now ) {
+                print("Token still valid")
+        } else {
+            print("Token expired (or nil), must renew")
+        }
+
+        
         
         let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/battery"
 
