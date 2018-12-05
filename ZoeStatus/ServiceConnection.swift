@@ -39,6 +39,54 @@ class ServiceConnection {
     let baseURL = "https://www.services.renault-ze.com/api"
     
     
+    fileprivate func extractExpiryDate() { // token is usually valid for 10h after it was issued
+        if let token = self.token{
+            let indexFirstPeriod = token.firstIndex(of: ".") ?? token.startIndex
+            let header = String(token[..<indexFirstPeriod]).fromBase64()
+            print("Header: \(header!)")
+            let indexSecondPeriod = token[token.index(after:indexFirstPeriod)...].firstIndex(of: ".") ?? token.endIndex
+            
+            if let payload = String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]).fromBase64()
+            {
+                print("Payload: \(payload)")
+                
+                struct payloadResult: Codable{
+                    let sub: String
+                    let jti: String
+                    let iat: UInt64
+                    let exp: UInt64
+                }
+                
+                let decoder = JSONDecoder()
+                
+                if let payloadData = payload.data(using: .utf8){
+                    let result = try? decoder.decode(payloadResult.self, from: payloadData)
+                    if let result = result {
+                        self.tokenExpiry = result.exp
+                        
+                        print("Expires \(result.exp)")
+                        let date = Date()
+                        let interval = UInt64(date.timeIntervalSince1970)
+                        print("Current \(interval)")
+                        
+                        
+                        // human readable time and date:
+                        if let unixTime = Double(exactly:result.exp) {
+                            let date = Date(timeIntervalSince1970: unixTime)
+                            let dateFormatter = DateFormatter()
+                            let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+                            dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+                            dateFormatter.locale = NSLocale.current
+                            dateFormatter.dateFormat = "dd.MM.yyyy HH:mm:ss" //Specify your format that you want
+                            let strDate = dateFormatter.string(from: date)
+                            print("Expires: \(strDate)")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     func login (callback:@escaping(Bool)->Void) {
     
         struct Credentials: Codable {
@@ -132,90 +180,90 @@ class ServiceConnection {
                     self.activationCode = result.user.vehicle_details.activation_code
                     self.refresh_token = result.refresh_token
                     self.token = result.token
-                    if let token = self.token{
-                        let indexFirstPeriod = token.firstIndex(of: ".") ?? token.startIndex
-                        let header = String(token[..<indexFirstPeriod]).fromBase64()
-                        print("Header: \(header!)")
-                        let indexSecondPeriod = token[token.index(after:indexFirstPeriod)...].firstIndex(of: ".") ?? token.endIndex
-
-                        if let payload = String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]).fromBase64()
-                        {
-                                print("Payload: \(payload)")
-                            
-                            struct payloadResult: Codable{
-                                let sub: String
-                                let jti: String
-                                let iat: UInt64
-                                let exp: UInt64
-                            }
-                            
-                            let decoder = JSONDecoder()
-
-                            if let payloadData = payload.data(using: .utf8){
-                                let result = try? decoder.decode(payloadResult.self, from: payloadData)
-                                if let result = result {
-                                    self.tokenExpiry = result.exp
-                                    
-                                    print("Expires \(result.exp)")
-                                    let date = Date()
-                                    let interval = UInt64(date.timeIntervalSince1970)
-                                    print("Current \(interval)")
-
-                                    
-                                    // human readable time and date:
-                                    if let unixTime = Double(exactly:result.exp) {
-                                        let date = Date(timeIntervalSince1970: unixTime)
-                                        let dateFormatter = DateFormatter()
-                                        let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
-                                        dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
-                                        dateFormatter.locale = NSLocale.current
-                                        dateFormatter.dateFormat = "dd.MM.yyyy HH:mm:ss" //Specify your format that you want
-                                        let strDate = dateFormatter.string(from: date)
-                                        print("Expires: \(strDate)")
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    self.extractExpiryDate()
+                    
                     DispatchQueue.main.async {
                         callback(true)
                     }
+                } catch {
+                    print (error)
+                }
+            }
+        }
+        task.resume()
+    }
+    
+    
+    func renewToken (callback:@escaping(Bool)->Void) {
+        
+        struct Refresh: Codable {
+            let token: String
+            let refresh_token: String
+        }
+        guard (userName != nil && password != nil) else{
+            callback(false)
+            return
+        }
+        let refresh = Refresh(token: token!, refresh_token: refresh_token!)
+        guard let uploadData = try? JSONEncoder().encode(refresh) else {
+            return
+        }
+        
+        //        print(String(data: uploadData, encoding: .utf8)!)
+        print("Sending: "+String(decoding: uploadData, as: UTF8.self))
+        
+        let refreshURL = baseURL + "/user/token/refresh"
+        let url = URL(string: refreshURL)!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
+            if let error = error {
+                print ("error: \(error)")
+                return
+            }
+            guard let response = response as? HTTPURLResponse,
+                (200...299).contains(response.statusCode) else {
+                    print ("server error")
+                    return
+            }
+            if let mimeType = response.mimeType,
+                mimeType == "application/json",
+                let data = data,
+                let dataString = String(data: data, encoding: .utf8) {
+                print ("got data: \(dataString)")
+                
+                
+                struct refreshResult: Codable {
+                    var token: String
+                }
+                
+                do{
+                    let decoder = JSONDecoder()
+                    let result = try decoder.decode(refreshResult.self, from: data)
+                    
+                    self.token = result.token
+                    self.extractExpiryDate()
 
+                    DispatchQueue.main.async {
+                        callback(true)
+                    }
+                    
                     
                 } catch {
                     print (error)
                 }
-                
-                
-                
-                
-                
             }
         }
         task.resume()
-        
-        
-        
     }
+
     
-    
-
-
-    func batteryState (callback:@escaping (Bool, Bool, UInt8, Float, UInt64, String?, Int?)->()) {
-        
-        
-        let date = Date()
-        let now = UInt64(date.timeIntervalSince1970)
-        if (  tokenExpiry != nil && tokenExpiry! > now ) {
-                print("Token still valid")
-        } else {
-            print("Token expired (or nil), must renew")
-        }
-
-        
-        
+    fileprivate func performBatteryRequest(_ callback:@escaping  (Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
         let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/battery"
-
+        
         let tString = ""
         let uploadData = tString.data(using: String.Encoding.utf8)
         
@@ -314,16 +362,34 @@ class ServiceConnection {
                                      nil)                        }
                     }
                 }
-                    
-                
-                
-                
-                
-                
-                
             }
         }
         task.resume()
     }
     
+    func batteryState (callback:@escaping (Bool, Bool, UInt8, Float, UInt64, String?, Int?)->()) {
+        
+        
+        let date = Date()
+        let now = UInt64(date.timeIntervalSince1970)
+        if (  tokenExpiry != nil && tokenExpiry! > now + 60) { // must be valid for at least one more minute
+            print("Token still valid")
+            performBatteryRequest(callback)
+
+        } else {
+            print("Token expired or will expire too soon (or expiry date is nil), must renew")
+            renewToken(){(result:Bool)->() in
+                if result {
+                    print("renewed!")
+                    self.performBatteryRequest(callback)
+
+                } else {
+                    print("NOT renewed!")
+                }
+            }
+        }
+
+        
+        
+    }
 }
