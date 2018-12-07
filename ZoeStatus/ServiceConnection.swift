@@ -34,7 +34,7 @@ class ServiceConnection {
     var vehicleIdentification:String?
     var token:String?
     var tokenExpiry:UInt64?
-    var refresh_token:String?
+    var xsrfToken:String?
     
     let baseURL = "https://www.services.renault-ze.com/api"
     
@@ -52,7 +52,7 @@ class ServiceConnection {
                 
                 struct payloadResult: Codable{
                     let sub: String
-                    let jti: String
+                    let userId: String
                     let iat: UInt64
                     let exp: UInt64
                 }
@@ -133,7 +133,7 @@ class ServiceConnection {
                 
                 struct loginResult: Codable {
                     var token: String
-                    var refresh_token: String
+                    var xsrfToken: String
                     var user: User
                     struct User: Codable {
                         var id: String
@@ -178,7 +178,7 @@ class ServiceConnection {
                     
                     self.vehicleIdentification = result.user.vehicle_details.VIN
                     self.activationCode = result.user.vehicle_details.activation_code
-                    self.refresh_token = result.refresh_token
+                    self.xsrfToken = result.xsrfToken
                     self.token = result.token
                     self.extractExpiryDate()
                     
@@ -198,13 +198,12 @@ class ServiceConnection {
         
         struct Refresh: Codable {
             let token: String
-            let refresh_token: String
         }
         guard (userName != nil && password != nil) else{
             callback(false)
             return
         }
-        let refresh = Refresh(token: token!, refresh_token: refresh_token!)
+        let refresh = Refresh(token: token!)
         guard let uploadData = try? JSONEncoder().encode(refresh) else {
             return
         }
@@ -218,6 +217,9 @@ class ServiceConnection {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
+
+
         
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
@@ -271,7 +273,8 @@ class ServiceConnection {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
-        
+        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
+
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
                 print ("error: \(error)")
@@ -388,8 +391,5 @@ class ServiceConnection {
                 }
             }
         }
-
-        
-        
     }
 }

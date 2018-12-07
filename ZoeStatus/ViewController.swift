@@ -26,7 +26,7 @@ class ViewController: UIViewController {
             let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
             dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
             dateFormatter.locale = NSLocale.current
-            dateFormatter.dateFormat = "dd.MM.yyyy HH:mm:ss" //Specify your format that you want
+            dateFormatter.dateFormat = "📅 dd.MM.yyyy ⏰ HH:mm:ss" //Specify your format that you want
             strDate = dateFormatter.string(from: date)
         }
         return strDate
@@ -62,7 +62,6 @@ class ViewController: UIViewController {
 
         sc.login(){(result:Bool)->() in
             if result {
-                print("YES!")
                 self.refreshButton.isEnabled=true
             }
         }
@@ -82,14 +81,15 @@ class ViewController: UIViewController {
     
 
     @IBAction func refreshButtonPressed(_ sender: Any) {
+        refreshButton.isEnabled=false;
         sc.batteryState(callback: {(charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->() in
-            self.level.text = String(format: "🔋 %3d%%", charge_level)
-            self.range.text = String(format: "📏 %3.1f km", remaining_range)
+            self.level.text = String(format: "🔋%3d%%", charge_level)
+            self.range.text = String(format: "🛣️ %3.1f km", remaining_range) // 📏
             
             
 //            self.update.text = String(format: "%d", last_update)
             
-            self.update.text = "📅⏰ " + self.timestampToDateString(timestamp: last_update)
+            self.update.text = self.timestampToDateString(timestamp: last_update)
             if plugged {
                 self.charger.text = "⛽️ " + charging_point!
             } else {
@@ -103,6 +103,7 @@ class ViewController: UIViewController {
             }
             self.plugged.text = plugged ? "🔌 ✅" : "🔌 ❌"
             self.charging.text = charging ? "⚡️ ✅" : "⚡️ ❌"
+            self.refreshButton.isEnabled=true;
 
         })
     }
