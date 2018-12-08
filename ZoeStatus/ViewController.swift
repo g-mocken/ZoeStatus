@@ -63,10 +63,12 @@ class ViewController: UIViewController {
         sc.login(){(result:Bool)->() in
             if result {
                 self.refreshButton.isEnabled=true
+                //self.displayError(errorMessage:"Login to Z.E. services successful")
+            } else {
+                self.displayError(errorMessage:"Failed to login to Z.E. services.")
+                self.refreshButton.isEnabled=true
             }
         }
-
-
     }
 
     @IBOutlet var level: UILabel!
@@ -80,14 +82,65 @@ class ViewController: UIViewController {
     @IBOutlet var refreshButton: UIButton!
     
 
+    fileprivate func displayError(errorMessage: String) {
+        let defaultAction = UIAlertAction(title: "Dismiss",
+                                          style: .default) { (action) in
+                                            // Respond to user selection of the action.
+        }
+        let alert = UIAlertController(title: "Error", message: errorMessage, preferredStyle: .alert)
+        alert.addAction(defaultAction)
+        
+        self.present(alert, animated: true) {
+            // The alert was presented
+        }
+    }
+    
     @IBAction func refreshButtonPressed(_ sender: Any) {
         refreshButton.isEnabled=false;
-        sc.batteryState(callback: {(charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->() in
+        
+        if (sc.tokenExpiry == nil){ // never logged in successfully
+            sc.login(){(result:Bool)->() in
+                if (result){
+                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                } else {
+                    self.displayError(errorMessage:"Failed to login to Z.E. services.")
+                    self.refreshButton.isEnabled=true;
+                }
+            }
+        } else {
+            if sc.isTokenExpired() {
+                print("Token expired or will expire too soon (or expiry date is nil), must renew")
+                sc.renewToken(){(result:Bool)->() in
+                    if result {
+                        print("renewed!")
+                        self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                    } else {
+                        self.displayError(errorMessage:"Failed to renew expired token.")
+                        print("NOT renewed!")
+                    }
+                }
+            } else {
+                print("still valid!")
+                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                
+            }
+        }
+    }
+    
+    
+    
+    
+    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->(){
+        
+        if (error){
+            displayError(errorMessage: "Could not obtain battery state.")
+            self.refreshButton.isEnabled=true;
+        } else {
             self.level.text = String(format: "🔋%3d%%", charge_level)
             self.range.text = String(format: "🛣️ %3.1f km", remaining_range) // 📏
             
             
-//            self.update.text = String(format: "%d", last_update)
+            //            self.update.text = String(format: "%d", last_update)
             
             self.update.text = self.timestampToDateString(timestamp: last_update)
             if plugged {
@@ -104,9 +157,10 @@ class ViewController: UIViewController {
             self.plugged.text = plugged ? "🔌 ✅" : "🔌 ❌"
             self.charging.text = charging ? "⚡️ ✅" : "⚡️ ❌"
             self.refreshButton.isEnabled=true;
-
-        })
+        }
     }
- 
+
+
+
 }
 

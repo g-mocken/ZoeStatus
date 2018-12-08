@@ -100,6 +100,7 @@ class ServiceConnection {
         let credentials = Credentials(username: userName!,
                           password: password!)
         guard let uploadData = try? JSONEncoder().encode(credentials) else {
+            callback(false)
             return
         }
         
@@ -114,12 +115,18 @@ class ServiceConnection {
         
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
-                print ("error: \(error)")
+                print ("URLSession error: \(error)")
+                DispatchQueue.main.async {
+                    callback(false)
+                }
                 return
             }
             guard let response = response as? HTTPURLResponse,
                 (200...299).contains(response.statusCode) else {
                     print ("server error")
+                    DispatchQueue.main.async {
+                        callback(false)
+                    }
                     return
             }
             if let mimeType = response.mimeType,
@@ -127,9 +134,6 @@ class ServiceConnection {
                 let data = data,
                 let dataString = String(data: data, encoding: .utf8) {
                 print ("got data: \(dataString)")
-                
-          
-
                 
                 struct loginResult: Codable {
                     var token: String
@@ -187,6 +191,7 @@ class ServiceConnection {
                     }
                 } catch {
                     print (error)
+                    callback(false)
                 }
             }
         }
@@ -263,7 +268,7 @@ class ServiceConnection {
     }
 
     
-    fileprivate func performBatteryRequest(_ callback:@escaping  (Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+     func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
         let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/battery"
         
         let tString = ""
@@ -278,11 +283,31 @@ class ServiceConnection {
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
                 print ("error: \(error)")
+                DispatchQueue.main.async {
+                callback(true,
+                         false,
+                         false,
+                         0,
+                         0.0,
+                         0,
+                         nil,
+                         nil)
+                }
                 return
             }
             guard let response = response as? HTTPURLResponse,
                 (200...299).contains(response.statusCode) else {
                     print ("server error")
+                    DispatchQueue.main.async {
+                        callback(true,
+                                 false,
+                                 false,
+                                 0,
+                                 0.0,
+                                 0,
+                                 nil,
+                                 nil)
+                    }
                     return
             }
             if let mimeType = response.mimeType,
@@ -333,7 +358,8 @@ class ServiceConnection {
                                 if let resultPluggedAndCharging = try? decoder.decode(batteryStatusPluggedAndCharging.self, from: data)
                                 { // plugged and charging
                                     DispatchQueue.main.async {
-                                        callback(resultPluggedAndCharging.charging,
+                                        callback(false,
+                                                 resultPluggedAndCharging.charging,
                                                  resultPluggedAndCharging.plugged,
                                                  resultPluggedAndCharging.charge_level,
                                                  resultPluggedAndCharging.remaining_range,
@@ -344,7 +370,8 @@ class ServiceConnection {
                                 }
                             } else { // not charging
                                 DispatchQueue.main.async {
-                                    callback(resultPlugged.charging,
+                                    callback(false,
+                                             resultPlugged.charging,
                                              resultPlugged.plugged,
                                              resultPlugged.charge_level,
                                              resultPlugged.remaining_range,
@@ -356,13 +383,16 @@ class ServiceConnection {
                         }
                     } else { // not plugged
                         DispatchQueue.main.async {
-                            callback(resultAlways.charging,
+                            callback(false,
+                                     resultAlways.charging,
                                      resultAlways.plugged,
                                      resultAlways.charge_level,
                                      resultAlways.remaining_range,
                                      resultAlways.last_update,
                                      nil,
-                                     nil)                        }
+                                     nil)
+                            
+                        }
                     }
                 }
             }
@@ -370,26 +400,17 @@ class ServiceConnection {
         task.resume()
     }
     
-    func batteryState (callback:@escaping (Bool, Bool, UInt8, Float, UInt64, String?, Int?)->()) {
-        
-        
+    func isTokenExpired()->Bool {
         let date = Date()
         let now = UInt64(date.timeIntervalSince1970)
         if (  tokenExpiry != nil && tokenExpiry! > now + 60) { // must be valid for at least one more minute
             print("Token still valid")
-            performBatteryRequest(callback)
-
+            return false
         } else {
             print("Token expired or will expire too soon (or expiry date is nil), must renew")
-            renewToken(){(result:Bool)->() in
-                if result {
-                    print("renewed!")
-                    self.performBatteryRequest(callback)
-
-                } else {
-                    print("NOT renewed!")
-                }
-            }
-        }
+            return true
+        }        
     }
+    
+
 }
