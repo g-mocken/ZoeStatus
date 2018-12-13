@@ -109,18 +109,18 @@ class ViewController: UIViewController {
             }
         } else {
             if sc.isTokenExpired() {
-                print("Token expired or will expire too soon (or expiry date is nil), must renew")
+                //print("Token expired or will expire too soon (or expiry date is nil), must renew")
                 sc.renewToken(){(result:Bool)->() in
                     if result {
-                        print("renewed!")
+                        print("renewed expired token!")
                         self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
                     } else {
                         self.displayError(errorMessage:"Failed to renew expired token.")
-                        print("NOT renewed!")
+                        print("expired token NOT renewed!")
                     }
                 }
             } else {
-                print("still valid!")
+                print("token still valid!")
                 self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
                 
             }
