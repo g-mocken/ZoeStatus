@@ -105,7 +105,7 @@ class ServiceConnection {
         }
         
 //        print(String(data: uploadData, encoding: .utf8)!)
-        print("Sending: "+String(decoding: uploadData, as: UTF8.self))
+        print("login - Sending: "+String(decoding: uploadData, as: UTF8.self))
 
         let loginURL = baseURL + "/user/login"
         let url = URL(string: loginURL)!
@@ -214,7 +214,7 @@ class ServiceConnection {
         }
         
         //        print(String(data: uploadData, encoding: .utf8)!)
-        print("Sending: "+String(decoding: uploadData, as: UTF8.self))
+        print("renew - Sending: "+String(decoding: uploadData, as: UTF8.self))
         
         let refreshURL = baseURL + "/user/token/refresh"
         let url = URL(string: refreshURL)!

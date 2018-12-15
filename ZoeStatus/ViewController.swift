@@ -13,7 +13,6 @@ class ViewController: UIViewController {
     
     let baseURL =  "https://www.services.renault-ze.com/api"
 
-    
     var sc=ServiceConnection()
     
     
@@ -32,12 +31,8 @@ class ViewController: UIViewController {
         return strDate
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        
+    fileprivate func performLogin() {
         UserDefaults.standard.register(defaults: [String : Any]())
-
         
         let userDefaults = UserDefaults.standard
         let userName = userDefaults.string(forKey: "userName_preference")
@@ -45,43 +40,66 @@ class ViewController: UIViewController {
             print("User name = \(userName!)")
         }
         
-/*
-        { // PERSONAL VALUES MUST BE REMOVED BEFORE GOING PUBLIC! ALSO DO NOT COMMIT TO GIT!
-            let defaultUserName = "your@email.address"
-            let defaultPassword = "secret password"
-
-            userDefaults.setValue(defaultUserName, forKey: "userName_preference")
-            userDefaults.setValue(defaultPassword, forKey: "password_preference")
-            
-            userDefaults.synchronize()
-        }
- */
+        /*
+         { // PERSONAL VALUES MUST BE REMOVED BEFORE GOING PUBLIC! ALSO DO NOT COMMIT TO GIT!
+         let defaultUserName = "your@email.address"
+         let defaultPassword = "secret password"
+         
+         userDefaults.setValue(defaultUserName, forKey: "userName_preference")
+         userDefaults.setValue(defaultPassword, forKey: "password_preference")
+         
+         userDefaults.synchronize()
+         }
+         */
         
-        // load settings
-        if (sc.tokenExpiry == nil){
-            sc.userName = userDefaults.string(forKey: "userName_preference")
-            sc.password = userDefaults.string(forKey: "password_preference")
-            
+        sc.userName = userDefaults.string(forKey: "userName_preference")
+        sc.password = userDefaults.string(forKey: "password_preference")
+        
+        if ((sc.userName == nil) || (sc.password == nil)){
+            print ("Enter user credentials in settings app!")
+            UIApplication.shared.open(URL(string : UIApplication.openSettingsURLString)!)
+        } else {
             self.refreshButton.isHidden=true
             activityIndicator.startAnimating()
             
             sc.login(){(result:Bool)->() in
                 self.activityIndicator.stopAnimating()
+                self.refreshButton.isEnabled=true
+                self.refreshButton.isHidden=false
+
                 if result {
-                    self.refreshButton.isEnabled=true
-                    self.refreshButton.isHidden=false
+                    self.refreshButtonPressed(self.refreshButton) // auto-refresh after successful login
                     //self.displayError(errorMessage:"Login to Z.E. services successful")
                 } else {
                     self.displayError(errorMessage:"Failed to login to Z.E. services.")
-                    self.refreshButton.isEnabled=true
-                    self.refreshButton.isHidden=false
                 }
             }
-            self.refreshButtonPressed(self.refreshButton)
         }
-       
+    }
+    
+    @objc func applicationDidBecomeActive(notification: Notification) {
+        print ("notification received!")
+        // load settings
+        if (sc.tokenExpiry == nil){
+            performLogin()
+        }
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view, typically from a nib.
+        
+        NotificationCenter.default.removeObserver(self, name: Notification.Name("applicationDidBecomeActive"), object: nil) // remove if already present, in order to avoid double registration
+        NotificationCenter.default.addObserver(self, selector: #selector(self.applicationDidBecomeActive(notification:)), name: Notification.Name("applicationDidBecomeActive"), object: nil)
+
+    }
+
+    /*
+    override func viewDidAppear(_ animated: Bool) {
+     super.viewDidAppear(animated)
+    }
+     */
+    
     @IBOutlet var level: UILabel!
     @IBOutlet var range: UILabel!
     @IBOutlet var update: UILabel!
