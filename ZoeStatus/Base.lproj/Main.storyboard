@@ -61,29 +61,35 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="emx-tM-G9P">
-                                <rect key="frame" x="170" y="586.5" width="35" height="60"/>
+                                <rect key="frame" x="170" y="577" width="35" height="60"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="40"/>
                                 <state key="normal" title="↻"/>
                                 <connections>
                                     <action selector="refreshButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="xat-f4-NCq"/>
                                 </connections>
                             </button>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="w8h-1m-ygi">
+                                <rect key="frame" x="169" y="590" width="37" height="37"/>
+                                <color key="color" cocoaTouchSystemColor="darkTextColor"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="w8h-1m-ygi" secondAttribute="bottom" constant="40" id="6ft-xV-zgM"/>
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="78L-kB-Xup"/>
                             <constraint firstItem="icM-2f-gRD" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="CIf-lG-Cfg"/>
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="DPm-QT-LjO"/>
                             <constraint firstItem="rbz-gd-6J5" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="EKb-TH-njD"/>
                             <constraint firstItem="awZ-qK-aid" firstAttribute="firstBaseline" secondItem="b4a-jL-5hN" secondAttribute="baseline" constant="24" symbolType="layoutAnchor" id="HTB-cy-nma"/>
                             <constraint firstItem="icM-2f-gRD" firstAttribute="firstBaseline" secondItem="awZ-qK-aid" secondAttribute="baseline" constant="24" symbolType="layoutAnchor" id="ICB-IK-tgF"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="emx-tM-G9P" secondAttribute="bottom" constant="20.5" id="MMW-gt-1hq"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="emx-tM-G9P" secondAttribute="bottom" constant="30" id="MMW-gt-1hq"/>
                             <constraint firstItem="b4a-jL-5hN" firstAttribute="firstBaseline" secondItem="LNW-0z-EOz" secondAttribute="baseline" constant="24" symbolType="layoutAnchor" id="RPQ-NN-7Bo"/>
                             <constraint firstItem="awZ-qK-aid" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Smw-h3-CAY"/>
                             <constraint firstItem="LNW-0z-EOz" firstAttribute="firstBaseline" secondItem="19f-Aq-YyL" secondAttribute="baseline" constant="24" symbolType="layoutAnchor" id="W8l-2K-f6P"/>
                             <constraint firstItem="emx-tM-G9P" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="YUd-eY-rdI"/>
                             <constraint firstItem="19f-Aq-YyL" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="gOc-v2-oNE"/>
                             <constraint firstItem="b4a-jL-5hN" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="gw0-zT-niM"/>
+                            <constraint firstItem="w8h-1m-ygi" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="hIh-2e-rBd"/>
                             <constraint firstItem="19f-Aq-YyL" firstAttribute="firstBaseline" secondItem="rbz-gd-6J5" secondAttribute="baseline" constant="32" symbolType="layoutAnchor" id="kVc-mx-HD8"/>
                             <constraint firstItem="LNW-0z-EOz" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="mqs-Ai-MG7"/>
                             <constraint firstItem="rbz-gd-6J5" firstAttribute="firstBaseline" secondItem="AhF-MA-RmR" secondAttribute="baseline" constant="80" id="z2J-G8-inz"/>
@@ -91,6 +97,7 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="w8h-1m-ygi" id="Dza-a6-sun"/>
                         <outlet property="charger" destination="LNW-0z-EOz" id="Tnh-ZJ-pPk"/>
                         <outlet property="charging" destination="awZ-qK-aid" id="wfa-kN-zdV"/>
                         <outlet property="level" destination="AhF-MA-RmR" id="jl6-zj-7ei"/>

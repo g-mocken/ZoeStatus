@@ -45,7 +45,8 @@ class ViewController: UIViewController {
             print("User name = \(userName!)")
         }
         
-        if false { // PERSONAL VALUES MUST BE REMOVED BEFORE GOING PUBLIC! ALSO DO NOT COMMIT TO GIT!
+/*
+        { // PERSONAL VALUES MUST BE REMOVED BEFORE GOING PUBLIC! ALSO DO NOT COMMIT TO GIT!
             let defaultUserName = "your@email.address"
             let defaultPassword = "secret password"
 
@@ -54,21 +55,31 @@ class ViewController: UIViewController {
             
             userDefaults.synchronize()
         }
+ */
         
         // load settings
-        
-        sc.userName = userDefaults.string(forKey: "userName_preference")
-        sc.password = userDefaults.string(forKey: "password_preference")
-
-        sc.login(){(result:Bool)->() in
-            if result {
-                self.refreshButton.isEnabled=true
-                //self.displayError(errorMessage:"Login to Z.E. services successful")
-            } else {
-                self.displayError(errorMessage:"Failed to login to Z.E. services.")
-                self.refreshButton.isEnabled=true
+        if (sc.tokenExpiry == nil){
+            sc.userName = userDefaults.string(forKey: "userName_preference")
+            sc.password = userDefaults.string(forKey: "password_preference")
+            
+            self.refreshButton.isHidden=true
+            activityIndicator.startAnimating()
+            
+            sc.login(){(result:Bool)->() in
+                self.activityIndicator.stopAnimating()
+                if result {
+                    self.refreshButton.isEnabled=true
+                    self.refreshButton.isHidden=false
+                    //self.displayError(errorMessage:"Login to Z.E. services successful")
+                } else {
+                    self.displayError(errorMessage:"Failed to login to Z.E. services.")
+                    self.refreshButton.isEnabled=true
+                    self.refreshButton.isHidden=false
+                }
             }
+            self.refreshButtonPressed(self.refreshButton)
         }
+       
     }
 
     @IBOutlet var level: UILabel!
@@ -80,6 +91,7 @@ class ViewController: UIViewController {
     @IBOutlet var plugged: UILabel!
     
     @IBOutlet var refreshButton: UIButton!
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
     
 
     fileprivate func displayError(errorMessage: String) {
@@ -96,15 +108,20 @@ class ViewController: UIViewController {
     }
     
     @IBAction func refreshButtonPressed(_ sender: Any) {
-        refreshButton.isEnabled=false;
-        
+        refreshButton.isEnabled=false
+        refreshButton.isHidden=true
+        activityIndicator.startAnimating()
+
         if (sc.tokenExpiry == nil){ // never logged in successfully
             sc.login(){(result:Bool)->() in
                 if (result){
                     self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
                 } else {
                     self.displayError(errorMessage:"Failed to login to Z.E. services.")
-                    self.refreshButton.isEnabled=true;
+                    self.refreshButton.isEnabled=true
+                    self.refreshButton.isHidden=false
+                    self.activityIndicator.stopAnimating()
+
                 }
             }
         } else {
@@ -134,7 +151,7 @@ class ViewController: UIViewController {
         
         if (error){
             displayError(errorMessage: "Could not obtain battery state.")
-            self.refreshButton.isEnabled=true;
+         
         } else {
             self.level.text = String(format: "🔋%3d%%", charge_level)
             self.range.text = String(format: "🛣️ %3.1f km", remaining_range) // 📏
@@ -144,20 +161,36 @@ class ViewController: UIViewController {
             
             self.update.text = self.timestampToDateString(timestamp: last_update)
             if plugged {
-                self.charger.text = "⛽️ " + charging_point!
+                
+                switch (charging_point!) {
+                case "INVALID":
+                    self.charger.text = "⛽️ " + "❌"
+                    break;
+                case "SLOW":
+                    self.charger.text = "⛽️ " + "🐌"
+                    break;
+                case "ACCELERATED":
+                    self.charger.text = "⛽️ " + "🚀"
+                    break;
+                default:
+                    self.charger.text = "⛽️ " + charging_point!
+                    break;
+                }
             } else {
                 self.charger.text = "⛽️ …"
             }
             
             if charging {
-                self.remaining.text = String(format: "⏳ %d min", remaining_time!)
+                self.remaining.text = String(format: "⏳ %d minutes", remaining_time!)
             } else {
                 self.remaining.text = "⏳ …"
             }
             self.plugged.text = plugged ? "🔌 ✅" : "🔌 ❌"
             self.charging.text = charging ? "⚡️ ✅" : "⚡️ ❌"
-            self.refreshButton.isEnabled=true;
         }
+        self.refreshButton.isEnabled=true
+        self.refreshButton.isHidden=false
+        self.activityIndicator.stopAnimating()
     }
 
 
