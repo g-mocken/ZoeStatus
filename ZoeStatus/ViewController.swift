@@ -172,7 +172,7 @@ class ViewController: UIViewController {
          
         } else {
             self.level.text = String(format: "🔋%3d%%", charge_level)
-            self.range.text = String(format: "🛣️ %3.1f km", remaining_range) // 📏
+            self.range.text = String(format: "🛣️ %3.0f km", remaining_range) // 📏
             
             
             //            self.update.text = String(format: "%d", last_update)
