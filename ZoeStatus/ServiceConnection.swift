@@ -413,4 +413,59 @@ class ServiceConnection {
     }
     
 
+    
+    func precondition(callback:@escaping  (Bool) -> ()) {
+        
+        /*
+        DispatchQueue.main.async {
+            callback(false)
+        }
+        return
+        */
+        let preconditionURL = baseURL + "/vehicle/" + vehicleIdentification! + "/air-conditioning"
+        
+        let tString = ""
+        let uploadData = tString.data(using: String.Encoding.utf8)
+        
+        let url = URL(string: preconditionURL)!
+        var request = URLRequest(url: url)
+        
+        
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
+
+        let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
+            if let error = error {
+                print ("error: \(error)")
+                DispatchQueue.main.async {
+                    callback(true)
+                }
+                return
+            }
+            guard let response = response as? HTTPURLResponse,
+                (200...299).contains(response.statusCode) else {
+                    print ("server error")
+                    DispatchQueue.main.async {
+                        callback(true)
+                    }
+                    return
+            }
+            if let mimeType = response.mimeType,
+                mimeType == "application/json",
+                let data = data,
+                let dataString = String(data: data, encoding: .utf8) {
+                print ("got data: \(dataString)")
+                DispatchQueue.main.async {
+                    callback(false)
+                }
+            
+            }
+        }
+        task.resume()
+    }
+    
+    
+    
 }

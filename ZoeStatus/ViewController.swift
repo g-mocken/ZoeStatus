@@ -10,7 +10,8 @@ import UIKit
 
 class ViewController: UIViewController {
     var percent:UInt8 = 0
-    
+    var preconditionTimerCountdown = 0
+
     let baseURL =  "https://www.services.renault-ze.com/api"
 
     var sc=ServiceConnection()
@@ -66,7 +67,8 @@ class ViewController: UIViewController {
                 self.activityIndicator.stopAnimating()
                 self.refreshButton.isEnabled=true
                 self.refreshButton.isHidden=false
-
+                self.preconditionButton.isEnabled = true
+                
                 if result {
                     self.refreshButtonPressed(self.refreshButton) // auto-refresh after successful login
                     //self.displayError(errorMessage:"Login to Z.E. services successful")
@@ -111,7 +113,9 @@ class ViewController: UIViewController {
     @IBOutlet var refreshButton: UIButton!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
     
-
+    @IBOutlet var preconditionButton: UIButton!
+    @IBOutlet var preconditionTime: UILabel!
+    
     fileprivate func displayError(errorMessage: String) {
         let defaultAction = UIAlertAction(title: "Dismiss",
                                           style: .default) { (action) in
@@ -211,7 +215,34 @@ class ViewController: UIViewController {
         self.activityIndicator.stopAnimating()
     }
 
+    func preconditionState(error: Bool)->(){
+        print("Precondition returns \(error)")
+        if (!error){
+            preconditionTimerCountdown = 5*60
+            _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+                print("Timer=\(self.preconditionTimerCountdown)")
+                self.preconditionTimerCountdown-=1
+                self.preconditionTime.text = "\(self.preconditionTimerCountdown)"
+                if (self.preconditionTimerCountdown==0){
+                    timer.invalidate()
+                    self.preconditionTime.isHidden=true
+                    self.preconditionButton.isHidden=false
+                    self.preconditionButton.isEnabled=true
+                }
+            }
+            preconditionTime.text = "\(preconditionTimerCountdown)"
+            preconditionTime.isHidden=false
+            preconditionButton.isHidden=true
+            preconditionButton.isEnabled=false
 
+        }
+    }
+    @IBAction func preconditionButtonPressed(_ sender: Any) {
+        print("Precondition")
+        // TODO: check for and handle expired token etc.
+        sc.precondition(callback: preconditionState)
+    }
+    
 
 }
 
