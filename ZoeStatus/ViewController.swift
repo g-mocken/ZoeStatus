@@ -115,6 +115,8 @@ class ViewController: UIViewController {
     
     @IBOutlet var preconditionButton: UIButton!
     @IBOutlet var preconditionTime: UILabel!
+    @IBOutlet var preconditionLast: UILabel!
+    @IBOutlet var preconditionResult: UILabel!
     
     fileprivate func displayError(errorMessage: String) {
         let defaultAction = UIAlertAction(title: "Dismiss",
@@ -138,6 +140,8 @@ class ViewController: UIViewController {
             sc.login(){(result:Bool)->() in
                 if (result){
                     self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                    self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
+                    
                 } else {
                     self.displayError(errorMessage:"Failed to login to Z.E. services.")
                     self.refreshButton.isEnabled=true
@@ -153,6 +157,8 @@ class ViewController: UIViewController {
                     if result {
                         print("renewed expired token!")
                         self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                        self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
+
                     } else {
                         self.displayError(errorMessage:"Failed to renew expired token.")
                         print("expired token NOT renewed!")
@@ -161,7 +167,8 @@ class ViewController: UIViewController {
             } else {
                 print("token still valid!")
                 self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
-                
+                self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
+
             }
         }
     }
@@ -173,7 +180,7 @@ class ViewController: UIViewController {
         
         if (error){
             displayError(errorMessage: "Could not obtain battery state.")
-         
+            
         } else {
             self.level.text = String(format: "🔋%3d%%", charge_level)
             self.range.text = String(format: "🛣️ %3.0f km", remaining_range) // 📏
@@ -182,7 +189,7 @@ class ViewController: UIViewController {
             //            self.update.text = String(format: "%d", last_update)
             
             self.update.text = self.timestampToDateString(timestamp: last_update)
-            if plugged {
+            if plugged, charging_point != nil {
                 
                 switch (charging_point!) {
                 case "INVALID":
@@ -202,7 +209,7 @@ class ViewController: UIViewController {
                 self.charger.text = "⛽️ …"
             }
             
-            if charging {
+            if charging, remaining_time != nil {
                 self.remaining.text = String(format: "⏳ %d minutes", remaining_time!)
             } else {
                 self.remaining.text = "⏳ …"
@@ -215,10 +222,35 @@ class ViewController: UIViewController {
         self.activityIndicator.stopAnimating()
     }
 
+    
+    func acLastState(error: Bool, date:UInt64, type:String?, result:String?)->(){
+        
+        if (error){
+            displayError(errorMessage: "Could not obtain A/C last state.")
+            
+        } else {
+            if date != 0 , result != nil {
+                self.preconditionLast.text = self.timestampToDateString(timestamp: date)
+                switch (result!) {
+                case "ERROR":
+                    self.preconditionResult.text = "❄️🔥 ❌"
+                    break
+                case "SUCCESS":
+                    self.preconditionResult.text = "❄️🔥 ✅"
+                    break
+                default:
+                    self.preconditionResult.text = "…"
+                }
+            } else {
+                self.preconditionResult.text = "…"
+            }
+        }
+    }
+        
     func preconditionState(error: Bool)->(){
         print("Precondition returns \(error)")
         if (!error){
-            preconditionTimerCountdown = 5*60
+            preconditionTimerCountdown = 10 //5*60
             _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
                 print("Timer=\(self.preconditionTimerCountdown)")
                 self.preconditionTimerCountdown-=1
@@ -234,13 +266,43 @@ class ViewController: UIViewController {
             preconditionTime.isHidden=false
             preconditionButton.isHidden=true
             preconditionButton.isEnabled=false
-
+            
         }
     }
+    
     @IBAction func preconditionButtonPressed(_ sender: Any) {
         print("Precondition")
-        // TODO: check for and handle expired token etc.
-        sc.precondition(callback: preconditionState)
+        
+        if (sc.tokenExpiry == nil){ // never logged in successfully
+            sc.login(){(result:Bool)->() in
+                if (result){
+                    self.sc.precondition(callback: self.preconditionState)
+                } else {
+                    self.displayError(errorMessage:"Failed to login to Z.E. services.")
+                }
+            }
+        } else {
+            if sc.isTokenExpired() {
+                //print("Token expired or will expire too soon (or expiry date is nil), must renew")
+                sc.renewToken(){(result:Bool)->() in
+                    if result {
+                        print("renewed expired token!")
+                        self.sc.precondition(callback: self.preconditionState)
+
+                    } else {
+                        self.displayError(errorMessage:"Failed to renew expired token.")
+                        print("expired token NOT renewed!")
+                    }
+                }
+            } else {
+                print("token still valid!")
+                sc.precondition(callback: preconditionState)
+            }
+        }
+        
+        
+        
+        
     }
     
 

@@ -73,15 +73,27 @@
                                 <color key="color" cocoaTouchSystemColor="darkTextColor"/>
                             </activityIndicatorView>
                             <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zkf-p5-tWr">
-                                <rect key="frame" x="172.5" y="449" width="30" height="48"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                <rect key="frame" x="167.5" y="437" width="40" height="60"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="40"/>
                                 <state key="normal" title="♨︎"/>
                                 <connections>
                                     <action selector="preconditionButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="wvL-ea-De0"/>
                                 </connections>
                             </button>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="…" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="byL-uD-5mU">
-                                <rect key="frame" x="177" y="455" width="21" height="36"/>
+                                <rect key="frame" x="177" y="452.5" width="21" height="36"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="📅 …⏰ …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kyp-fD-Rii" userLabel="AClast">
+                                <rect key="frame" x="126" y="499" width="123" height="36"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="…" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yBo-fs-MF9" userLabel="Precondition Result">
+                                <rect key="frame" x="177" y="533" width="21" height="36"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="30"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -89,7 +101,9 @@
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="yBo-fs-MF9" firstAttribute="top" secondItem="kyp-fD-Rii" secondAttribute="bottom" constant="-2" id="5qh-5v-hVa"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="w8h-1m-ygi" secondAttribute="bottom" constant="40" id="6ft-xV-zgM"/>
+                            <constraint firstItem="kyp-fD-Rii" firstAttribute="top" secondItem="zkf-p5-tWr" secondAttribute="bottom" constant="2" id="8bJ-rg-Vjl"/>
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="9Ug-51-niE"/>
                             <constraint firstItem="zkf-p5-tWr" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="BLx-7q-cAC"/>
                             <constraint firstItem="icM-2f-gRD" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="CIf-lG-Cfg"/>
@@ -109,8 +123,10 @@
                             <constraint firstItem="19f-Aq-YyL" firstAttribute="firstBaseline" secondItem="rbz-gd-6J5" secondAttribute="baseline" constant="44" symbolType="layoutAnchor" id="kVc-mx-HD8"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="AhF-MA-RmR" secondAttribute="trailing" constant="16" id="liF-eJ-5AO"/>
                             <constraint firstItem="LNW-0z-EOz" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="mqs-Ai-MG7"/>
+                            <constraint firstItem="kyp-fD-Rii" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="nZf-az-nER"/>
                             <constraint firstItem="byL-uD-5mU" firstAttribute="firstBaseline" secondItem="zkf-p5-tWr" secondAttribute="firstBaseline" id="sk5-jT-QP2"/>
                             <constraint firstItem="w8h-1m-ygi" firstAttribute="top" secondItem="zkf-p5-tWr" secondAttribute="bottom" constant="93" id="v5g-3K-mWD"/>
+                            <constraint firstItem="yBo-fs-MF9" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="xA8-7t-gB5"/>
                             <constraint firstItem="rbz-gd-6J5" firstAttribute="firstBaseline" secondItem="AhF-MA-RmR" secondAttribute="baseline" constant="80" id="z2J-G8-inz"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="rbz-gd-6J5" secondAttribute="trailing" constant="16" id="zNX-bC-VG8"/>
                         </constraints>
@@ -123,6 +139,8 @@
                         <outlet property="level" destination="AhF-MA-RmR" id="jl6-zj-7ei"/>
                         <outlet property="plugged" destination="icM-2f-gRD" id="L7u-vJ-Ts5"/>
                         <outlet property="preconditionButton" destination="zkf-p5-tWr" id="Mwv-35-ejh"/>
+                        <outlet property="preconditionLast" destination="kyp-fD-Rii" id="ngk-i4-4Xf"/>
+                        <outlet property="preconditionResult" destination="yBo-fs-MF9" id="LPk-EQ-pgb"/>
                         <outlet property="preconditionTime" destination="byL-uD-5mU" id="wKo-pA-PMJ"/>
                         <outlet property="range" destination="rbz-gd-6J5" id="yKj-c2-0Rm"/>
                         <outlet property="refreshButton" destination="emx-tM-G9P" id="8qj-DN-Qa6"/>

@@ -133,7 +133,7 @@ class ServiceConnection {
                 mimeType == "application/json",
                 let data = data,
                 let dataString = String(data: data, encoding: .utf8) {
-                print ("got data: \(dataString)")
+                print ("got login data: \(dataString)")
                 
                 struct loginResult: Codable {
                     var token: String
@@ -240,7 +240,7 @@ class ServiceConnection {
                 mimeType == "application/json",
                 let data = data,
                 let dataString = String(data: data, encoding: .utf8) {
-                print ("got data: \(dataString)")
+                print ("got renew token data: \(dataString)")
                 
                 
                 struct refreshResult: Codable {
@@ -314,9 +314,7 @@ class ServiceConnection {
                 mimeType == "application/json",
                 let data = data,
                 let dataString = String(data: data, encoding: .utf8) {
-                print ("got data: \(dataString)")
-                
-                
+                print ("got battery state data: \(dataString)")
                 
                 struct batteryStatusAlways: Codable{
                     var charging: Bool
@@ -444,11 +442,111 @@ class ServiceConnection {
                 }
                 return
             }
+            guard let response2 = response as? HTTPURLResponse,
+                (200...299).contains(response2.statusCode) else {
+                    print ("server error")
+                    print ((response as! HTTPURLResponse).description)
+                    DispatchQueue.main.async {
+                        callback(true)
+                    }
+                    return
+                    
+                    
+                    /*
+                     If called too often:
+                     
+                     server error
+                     <NSHTTPURLResponse: 0x2827f9a20> { URL: https://www.services.renault-ze.com/api/vehicle/xxx/air-conditioning } { Status Code: 503, Headers {
+                     "Access-Control-Allow-Credentials" =     (
+                     true
+                     );
+                     "Access-Control-Allow-Headers" =     (
+                     "x-requested-with, content-type, accept, authorization, x-xsrf-token, if-modified-since"
+                     );
+                     "Access-Control-Allow-Methods" =     (
+                     "POST, PUT, GET, OPTIONS, DELETE"
+                     );
+                     "Access-Control-Allow-Origin" =     (
+                     "https://services.renault-ze.com"
+                     );
+                     "Access-Control-Max-Age" =     (
+                     3600
+                     );
+                     Connection =     (
+                     close
+                     );
+                     "Content-Encoding" =     (
+                     gzip
+                     );
+                     "Content-Type" =     (
+                     "application/json;charset=UTF-8"
+                     );
+                     Date =     (
+                     "Tue, 25 Dec 2018 14:02:02 GMT"
+                     );
+                     Server =     (
+                     Apache
+                     );
+                     "Transfer-Encoding" =     (
+                     Identity
+                     );
+                     Vary =     (
+                     "Accept-Encoding"
+                     );
+                     "X-Application-Context" =     (
+                     "application:prod"
+                     );
+                     "X-Frame-Options" =     (
+                     SAMEORIGIN
+                     );
+                     } }
+
+                     
+                     */
+            }
+            // there is no reply to analyze, so just proceed with the callback
+            DispatchQueue.main.async {
+                callback(false)
+            }
+        }
+        task.resume()
+    }
+    
+    
+    
+    
+    
+    func airConditioningLastState(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
+        let acLastURL = baseURL + "/vehicle/" + vehicleIdentification! + "/air-conditioning/last"
+        
+        let tString = ""
+        let uploadData = tString.data(using: String.Encoding.utf8)
+        
+        let url = URL(string: acLastURL)!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
+        
+        let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
+            if let error = error {
+                print ("error: \(error)")
+                DispatchQueue.main.async {
+                    callback(true,
+                             0,
+                             nil,
+                             nil)
+                }
+                return
+            }
             guard let response = response as? HTTPURLResponse,
                 (200...299).contains(response.statusCode) else {
                     print ("server error")
                     DispatchQueue.main.async {
-                        callback(true)
+                        callback(true,
+                                 0,
+                                 nil,
+                                 nil)
                     }
                     return
             }
@@ -456,16 +554,35 @@ class ServiceConnection {
                 mimeType == "application/json",
                 let data = data,
                 let dataString = String(data: data, encoding: .utf8) {
-                print ("got data: \(dataString)")
-                DispatchQueue.main.async {
-                    callback(false)
+                print ("got ac last  data: \(dataString)")
+                
+                struct acLastStatus: Codable{
+                    var date: UInt64 //TimeInterval
+                    var type: String
+                    var result: String
                 }
-            
+                
+                /*
+                 
+                 {"date":1545747446000,"type":"USER_REQUEST","result":"ERROR"}
+                 
+                 The last_update is a Unix timestamp in ms
+                 
+                 */
+                
+                let decoder = JSONDecoder()
+                if let result = try? decoder.decode(acLastStatus.self, from: data){
+                    DispatchQueue.main.async {
+                        callback(false,
+                                 result.date,
+                                 result.type,
+                                 result.result)
+                        
+                    }
+                }
             }
         }
         task.resume()
     }
-    
-    
     
 }
