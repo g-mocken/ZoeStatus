@@ -10,7 +10,6 @@ import UIKit
 
 class ViewController: UIViewController {
     var percent:UInt8 = 0
-    var preconditionTimerCountdown = 0
 
     let baseURL =  "https://www.services.renault-ze.com/api"
 
@@ -252,13 +251,15 @@ class ViewController: UIViewController {
         if (!error){
             
             // success, start 5min timer
-            preconditionTimerCountdown = 5*60
+            let preconditionTimerCountdown:Int = 11*60 // measured: 10min51s + some reaction time to start
+            let timerStartDate = Date.init() // current date & time
+            
             _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
                 // timer periodic action:
-                print("Timer=\(self.preconditionTimerCountdown)")
-                self.preconditionTimerCountdown-=1
-                self.preconditionTime.text = "\(self.preconditionTimerCountdown)s"
-                if (self.preconditionTimerCountdown==0){
+                let seconds = Int(round(Date.init().timeIntervalSince(timerStartDate)))
+                print("passed seconds = \(seconds)")
+                self.preconditionTime.text = "⏲ \(preconditionTimerCountdown - seconds)s"
+                if ( seconds >= preconditionTimerCountdown ){
                     // timer expired after 5min countdown
                     timer.invalidate()
                     self.preconditionTime.isHidden=true
@@ -267,7 +268,7 @@ class ViewController: UIViewController {
                 }
             }
             // initial setup of timer display
-            preconditionTime.text = "\(preconditionTimerCountdown)s"
+            preconditionTime.text = "⏲ \(preconditionTimerCountdown)s"
             preconditionTime.isHidden=false
             preconditionButton.isHidden=true
             preconditionButton.isEnabled=false

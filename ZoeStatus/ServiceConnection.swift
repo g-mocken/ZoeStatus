@@ -414,12 +414,13 @@ class ServiceConnection {
     
     func precondition(callback:@escaping  (Bool) -> ()) {
         
-        /*
+#if false
         DispatchQueue.main.async {
             callback(false)
         }
         return
-        */
+#endif
+        
         let preconditionURL = baseURL + "/vehicle/" + vehicleIdentification! + "/air-conditioning"
         
         let tString = ""
