@@ -250,28 +250,39 @@ class ViewController: UIViewController {
     func preconditionState(error: Bool)->(){
         print("Precondition returns \(error)")
         if (!error){
-            preconditionTimerCountdown = 10 //5*60
+            
+            // success, start 5min timer
+            preconditionTimerCountdown = 5*60
             _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+                // timer periodic action:
                 print("Timer=\(self.preconditionTimerCountdown)")
                 self.preconditionTimerCountdown-=1
-                self.preconditionTime.text = "\(self.preconditionTimerCountdown)"
+                self.preconditionTime.text = "\(self.preconditionTimerCountdown)s"
                 if (self.preconditionTimerCountdown==0){
+                    // timer expired after 5min countdown
                     timer.invalidate()
                     self.preconditionTime.isHidden=true
                     self.preconditionButton.isHidden=false
                     self.preconditionButton.isEnabled=true
                 }
             }
-            preconditionTime.text = "\(preconditionTimerCountdown)"
+            // initial setup of timer display
+            preconditionTime.text = "\(preconditionTimerCountdown)s"
             preconditionTime.isHidden=false
             preconditionButton.isHidden=true
             preconditionButton.isEnabled=false
             
+        } else {
+            // on error,
+            preconditionTime.isHidden=true
+            preconditionButton.isEnabled=true
+            preconditionButton.isHidden=false
         }
     }
     
     @IBAction func preconditionButtonPressed(_ sender: Any) {
         print("Precondition")
+        preconditionButton.isEnabled=false;
         
         if (sc.tokenExpiry == nil){ // never logged in successfully
             sc.login(){(result:Bool)->() in
@@ -279,6 +290,7 @@ class ViewController: UIViewController {
                     self.sc.precondition(callback: self.preconditionState)
                 } else {
                     self.displayError(errorMessage:"Failed to login to Z.E. services.")
+                    self.preconditionButton.isEnabled=true
                 }
             }
         } else {
@@ -291,6 +303,7 @@ class ViewController: UIViewController {
 
                     } else {
                         self.displayError(errorMessage:"Failed to renew expired token.")
+                        self.preconditionButton.isEnabled=true
                         print("expired token NOT renewed!")
                     }
                 }
