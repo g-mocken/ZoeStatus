@@ -59,15 +59,10 @@ class ViewController: UIViewController {
             print ("Enter user credentials in settings app!")
             UIApplication.shared.open(URL(string : UIApplication.openSettingsURLString)!)
         } else {
-            self.refreshButton.isHidden=true
-            activityIndicator.startAnimating()
-            
+
+            updateActivity(type:.start)
             sc.login(){(result:Bool)->() in
-                self.activityIndicator.stopAnimating()
-                self.refreshButton.isEnabled=true
-                self.refreshButton.isHidden=false
-                self.preconditionButton.isEnabled = true
-                
+                self.updateActivity(type:.stop)
                 if result {
                     self.refreshButtonPressed(self.refreshButton) // auto-refresh after successful login
                     //self.displayError(errorMessage:"Login to Z.E. services successful")
@@ -111,7 +106,6 @@ class ViewController: UIViewController {
     
     @IBOutlet var refreshButton: UIButton!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
-    
     @IBOutlet var preconditionButton: UIButton!
     @IBOutlet var preconditionTime: UILabel!
     @IBOutlet var preconditionLast: UILabel!
@@ -129,43 +123,77 @@ class ViewController: UIViewController {
             // The alert was presented
         }
     }
-    
-    @IBAction func refreshButtonPressed(_ sender: Any) {
-        refreshButton.isEnabled=false
-        refreshButton.isHidden=true
-        activityIndicator.startAnimating()
+  
+    enum startStop {
+        case start, stop
+    }
+    func updateActivity(type:startStop){
+        var activityCount: Int = 0
 
+        switch type {
+        case .start:
+            refreshButton.isEnabled=false
+            refreshButton.isHidden=true
+            //preconditionButton.isEnabled = false
+            activityIndicator.startAnimating()
+            activityCount+=1
+            break
+        case .stop:
+            activityCount-=1
+            if activityCount<=0 {
+                activityIndicator.stopAnimating()
+                refreshButton.isEnabled=true
+                refreshButton.isHidden=false
+                //preconditionButton.isEnabled = true
+            }
+            break
+        }
+    }
+    func stopActivity(){
+    }
+    @IBAction func refreshButtonPressed(_ sender: Any) {
+       
         if (sc.tokenExpiry == nil){ // never logged in successfully
+        
+            updateActivity(type:.start)
             sc.login(){(result:Bool)->() in
                 if (result){
+                    self.updateActivity(type:.start)
                     self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+
+                    self.updateActivity(type:.start)
                     self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
                     
                 } else {
                     self.displayError(errorMessage:"Failed to login to Z.E. services.")
-                    self.refreshButton.isEnabled=true
-                    self.refreshButton.isHidden=false
-                    self.activityIndicator.stopAnimating()
-
                 }
+                self.updateActivity(type:.stop)
             }
         } else {
             if sc.isTokenExpired() {
                 //print("Token expired or will expire too soon (or expiry date is nil), must renew")
+                updateActivity(type:.start)
                 sc.renewToken(){(result:Bool)->() in
                     if result {
                         print("renewed expired token!")
+                        self.updateActivity(type:.start)
                         self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                        
+                        self.updateActivity(type:.start)
                         self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
 
                     } else {
                         self.displayError(errorMessage:"Failed to renew expired token.")
                         print("expired token NOT renewed!")
                     }
+                    self.updateActivity(type:.stop)
                 }
             } else {
                 print("token still valid!")
+            
+                updateActivity(type:.start)
                 self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                updateActivity(type:.start)
                 self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
 
             }
@@ -216,9 +244,8 @@ class ViewController: UIViewController {
             self.plugged.text = plugged ? "🔌 ✅" : "🔌 ❌"
             self.charging.text = charging ? "⚡️ ✅" : "⚡️ ❌"
         }
-        self.refreshButton.isEnabled=true
-        self.refreshButton.isHidden=false
-        self.activityIndicator.stopAnimating()
+
+        self.updateActivity(type:.stop)
     }
 
     
@@ -244,6 +271,7 @@ class ViewController: UIViewController {
                 self.preconditionResult.text = "…"
             }
         }
+        self.updateActivity(type:.stop)
     }
         
     func preconditionState(error: Bool)->(){
@@ -279,6 +307,7 @@ class ViewController: UIViewController {
             preconditionButton.isEnabled=true
             preconditionButton.isHidden=false
         }
+        self.updateActivity(type: .stop)
     }
     
     @IBAction func preconditionButtonPressed(_ sender: Any) {
@@ -286,13 +315,16 @@ class ViewController: UIViewController {
         preconditionButton.isEnabled=false;
         
         if (sc.tokenExpiry == nil){ // never logged in successfully
+            updateActivity(type: .start)
             sc.login(){(result:Bool)->() in
                 if (result){
+                    self.updateActivity(type: .start)
                     self.sc.precondition(callback: self.preconditionState)
                 } else {
                     self.displayError(errorMessage:"Failed to login to Z.E. services.")
                     self.preconditionButton.isEnabled=true
                 }
+                self.updateActivity(type: .stop)
             }
         } else {
             if sc.isTokenExpired() {
