@@ -237,7 +237,7 @@ class ViewController: UIViewController {
             }
             
             if charging, remaining_time != nil {
-                self.remaining.text = String(format: "⏳ %d minutes", remaining_time!)
+                self.remaining.text = String(format: "⏳ %d min.", remaining_time!)
             } else {
                 self.remaining.text = "⏳ …"
             }
