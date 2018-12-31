@@ -27,14 +27,14 @@ Use Xcode 10.1 or later to open and finally compile and install "ZoeStatus.xcode
 ## Usage:
 At the first launch it should take you to the settings app, where you need to enter your Z.E. service credentials. 
 
-<img src="./Screenshot_02.png" width="375">
+<img src="./Screenshot_02.png" border="1" width="250">
 
 
 They are only used to login into those services. Please check the source code files to verify that they are not transmitted anywhere else. This is why the source is published here. Another reason is that I doubt that I can successfully publish this app on the AppStore without providing the review team with credentials for testing (which, rather obviously, I cannot).
 
 The user interface is rather primitive and currently all icon based because doing so saves me from providing a dozen translations:
 
-<img src="./Screenshot_01.png" width="375">
+<img src="./Screenshot_03.png" border="1" width="250"> <img src="./Screenshot_01.png" border="1" width="250">
 
 The meaning of the symbols in order of appearance (left-to-right and top-down) is as follows:
 
