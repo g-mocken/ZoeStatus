@@ -52,11 +52,14 @@ The meaning of the symbols in order of appearance (left-to-right and top-down) o
 
 ## Data privacy:
 The login credentials are stored locally on the iOS device as unencrypted user defaults (this may change in the future), which means that they are part of your ordinary device backup. Consequently, data security depends on your selected backup scheme (iCloud, local-unencrypted, local-encrypted).
-The credentials are used to log into Renault's Z.E. services API (encrypted https connection), but not sent to any other server. The data retrieved from Renault (e.g. the vehicle ID) is only processed inside the app, and sent back to Renault's API server again, but to no other server. It is only stord in RAM while the app is running.
+The credentials are used to login to Renault's Z.E. services API (via encrypted https connection), but not sent to any other server. The data retrieved from Renault (e.g. the vehicle ID) is only processed inside the app, and sent back to Renault's API server again, but to no other server. It is only stord in RAM while the app is running.
 
 ## Disclaimer:
 
 Neither me nor this work is in any way linked to Renault.
-I may not be held responsible for any damage to your car or inconveniences that you may run into because of potentially incorrect display of the charge state by this app.
+
+I may not be held responsible for any damage to your car or any inconveniences that you may run into as a result of using this app.
+
+The app may stop working at any time (e.g. when there is a change of the Renault Z.E. API).
 
 **Use at your own risk!**
