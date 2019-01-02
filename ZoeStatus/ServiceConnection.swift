@@ -268,7 +268,7 @@ class ServiceConnection {
     }
 
     
-     func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+    func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
         let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/battery"
         
         let tString = ""
@@ -279,19 +279,19 @@ class ServiceConnection {
         request.httpMethod = "GET"
         request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
         request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
-
+        
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
                 print ("error: \(error)")
                 DispatchQueue.main.async {
-                callback(true,
-                         false,
-                         false,
-                         0,
-                         0.0,
-                         0,
-                         nil,
-                         nil)
+                    callback(true,
+                             false,
+                             false,
+                             0,
+                             0.0,
+                             0,
+                             nil,
+                             nil)
                 }
                 return
             }
@@ -365,6 +365,19 @@ class ServiceConnection {
                                                  resultPluggedAndCharging.charging_point,
                                                  resultPluggedAndCharging.remaining_time)
                                     }
+                                } else {
+                                    // error: resultPluggedAndCharging == nil
+                                    print ("unexpected server response (resultPluggedAndCharging == nil)")
+                                    DispatchQueue.main.async {
+                                        callback(true,
+                                                 false,
+                                                 false,
+                                                 0,
+                                                 0.0,
+                                                 0,
+                                                 nil,
+                                                 nil)
+                                    }
                                 }
                             } else { // not charging
                                 DispatchQueue.main.async {
@@ -377,6 +390,19 @@ class ServiceConnection {
                                              resultPlugged.charging_point,
                                              nil)
                                 }
+                            }
+                        } else {
+                            // error: resultPlugged == nil
+                            print ("unexpected server response (resultPlugged == nil)")
+                            DispatchQueue.main.async {
+                                callback(true,
+                                         false,
+                                         false,
+                                         0,
+                                         0.0,
+                                         0,
+                                         nil,
+                                         nil)
                             }
                         }
                     } else { // not plugged
@@ -392,6 +418,31 @@ class ServiceConnection {
                             
                         }
                     }
+                } else { // error: resultAlways == nil
+                    // e.g. {"charging":false,"plugged":false,"charge_level":0,"last_update":1546456962000}
+                    print ("unexpected server response (resultAlways == nil)")
+                    DispatchQueue.main.async {
+                        callback(true,
+                                 false,
+                                 false,
+                                 0,
+                                 0.0,
+                                 0,
+                                 nil,
+                                 nil)
+                    }
+                }
+            } else {
+                print ("unexpected server response")
+                DispatchQueue.main.async {
+                    callback(true,
+                             false,
+                             false,
+                             0,
+                             0.0,
+                             0,
+                             nil,
+                             nil)
                 }
             }
         }
@@ -555,7 +606,7 @@ class ServiceConnection {
                 mimeType == "application/json",
                 let data = data,
                 let dataString = String(data: data, encoding: .utf8) {
-                print ("got ac last  data: \(dataString)")
+                print ("got ac last data: \(dataString)")
                 
                 struct acLastStatus: Codable{
                     var date: UInt64 //TimeInterval
@@ -580,6 +631,22 @@ class ServiceConnection {
                                  result.result)
                         
                     }
+                } else {
+                    print ("unexpected server response (result for acLastStatus == nil)")
+                    DispatchQueue.main.async {
+                        callback(true,
+                                 0,
+                                 nil,
+                                 nil)
+                    }
+                }
+            } else {
+                print ("unexpected server response")
+                DispatchQueue.main.async {
+                    callback(true,
+                             0,
+                             nil,
+                             nil)
                 }
             }
         }

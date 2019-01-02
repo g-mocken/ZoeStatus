@@ -124,11 +124,14 @@ class ViewController: UIViewController {
         }
     }
   
+    
     enum startStop {
         case start, stop
     }
+    
+    var activityCount: Int = 0
+    
     func updateActivity(type:startStop){
-        var activityCount: Int = 0
 
         switch type {
         case .start:
@@ -141,6 +144,9 @@ class ViewController: UIViewController {
         case .stop:
             activityCount-=1
             if activityCount<=0 {
+                if activityCount<0 {
+                    activityCount = 0
+                }
                 activityIndicator.stopAnimating()
                 refreshButton.isEnabled=true
                 refreshButton.isHidden=false
@@ -148,6 +154,7 @@ class ViewController: UIViewController {
             }
             break
         }
+        print("Activity count = \(activityCount)")
     }
     func stopActivity(){
     }
@@ -329,9 +336,11 @@ class ViewController: UIViewController {
         } else {
             if sc.isTokenExpired() {
                 //print("Token expired or will expire too soon (or expiry date is nil), must renew")
+                updateActivity(type:.start)
                 sc.renewToken(){(result:Bool)->() in
                     if result {
                         print("renewed expired token!")
+                        self.updateActivity(type:.start)
                         self.sc.precondition(callback: self.preconditionState)
 
                     } else {
@@ -340,8 +349,10 @@ class ViewController: UIViewController {
                         print("expired token NOT renewed!")
                     }
                 }
+                updateActivity(type:.stop)
             } else {
                 print("token still valid!")
+                updateActivity(type: .start)
                 sc.precondition(callback: preconditionState)
             }
         }
