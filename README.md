@@ -34,9 +34,9 @@ They are only used to login into those services. Please check the source code fi
 
 The user interface is rather primitive and currently all icon based because doing so saves me from providing a dozen translations:
 
-<img src="./Screenshot_03.png" border="1" width="250"> <img src="./Screenshot_01.png" border="1" width="250">
+<img src="./Screenshot_03.png" border="1" width="250">  <img src="./Screenshot_04.png" border="1" width="250"> <img src="./Screenshot_01.png" border="1" width="250">
 
-The meaning of the symbols in order of appearance (left-to-right and top-down) is as follows:
+The meaning of the symbols in order of appearance (left-to-right and top-down) on the app's main screen is as follows:
 
 - battery state of charge in percent
 - estimated remaining range in km
@@ -47,11 +47,16 @@ The meaning of the symbols in order of appearance (left-to-right and top-down) i
 - plugged into charger (yes or no)
 - A/C preconditioning command successful (yes or no)
 - date and time of A/C preconditioning command
-- button for sending "A/C precondition now", will turn into a countdown if successful
-- Button for refreshing all of the above
+- button for sending "A/C precondition now", will turn into an 11min countdown if successful
+- button for refreshing all of the above
+
+## Data privacy:
+The login credentials are stored locally on the iOS device as unencrypted user defaults (this may change in the future), which means that they are part of your ordinary device backup. Consequently, data security depends on your selected backup scheme (iCloud, local-unencrypted, local-encrypted).
+The credentials are used to log into Renault's Z.E. services API (encrypted https connection), but not sent to any other server. The data retrieved from Renault (e.g. the vehicle ID) is only processed inside the app, and sent back to Renault's API server again, but to no other server. It is only stord in RAM while the app is running.
 
 ## Disclaimer:
 
 Neither me nor this work is in any way linked to Renault.
 I may not be held responsible for any damage to your car or inconveniences that you may run into because of potentially incorrect display of the charge state by this app.
+
 **Use at your own risk!**
