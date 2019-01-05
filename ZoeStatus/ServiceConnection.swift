@@ -552,7 +552,7 @@ class ServiceConnection {
                      SAMEORIGIN
                      );
                      } }
-
+                     
                      
                      */
             }
@@ -653,4 +653,82 @@ class ServiceConnection {
         task.resume()
     }
     
+    
+    
+    
+    func batteryStateUpdateRequest(callback:@escaping  (Bool) -> ()) {
+        let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/battery"
+        
+        let tString = ""
+        let uploadData = tString.data(using: String.Encoding.utf8)
+        
+        let url = URL(string: batteryURL)!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
+        
+        let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
+            if let error = error {
+                print ("error: \(error)")
+                DispatchQueue.main.async {
+                    callback(true)
+                }
+                return
+            }
+            guard let response2 = response as? HTTPURLResponse,
+                (200...299).contains(response2.statusCode) else {
+                    print ("server error")
+                    print ((response as! HTTPURLResponse).description)
+                    DispatchQueue.main.async {
+                        callback(true)
+                    }
+                    return
+            }
+            // there is no reply to analyze, so just proceed with the callback
+            DispatchQueue.main.async {
+                callback(false)
+            }
+        }
+        task.resume()
+    }
+    
+    
+    
+    func chargeNowRequest(callback:@escaping  (Bool) -> ()) {
+        let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/charge"
+        
+        let tString = ""
+        let uploadData = tString.data(using: String.Encoding.utf8)
+        
+        let url = URL(string: batteryURL)!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
+        
+        let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
+            if let error = error {
+                print ("error: \(error)")
+                DispatchQueue.main.async {
+                    callback(true)
+                }
+                return
+            }
+            guard let response2 = response as? HTTPURLResponse,
+                (200...299).contains(response2.statusCode) else {
+                    print ("server error")
+                    print ((response as! HTTPURLResponse).description)
+                    DispatchQueue.main.async {
+                        callback(true)
+                    }
+                    return
+            }
+            // there is no reply to analyze, so just proceed with the callback
+            DispatchQueue.main.async {
+                callback(false)
+            }
+        }
+        task.resume()
+    }
 }

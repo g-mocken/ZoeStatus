@@ -363,5 +363,47 @@ class ViewController: UIViewController {
     }
     
 
+    @IBAction func requestStateButtonPressed(_ sender: Any) {
+    
+        print("request state!")
+
+        updateActivity(type:.start)
+        self.sc.batteryStateUpdateRequest(callback: self.batteryStateUpdateRequest(error:))
+
+    }
+    
+    
+    func batteryStateUpdateRequest(error: Bool)->(){
+        
+        if (error){
+            displayError(errorMessage: "Could not request battery state.")
+            
+        } else {
+            displayError(errorMessage: "Requested battery state.")
+        }
+        
+        self.updateActivity(type:.stop)
+    }
+    @IBAction func chargeNowButtonPressed(_ sender: Any) {
+        
+        print("request to charge!")
+        
+        updateActivity(type:.start)
+        self.sc.chargeNowRequest(callback: self.chargeNowRequest(error:))
+
+        
+    }
+    
+    func chargeNowRequest(error: Bool)->(){
+        
+        if (error){
+            displayError(errorMessage: "Could not request to charge now.")
+            
+        } else {
+            displayError(errorMessage: "Requested to charge now.")
+        }
+        
+        self.updateActivity(type:.stop)
+    }
 }
 
