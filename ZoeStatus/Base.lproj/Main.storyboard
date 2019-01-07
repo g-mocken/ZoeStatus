@@ -93,19 +93,19 @@
                                 </connections>
                             </button>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="…" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="byL-uD-5mU">
-                                <rect key="frame" x="16" y="409.5" width="102" height="36"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                <rect key="frame" x="16" y="415" width="102" height="29"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hmd-KZ-5jN">
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hmd-KZ-5jN">
                                 <rect key="frame" x="183" y="417.5" width="97" height="30"/>
                                 <state key="normal" title="Request State"/>
                                 <connections>
                                     <action selector="requestStateButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="a7O-Pj-L4G"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cpG-sm-aV3">
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cpG-sm-aV3">
                                 <rect key="frame" x="183" y="390" width="85" height="30"/>
                                 <state key="normal" title="Charge Now"/>
                                 <connections>
@@ -121,6 +121,7 @@
                             <constraint firstItem="zkf-p5-tWr" firstAttribute="top" secondItem="kyp-fD-Rii" secondAttribute="bottom" constant="7.5" id="3ls-SR-bzs"/>
                             <constraint firstItem="kyp-fD-Rii" firstAttribute="firstBaseline" secondItem="yBo-fs-MF9" secondAttribute="baseline" constant="31.5" id="3oG-Yn-fLw"/>
                             <constraint firstItem="b4a-jL-5hN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="4vj-hp-OEA"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="cpG-sm-aV3" secondAttribute="trailing" constant="52" id="5dK-Ar-mWf"/>
                             <constraint firstItem="kyp-fD-Rii" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="5np-fS-WGP"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="w8h-1m-ygi" secondAttribute="bottom" constant="10" id="6ft-xV-zgM"/>
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="2" id="9Ug-51-niE"/>
@@ -151,6 +152,7 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="kyp-fD-Rii" secondAttribute="trailing" constant="16" id="hhb-X2-GN7"/>
                             <constraint firstItem="19f-Aq-YyL" firstAttribute="firstBaseline" secondItem="rbz-gd-6J5" secondAttribute="baseline" constant="48.5" id="kVc-mx-HD8"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="AhF-MA-RmR" secondAttribute="trailing" constant="14" id="liF-eJ-5AO"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="hmd-KZ-5jN" secondAttribute="trailing" constant="40" id="qkk-EA-yla"/>
                             <constraint firstItem="byL-uD-5mU" firstAttribute="firstBaseline" secondItem="zkf-p5-tWr" secondAttribute="firstBaseline" id="sk5-jT-QP2"/>
                             <constraint firstItem="byL-uD-5mU" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="wIc-al-vL4"/>
                             <constraint firstItem="rbz-gd-6J5" firstAttribute="firstBaseline" secondItem="AhF-MA-RmR" secondAttribute="baseline" constant="80" id="z2J-G8-inz"/>
@@ -160,6 +162,7 @@
                     </view>
                     <connections>
                         <outlet property="activityIndicator" destination="w8h-1m-ygi" id="Dza-a6-sun"/>
+                        <outlet property="chargeNowButton" destination="cpG-sm-aV3" id="VV2-a5-i5B"/>
                         <outlet property="charger" destination="LNW-0z-EOz" id="Tnh-ZJ-pPk"/>
                         <outlet property="charging" destination="awZ-qK-aid" id="wfa-kN-zdV"/>
                         <outlet property="level" destination="AhF-MA-RmR" id="jl6-zj-7ei"/>
@@ -171,6 +174,7 @@
                         <outlet property="range" destination="rbz-gd-6J5" id="yKj-c2-0Rm"/>
                         <outlet property="refreshButton" destination="emx-tM-G9P" id="8qj-DN-Qa6"/>
                         <outlet property="remaining" destination="b4a-jL-5hN" id="VNO-tA-OUC"/>
+                        <outlet property="requestStateButton" destination="hmd-KZ-5jN" id="l0H-kn-5Kf"/>
                         <outlet property="update" destination="19f-Aq-YyL" id="3u1-Jg-M6m"/>
                     </connections>
                 </viewController>

@@ -32,8 +32,7 @@ class ViewController: UIViewController {
     }
     
     fileprivate func performLogin() {
-        UserDefaults.standard.register(defaults: [String : Any]())
-        
+
         let userDefaults = UserDefaults.standard
         let userName = userDefaults.string(forKey: "userName_preference")
         if userName != nil {
@@ -74,7 +73,19 @@ class ViewController: UIViewController {
     }
     
     @objc func applicationDidBecomeActive(notification: Notification) {
-        print ("notification received!")
+        print ("applicationDidBecomeActive notification received!")
+        
+        let userDefaults = UserDefaults.standard
+        let experimentalFeatures = userDefaults.bool(forKey: "experimental_preference")
+        print("experimental features = \(experimentalFeatures)")
+        if (experimentalFeatures){
+            chargeNowButton.isHidden = false
+            requestStateButton.isHidden = false
+        } else {
+            chargeNowButton.isHidden = true
+            requestStateButton.isHidden = true
+        }
+
         // load settings
         if (sc.tokenExpiry == nil){
             performLogin()
@@ -285,15 +296,20 @@ class ViewController: UIViewController {
         print("Precondition returns \(error)")
         if (!error){
             
-            // success, start 5min timer
-            let preconditionTimerCountdown:Int = 11*60 // measured: 10min51s + some reaction time to start
+            // success, start countdown timer
+            let userDefaults = UserDefaults.standard
+            let preconditionTimerCountdown = userDefaults.integer(forKey: "countdown_preference")
+            print ("countdown in seconds = \(preconditionTimerCountdown)")
             let timerStartDate = Date.init() // current date & time
             
             _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
                 // timer periodic action:
                 let seconds = Int(round(Date.init().timeIntervalSince(timerStartDate)))
                 print("passed seconds = \(seconds)")
-                self.preconditionTime.text = "⏲ \(preconditionTimerCountdown - seconds)s"
+                
+                self.preconditionTime.text = String(format: "⏲ %.02d:%02d", (preconditionTimerCountdown - seconds)/60, (preconditionTimerCountdown - seconds)%60 )
+
+                
                 if ( seconds >= preconditionTimerCountdown ){
                     // timer expired after 5min countdown
                     timer.invalidate()
@@ -303,7 +319,7 @@ class ViewController: UIViewController {
                 }
             }
             // initial setup of timer display
-            preconditionTime.text = "⏲ \(preconditionTimerCountdown)s"
+            preconditionTime.text = String(format: "⏲ %.02d:%02d", preconditionTimerCountdown/60, preconditionTimerCountdown%60 )
             preconditionTime.isHidden=false
             preconditionButton.isHidden=true
             preconditionButton.isEnabled=false
@@ -363,6 +379,7 @@ class ViewController: UIViewController {
     }
     
 
+    @IBOutlet var requestStateButton: UIButton!
     @IBAction func requestStateButtonPressed(_ sender: Any) {
     
         print("request state!")
@@ -384,6 +401,8 @@ class ViewController: UIViewController {
         
         self.updateActivity(type:.stop)
     }
+    
+    @IBOutlet var chargeNowButton: UIButton!
     @IBAction func chargeNowButtonPressed(_ sender: Any) {
         
         print("request to charge!")

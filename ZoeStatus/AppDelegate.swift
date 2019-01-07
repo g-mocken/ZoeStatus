@@ -17,7 +17,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         print("didFinishLaunchingWithOptions")
-
+        
+        if let path = Bundle.main.path(forResource: "defaultValues", ofType: "plist") {
+            let dictionary = NSDictionary(contentsOfFile: path) as! [String : Any]
+            UserDefaults.standard.register(defaults: dictionary )
+            print ("successfully read default values: \(dictionary)")
+        } else {
+            UserDefaults.standard.register(defaults: [String : Any]())
+            print ("cannot read default values!")
+        }
+        
         return true
     }
 

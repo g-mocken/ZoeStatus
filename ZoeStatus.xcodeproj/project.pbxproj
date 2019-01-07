@@ -14,6 +14,7 @@
 		9A512FAF21B2DDCD007EFAAB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FAD21B2DDCD007EFAAB /* LaunchScreen.storyboard */; };
 		9A512FB721B3F74C007EFAAB /* ServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */; };
 		9A512FB921B3FE71007EFAAB /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FB821B3FE71007EFAAB /* Settings.bundle */; };
+		9A9C859421E40A640022EC47 /* defaultValues.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9A9C859321E409DB0022EC47 /* defaultValues.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		9A512FB021B2DDCD007EFAAB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceConnection.swift; sourceTree = "<group>"; };
 		9A512FB821B3FE71007EFAAB /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		9A9C859321E409DB0022EC47 /* defaultValues.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = defaultValues.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 		9A512FA321B2DDCB007EFAAB /* ZoeStatus */ = {
 			isa = PBXGroup;
 			children = (
+				9A9C859321E409DB0022EC47 /* defaultValues.plist */,
 				9A512FB821B3FE71007EFAAB /* Settings.bundle */,
 				9A512FA421B2DDCB007EFAAB /* AppDelegate.swift */,
 				9A512FA621B2DDCB007EFAAB /* ViewController.swift */,
@@ -128,6 +131,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A9C859421E40A640022EC47 /* defaultValues.plist in Resources */,
 				9A512FB921B3FE71007EFAAB /* Settings.bundle in Resources */,
 				9A512FAF21B2DDCD007EFAAB /* LaunchScreen.storyboard in Resources */,
 				9A512FAC21B2DDCD007EFAAB /* Assets.xcassets in Resources */,
