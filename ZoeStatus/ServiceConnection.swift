@@ -32,15 +32,17 @@ class ServiceConnection {
     var userName:String?
     var password:String?
     var vehicleIdentification:String?
-    var token:String?
+    var token:String? // valid for a certain time, then needs to be renewed. Can be decoded.
     var tokenExpiry:UInt64?
-    var xsrfToken:String?
+    var xsrfToken:String? // can be re-used indefinitely, cannot be decoded (?)
+    // An additional "refreshToken" is received and sent back a Cookie whenever a "token" is received/sent - apparently this is handled transparently by the framework without any explicit code.
     
     let baseURL = "https://www.services.renault-ze.com/api"
     
     
-    fileprivate func extractExpiryDate() { // token is usually valid for 10h after it was issued
-        if let token = self.token{
+    fileprivate func extractExpiryDate(ofToken:String?)->UInt64? { // token is usually valid for 15min after it was issued
+        print ("Analysing token:")
+        if let token = ofToken{
             let indexFirstPeriod = token.firstIndex(of: ".") ?? token.startIndex
             let header = String(token[..<indexFirstPeriod]).fromBase64()
             print("Header: \(header!)")
@@ -62,7 +64,6 @@ class ServiceConnection {
                 if let payloadData = payload.data(using: .utf8){
                     let result = try? decoder.decode(payloadResult.self, from: payloadData)
                     if let result = result {
-                        self.tokenExpiry = result.exp
                         
                         print("Expires \(result.exp)")
                         let date = Date()
@@ -70,7 +71,7 @@ class ServiceConnection {
                         print("Current \(interval)")
                         
                         
-                        // human readable time and date:
+                        // only for debugging also print human readable time and date:
                         if let unixTime = Double(exactly:result.exp) {
                             let date = Date(timeIntervalSince1970: unixTime)
                             let dateFormatter = DateFormatter()
@@ -81,10 +82,12 @@ class ServiceConnection {
                             let strDate = dateFormatter.string(from: date)
                             print("Expires: \(strDate)")
                         }
+                        return result.exp
                     }
                 }
             }
         }
+        return nil
     }
     
     func login (callback:@escaping(Bool)->Void) {
@@ -184,7 +187,7 @@ class ServiceConnection {
                     self.activationCode = result.user.vehicle_details.activation_code
                     self.xsrfToken = result.xsrfToken
                     self.token = result.token
-                    self.extractExpiryDate()
+                    self.tokenExpiry = self.extractExpiryDate(ofToken: self.token)
                     
                     DispatchQueue.main.async {
                         callback(true)
@@ -252,7 +255,7 @@ class ServiceConnection {
                     let result = try decoder.decode(refreshResult.self, from: data)
                     
                     self.token = result.token
-                    self.extractExpiryDate()
+                    self.tokenExpiry = self.extractExpiryDate(ofToken: self.token)
 
                     DispatchQueue.main.async {
                         callback(true)
