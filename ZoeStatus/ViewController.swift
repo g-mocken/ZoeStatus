@@ -66,7 +66,7 @@ class ViewController: UIViewController {
                     self.refreshButtonPressed(self.refreshButton) // auto-refresh after successful login
                     //self.displayError(errorMessage:"Login to Z.E. services successful")
                 } else {
-                    self.displayError(errorMessage:"Failed to login to Z.E. services.")
+                    self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
                 }
             }
         }
@@ -122,12 +122,12 @@ class ViewController: UIViewController {
     @IBOutlet var preconditionLast: UILabel!
     @IBOutlet var preconditionResult: UILabel!
     
-    fileprivate func displayError(errorMessage: String) {
+    fileprivate func displayMessage(title: String, body: String) {
         let defaultAction = UIAlertAction(title: "Dismiss",
                                           style: .default) { (action) in
                                             // Respond to user selection of the action.
         }
-        let alert = UIAlertController(title: "Error", message: errorMessage, preferredStyle: .alert)
+        let alert = UIAlertController(title: title, message: body, preferredStyle: .alert)
         alert.addAction(defaultAction)
         
         self.present(alert, animated: true) {
@@ -183,7 +183,7 @@ class ViewController: UIViewController {
                     self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
                     
                 } else {
-                    self.displayError(errorMessage:"Failed to login to Z.E. services.")
+                    self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
                 }
                 self.updateActivity(type:.stop)
             }
@@ -201,7 +201,7 @@ class ViewController: UIViewController {
                         self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
 
                     } else {
-                        self.displayError(errorMessage:"Failed to renew expired token.")
+                        self.displayMessage(title: "Error", body:"Failed to renew expired token.")
                         print("expired token NOT renewed!")
                     }
                     self.updateActivity(type:.stop)
@@ -224,7 +224,7 @@ class ViewController: UIViewController {
     func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->(){
         
         if (error){
-            displayError(errorMessage: "Could not obtain battery state.")
+            displayMessage(title: "Error", body: "Could not obtain battery state.")
             
         } else {
             self.level.text = String(format: "🔋%3d%%", charge_level)
@@ -270,7 +270,7 @@ class ViewController: UIViewController {
     func acLastState(error: Bool, date:UInt64, type:String?, result:String?)->(){
         
         if (error){
-            displayError(errorMessage: "Could not obtain A/C last state.")
+            displayMessage(title: "Error", body: "Could not obtain A/C last state.")
             
         } else {
             if date != 0 , result != nil {
@@ -344,7 +344,7 @@ class ViewController: UIViewController {
                     self.updateActivity(type: .start)
                     self.sc.precondition(callback: self.preconditionState)
                 } else {
-                    self.displayError(errorMessage:"Failed to login to Z.E. services.")
+                    self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
                     self.preconditionButton.isEnabled=true
                 }
                 self.updateActivity(type: .stop)
@@ -360,7 +360,7 @@ class ViewController: UIViewController {
                         self.sc.precondition(callback: self.preconditionState)
 
                     } else {
-                        self.displayError(errorMessage:"Failed to renew expired token.")
+                        self.displayMessage(title: "Error", body:"Failed to renew expired token.")
                         self.preconditionButton.isEnabled=true
                         print("expired token NOT renewed!")
                     }
@@ -393,10 +393,10 @@ class ViewController: UIViewController {
     func batteryStateUpdateRequest(error: Bool)->(){
         
         if (error){
-            displayError(errorMessage: "Could not request battery state.")
+            displayMessage(title: "Error", body: "Could not request battery state.")
             
         } else {
-            displayError(errorMessage: "Requested battery state.")
+            displayMessage(title: "Success", body: "Requested battery state.")
         }
         
         self.updateActivity(type:.stop)
@@ -416,10 +416,10 @@ class ViewController: UIViewController {
     func chargeNowRequest(error: Bool)->(){
         
         if (error){
-            displayError(errorMessage: "Could not request to charge now.")
+            displayMessage(title: "Error", body: "Could not request to charge now.")
             
         } else {
-            displayError(errorMessage: "Requested to charge now.")
+            displayMessage(title: "Success", body: "Requested to charge now.")
         }
         
         self.updateActivity(type:.stop)
