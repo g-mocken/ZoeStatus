@@ -277,10 +277,10 @@ class ViewController: UIViewController {
                 self.preconditionLast.text = self.timestampToDateString(timestamp: date)
                 switch (result!) {
                 case "ERROR":
-                    self.preconditionResult.text = "❄️🔥 ❌"
+                    self.preconditionResult.text = "🌡 ❌"
                     break
                 case "SUCCESS":
-                    self.preconditionResult.text = "❄️🔥 ✅"
+                    self.preconditionResult.text = "🌡 ✅"
                     break
                 default:
                     self.preconditionResult.text = "…"
