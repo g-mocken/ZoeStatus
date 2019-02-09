@@ -135,6 +135,25 @@ class ViewController: UIViewController {
         }
     }
   
+    fileprivate func confirmButtonPress(title: String, body: String, cancelButton: String, cancelCallback:@escaping () -> Void, confirmButton: String, confirmCallback:@escaping () -> Void) {
+        let cancelAction = UIAlertAction(title: cancelButton,
+                                          style: .cancel) { (action) in
+                                            cancelCallback()
+        }
+        let confirmAction = UIAlertAction(title: confirmButton,
+                                         style: .default) { (action) in
+                                            confirmCallback()
+        }
+        
+        let alert = UIAlertController(title: title, message: body, preferredStyle: .alert)
+        alert.addAction(cancelAction)
+        alert.addAction(confirmAction)
+
+        
+        self.present(alert, animated: true) {
+            // The alert was presented
+        }
+    }
     
     enum startStop {
         case start, stop
@@ -337,43 +356,48 @@ class ViewController: UIViewController {
         print("Precondition")
         preconditionButton.isEnabled=false;
         
-        if (sc.tokenExpiry == nil){ // never logged in successfully
-            updateActivity(type: .start)
-            sc.login(){(result:Bool)->() in
-                if (result){
+        confirmButtonPress(title:"Turn on air-conditioning?", body:"The car will immediately turn on A/C and leave it running for a couple of minutes. A configurable countdown will be displayed in place of the trigger button.", cancelButton: "Cancel", cancelCallback: {self.preconditionButton.isEnabled=true}, confirmButton: "Turn A/C On")
+        {
+            // trailing confirmCallback-closure:
+            
+        
+            if (self.sc.tokenExpiry == nil){ // never logged in successfully
+                self.updateActivity(type: .start)
+                self.sc.login(){(result:Bool)->() in
+                    if (result){
+                        self.updateActivity(type: .start)
+                        self.sc.precondition(callback: self.preconditionState)
+                    } else {
+                        self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
+                        self.preconditionButton.isEnabled=true
+                    }
+                    self.updateActivity(type: .stop)
+                }
+            } else {
+                if self.sc.isTokenExpired() {
+                    //print("Token expired or will expire too soon (or expiry date is nil), must renew")
+                    self.updateActivity(type:.start)
+                    self.sc.renewToken(){(result:Bool)->() in
+                        if result {
+                            print("renewed expired token!")
+                            self.updateActivity(type:.start)
+                            self.sc.precondition(callback: self.preconditionState)
+
+                        } else {
+                            self.displayMessage(title: "Error", body:"Failed to renew expired token.")
+                            self.preconditionButton.isEnabled=true
+                            print("expired token NOT renewed!")
+                        }
+                    }
+                    self.updateActivity(type:.stop)
+                } else {
+                    print("token still valid!")
                     self.updateActivity(type: .start)
                     self.sc.precondition(callback: self.preconditionState)
-                } else {
-                    self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
-                    self.preconditionButton.isEnabled=true
                 }
-                self.updateActivity(type: .stop)
             }
-        } else {
-            if sc.isTokenExpired() {
-                //print("Token expired or will expire too soon (or expiry date is nil), must renew")
-                updateActivity(type:.start)
-                sc.renewToken(){(result:Bool)->() in
-                    if result {
-                        print("renewed expired token!")
-                        self.updateActivity(type:.start)
-                        self.sc.precondition(callback: self.preconditionState)
-
-                    } else {
-                        self.displayMessage(title: "Error", body:"Failed to renew expired token.")
-                        self.preconditionButton.isEnabled=true
-                        print("expired token NOT renewed!")
-                    }
-                }
-                updateActivity(type:.stop)
-            } else {
-                print("token still valid!")
-                updateActivity(type: .start)
-                sc.precondition(callback: preconditionState)
-            }
+        
         }
-        
-        
         
         
     }
