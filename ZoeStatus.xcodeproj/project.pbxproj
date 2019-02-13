@@ -28,6 +28,7 @@
 		9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceConnection.swift; sourceTree = "<group>"; };
 		9A512FB821B3FE71007EFAAB /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		9A9C859321E409DB0022EC47 /* defaultValues.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = defaultValues.plist; sourceTree = "<group>"; };
+		9AA98C44220F913D00A9F8ED /* ZoeStatus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZoeStatus.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +47,7 @@
 			children = (
 				9A512FA321B2DDCB007EFAAB /* ZoeStatus */,
 				9A512FA221B2DDCB007EFAAB /* Products */,
+				9AA98C41220F912C00A9F8ED /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -60,6 +62,7 @@
 		9A512FA321B2DDCB007EFAAB /* ZoeStatus */ = {
 			isa = PBXGroup;
 			children = (
+				9AA98C44220F913D00A9F8ED /* ZoeStatus.entitlements */,
 				9A9C859321E409DB0022EC47 /* defaultValues.plist */,
 				9A512FB821B3FE71007EFAAB /* Settings.bundle */,
 				9A512FA421B2DDCB007EFAAB /* AppDelegate.swift */,
@@ -71,6 +74,13 @@
 				9A512FB021B2DDCD007EFAAB /* Info.plist */,
 			);
 			path = ZoeStatus;
+			sourceTree = "<group>";
+		};
+		9AA98C41220F912C00A9F8ED /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -105,6 +115,14 @@
 				TargetAttributes = {
 					9A512FA021B2DDCB007EFAAB = {
 						CreatedOnToolsVersion = 10.1;
+						SystemCapabilities = {
+							com.apple.GameCenter.iOS = {
+								enabled = 0;
+							};
+							com.apple.Keychain = {
+								enabled = 0;
+							};
+						};
 					};
 				};
 			};
@@ -294,7 +312,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = ZoeStatus/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -303,6 +322,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "ZoeStatus Developer";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -312,7 +332,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = ZoeStatus/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -321,6 +342,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "ZoeStatus Developer";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
