@@ -302,10 +302,10 @@ class ViewController: UIViewController {
                     self.preconditionResult.text = "🌡 ✅"
                     break
                 default:
-                    self.preconditionResult.text = "…"
+                    self.preconditionResult.text = "🌡 …"
                 }
             } else {
-                self.preconditionResult.text = "…"
+                self.preconditionResult.text = "🌡 …"
             }
         }
         self.updateActivity(type:.stop)

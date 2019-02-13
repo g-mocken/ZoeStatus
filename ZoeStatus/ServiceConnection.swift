@@ -605,6 +605,7 @@ class ServiceConnection {
                     }
                     return
             }
+            
             if let mimeType = response.mimeType,
                 mimeType == "application/json",
                 let data = data,
@@ -644,12 +645,29 @@ class ServiceConnection {
                     }
                 }
             } else {
-                print ("unexpected server response")
-                DispatchQueue.main.async {
-                    callback(true,
-                             0,
-                             nil,
-                             nil)
+                
+                /*
+                 If the A/C was not used for a while, the server will forget the last usage and return:
+                 Status Code: 204 (meaning: NO CONTENT)
+                 In this case, no decodable data is returned (data!.count == 0), and mimeType = "text/html"
+                 */
+                if response.statusCode == 204
+                {
+                    print ("error 204 server response")
+                    DispatchQueue.main.async {
+                        callback(false,
+                                 0,
+                                 nil,
+                                 nil)
+                    }
+                } else {
+                    print ("unexpected server response")
+                    DispatchQueue.main.async {
+                        callback(true,
+                                 0,
+                                 nil,
+                                 nil)
+                    }
                 }
             }
         }
