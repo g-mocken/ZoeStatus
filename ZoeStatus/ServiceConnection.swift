@@ -28,6 +28,7 @@ extension String { // taken from https://stackoverflow.com/a/35360697/1149188
 
 class ServiceConnection {
 
+    var simulation: Bool = true
     var activationCode: String?
     var userName:String?
     var password:String?
@@ -92,6 +93,11 @@ class ServiceConnection {
     
     func login (callback:@escaping(Bool)->Void) {
     
+        if simulation {
+            callback(true)
+            return
+        }
+        
         struct Credentials: Codable {
             let username: String
             let password: String
@@ -272,6 +278,22 @@ class ServiceConnection {
 
     
     func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+       
+        if simulation {
+            print ("batteryState: simulated")
+            DispatchQueue.main.async {
+                callback(false,
+                         true,
+                         true,
+                         55,
+                         111.1,
+                         1550874142000,
+                         "ACCELERATED",
+                         60)
+            }
+            return
+        }
+        
         let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/battery"
         
         let tString = ""
@@ -468,6 +490,14 @@ class ServiceConnection {
     
     func precondition(callback:@escaping  (Bool) -> ()) {
         
+        if simulation {
+            print ("precondition: simulated")
+            DispatchQueue.main.async {
+                callback(true)
+            }
+            return
+        }
+        
 #if false
         DispatchQueue.main.async {
             callback(false)
@@ -572,6 +602,17 @@ class ServiceConnection {
     
     
     func airConditioningLastState(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
+
+        if simulation {
+            print ("airConditioningLastState: simulated")
+            DispatchQueue.main.async {
+                callback(false,
+                         1550874142000,
+                         "-",
+                         "SUCCESS")
+            }
+            return
+        }
         let acLastURL = baseURL + "/vehicle/" + vehicleIdentification! + "/air-conditioning/last"
         
         let tString = ""
@@ -678,6 +719,14 @@ class ServiceConnection {
     
     
     func batteryStateUpdateRequest(callback:@escaping  (Bool) -> ()) {
+        if simulation {
+            print ("batteryStateUpdateRequest: simulated")
+            DispatchQueue.main.async {
+                callback(false)
+            }
+            return
+        }
+        
         let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/battery"
         
         let tString = ""
@@ -717,6 +766,14 @@ class ServiceConnection {
     
     
     func chargeNowRequest(callback:@escaping  (Bool) -> ()) {
+        if simulation {
+            print ("chargeNowRequest: simulated")
+            DispatchQueue.main.async {
+                callback(false)
+            }
+            return
+        }
+        
         let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/charge"
         
         let tString = ""
