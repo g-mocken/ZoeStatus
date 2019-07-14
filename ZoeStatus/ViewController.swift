@@ -195,7 +195,8 @@ class ViewController: UIViewController {
     }
     func stopActivity(){
     }
-    @IBAction func refreshButtonPressed(_ sender: Any) {
+    
+    @IBAction func refreshButtonPressed(_ sender: UIButton) {
        
         if (sc.tokenExpiry == nil){ // never logged in successfully
         
@@ -268,6 +269,9 @@ class ViewController: UIViewController {
                     break;
                 case "SLOW":
                     self.charger.text = "⛽️ " + "🐌"
+                    break;
+                case "FAST":
+                    self.charger.text = "⛽️ " + "✈️"
                     break;
                 case "ACCELERATED":
                     self.charger.text = "⛽️ " + "🚀"
