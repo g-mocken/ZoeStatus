@@ -493,7 +493,7 @@ class ServiceConnection {
         if simulation {
             print ("precondition: simulated")
             DispatchQueue.main.async {
-                callback(true)
+                callback(false)
             }
             return
         }
