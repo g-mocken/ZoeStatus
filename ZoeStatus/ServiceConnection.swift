@@ -14,7 +14,15 @@ import UIKit
 extension String { // taken from https://stackoverflow.com/a/35360697/1149188
     
     func fromBase64() -> String? {
-        guard let data = Data(base64Encoded: self) else {
+        var base64 = self
+        let r = base64.count % 4 // if padding is missing, add as many "=" as needed to make the decoder happy
+        if r != 0 {
+            for _ in 0 ... 3-r {
+                base64 += "="
+            }
+        }
+        
+        guard let data = Data(base64Encoded: base64) else {
             return nil
         }
         
@@ -45,10 +53,12 @@ class ServiceConnection {
         print ("Analysing token:")
         if let token = ofToken{
             let indexFirstPeriod = token.firstIndex(of: ".") ?? token.startIndex
+
             let header = String(token[..<indexFirstPeriod]).fromBase64()
             print("Header: \(header!)")
             let indexSecondPeriod = token[token.index(after:indexFirstPeriod)...].firstIndex(of: ".") ?? token.endIndex
-            
+            print("Payload: \(String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]))")
+
             if let payload = String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]).fromBase64()
             {
                 print("Payload: \(payload)")
