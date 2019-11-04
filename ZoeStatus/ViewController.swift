@@ -429,8 +429,16 @@ class ViewController: UIViewController {
     
         print("request state!")
 
-        updateActivity(type:.start)
-        self.sc.batteryStateUpdateRequest(callback: self.batteryStateUpdateRequest(error:))
+        
+        confirmButtonPress(title:"Request state update?", body:"Will instruct the server to fetch a state update from the car. This may take several minutes to complete or fail entirely. Depending on configuration, a text message or email may be triggered.", cancelButton: "Cancel", cancelCallback: {/*self.requestStateButton.isEnabled=true*/}, confirmButton: "Send request")
+        {
+            // trailing confirmCallback-closure:
+            
+            self.updateActivity(type:.start)
+            self.sc.batteryStateUpdateRequest(callback: self.batteryStateUpdateRequest(error:))
+            
+
+        }
 
     }
     
@@ -438,7 +446,7 @@ class ViewController: UIViewController {
     func batteryStateUpdateRequest(error: Bool)->(){
         
         if (error){
-            displayMessage(title: "Error", body: "Could not request battery state.")
+            displayMessage(title: "Error", body: "Could not request battery state, probably because of rate limiting by the server.")
             
         } else {
             displayMessage(title: "Success", body: "Requested battery state.")
@@ -452,8 +460,12 @@ class ViewController: UIViewController {
         
         print("request to charge!")
         
-        updateActivity(type:.start)
-        self.sc.chargeNowRequest(callback: self.chargeNowRequest(error:))
+        confirmButtonPress(title:"Charge pause override?", body:"Will tell the car to ignore any scheduled charging pause and to start charging immediately.", cancelButton: "Cancel", cancelCallback: {/*self.chargeNowButton.isEnabled=true*/}, confirmButton: "Start charging")
+        {
+            // trailing confirmCallback-closure:
+            self.updateActivity(type:.start)
+            self.sc.chargeNowRequest(callback: self.chargeNowRequest(error:))
+        }
 
         
     }
@@ -461,10 +473,10 @@ class ViewController: UIViewController {
     func chargeNowRequest(error: Bool)->(){
         
         if (error){
-            displayMessage(title: "Error", body: "Could not request to charge now.")
+            displayMessage(title: "Error", body: "Could not request to start charging.")
             
         } else {
-            displayMessage(title: "Success", body: "Requested to charge now.")
+            displayMessage(title: "Success", body: "Requested to start charging.")
         }
         
         self.updateActivity(type:.stop)
