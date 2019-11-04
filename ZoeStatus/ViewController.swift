@@ -81,6 +81,16 @@ class ViewController: UIViewController {
     
     @objc func applicationDidBecomeActive(notification: Notification) {
         print ("applicationDidBecomeActive notification received!")
+       
+        if traitCollection.userInterfaceStyle == .light {
+            print("Light mode")
+            self.view.backgroundColor = UIColor.init(red: 0.329, green: 0.894, blue: 1.000, alpha: 1.0)
+        } else {
+            print("Dark mode")
+            self.view.backgroundColor = UIColor.init(red: 0.093, green: 0.254, blue: 0.284, alpha: 1.0)
+
+        }
+        
         
         let userDefaults = UserDefaults.standard
         let experimentalFeatures = userDefaults.bool(forKey: "experimental_preference")
