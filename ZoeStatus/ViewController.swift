@@ -31,6 +31,20 @@ class ViewController: UIViewController {
         return strDate
     }
     
+    
+    func dateToTimeString(date: Date) -> String{
+        var strDate = "undefined"
+        
+        let dateFormatter = DateFormatter()
+        let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+        dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+        dateFormatter.locale = NSLocale.current
+        dateFormatter.dateFormat = "HH:mm" //Specify your format that you want
+        strDate = dateFormatter.string(from: date)
+        
+        return strDate
+    }
+    
     fileprivate func performLogin() {
 
         let userDefaults = UserDefaults.standard
@@ -116,8 +130,47 @@ class ViewController: UIViewController {
         NotificationCenter.default.removeObserver(self, name: Notification.Name("applicationDidBecomeActive"), object: nil) // remove if already present, in order to avoid double registration
         NotificationCenter.default.addObserver(self, selector: #selector(self.applicationDidBecomeActive(notification:)), name: Notification.Name("applicationDidBecomeActive"), object: nil)
 
+        
+        
+        datePicker.datePickerMode = .time
+        dateTextField.inputView = datePicker
+
+        
+        let label =  UILabel(frame: UIScreen.main.bounds)
+        label.text = " A/C timer setting "
+        label.sizeToFit()
+        let title = UIBarButtonItem(customView: label)
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let trashButton = UIBarButtonItem(barButtonSystemItem: .trash, target: nil, action: #selector(datePickerTrash))
+        let cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: #selector(datePickerCancel))
+        let doneButton = UIBarButtonItem(barButtonSystemItem: .save, target: nil, action: #selector(datePickerDone))
+
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        toolbar.setItems([trashButton, flexibleSpace, title, flexibleSpace, cancelButton, doneButton], animated: true)
+        dateTextField.inputAccessoryView = toolbar
     }
 
+    //var preconditionRemoteTimer: Date = Date.distantPast
+    
+    @objc func datePickerDone(){
+        
+        let preconditionRemoteTimer = datePicker.date
+        preconditionCar(command: .later, date: preconditionRemoteTimer)
+
+        self.view.endEditing(true) // close picker
+    }
+
+    @objc func datePickerTrash(){
+        preconditionCar(command: .delete, date: nil)
+        self.view.endEditing(true) // close picker
+
+    }
+    @objc func datePickerCancel(){
+        self.view.endEditing(true) // close picker
+    }
+    
+    
     /*
     override func viewDidAppear(_ animated: Bool) {
      super.viewDidAppear(animated)
@@ -184,7 +237,6 @@ class ViewController: UIViewController {
         case .start:
             refreshButton.isEnabled=false
             refreshButton.isHidden=true
-            //preconditionButton.isEnabled = false
             activityIndicator.startAnimating()
             activityCount+=1
             break
@@ -197,7 +249,6 @@ class ViewController: UIViewController {
                 activityIndicator.stopAnimating()
                 refreshButton.isEnabled=true
                 refreshButton.isHidden=false
-                //preconditionButton.isEnabled = true
             }
             break
         }
@@ -219,6 +270,9 @@ class ViewController: UIViewController {
                     self.updateActivity(type:.start)
                     self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
                     
+                    self.updateActivity(type: .start)
+                    self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
+
                 } else {
                     self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
                 }
@@ -237,6 +291,9 @@ class ViewController: UIViewController {
                         self.updateActivity(type:.start)
                         self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
 
+                        self.updateActivity(type: .start)
+                        self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
+
                     } else {
                         self.displayMessage(title: "Error", body:"Failed to renew expired token.")
                         print("expired token NOT renewed!")
@@ -250,6 +307,9 @@ class ViewController: UIViewController {
                 self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
                 updateActivity(type:.start)
                 self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
+
+                self.updateActivity(type: .start)
+                self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
 
             }
         }
@@ -332,95 +392,127 @@ class ViewController: UIViewController {
         self.updateActivity(type:.stop)
     }
         
-    func preconditionState(error: Bool)->(){
+    func preconditionState(error: Bool, command:PreconditionCommand, date: Date?)->(){
         print("Precondition returns \(error)")
-        if (!error){
-            
-            // success, start countdown timer
-            let userDefaults = UserDefaults.standard
-            let preconditionTimerCountdown = userDefaults.integer(forKey: "countdown_preference")
-            print ("countdown in seconds = \(preconditionTimerCountdown)")
-            let timerStartDate = Date.init() // current date & time
-            
-            _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-                // timer periodic action:
-                let seconds = Int(round(Date.init().timeIntervalSince(timerStartDate)))
-                print("passed seconds = \(seconds)")
+        switch command {
+        case .now:
+            if (!error){
+                // success, start countdown timer
+                let userDefaults = UserDefaults.standard
+                let preconditionTimerCountdown = userDefaults.integer(forKey: "countdown_preference")
+                print ("countdown in seconds = \(preconditionTimerCountdown)")
+                let timerStartDate = Date.init() // current date & time
                 
-                self.preconditionTime.text = String(format: "⏲ %.02d:%02d", (preconditionTimerCountdown - seconds)/60, (preconditionTimerCountdown - seconds)%60 )
+                _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+                    // timer periodic action:
+                    let seconds = Int(round(Date.init().timeIntervalSince(timerStartDate)))
+                    print("passed seconds = \(seconds)")
+                    
+                    self.preconditionTime.text = String(format: "⏲ %.02d:%02d", (preconditionTimerCountdown - seconds)/60, (preconditionTimerCountdown - seconds)%60 )
+                    
+                    
+                    if ( seconds >= preconditionTimerCountdown ){
+                        // timer expired after 5min countdown
+                        timer.invalidate()
+                        self.preconditionTime.isHidden=true
+                        self.preconditionButton.isHidden=false
+                        self.preconditionButton.isEnabled=true
+                    }
+                }
+                // initial setup of timer display
+                preconditionTime.text = String(format: "⏲ %.02d:%02d", preconditionTimerCountdown/60, preconditionTimerCountdown%60 )
+                preconditionTime.isHidden=false
+                preconditionButton.isHidden=true
+                preconditionButton.isEnabled=false
+                
+            } else {
+                // on error
+                preconditionTime.isHidden=true
+                preconditionButton.isEnabled=true
+                preconditionButton.isHidden=false
+            }
+            
+        case .later, .read, .delete:
+            if (!error){
+                if (date != nil){
+                    dateTextField.text = dateToTimeString(date: date!)
+                } else {
+                    dateTextField.text = ""
+                }
+            } else {
+                dateTextField.text = "error"
+            }
+        }
+        
+        self.updateActivity(type: .stop)
+    }
 
-                
-                if ( seconds >= preconditionTimerCountdown ){
-                    // timer expired after 5min countdown
-                    timer.invalidate()
-                    self.preconditionTime.isHidden=true
-                    self.preconditionButton.isHidden=false
+    @IBOutlet var dateTextField: UITextField!
+    let datePicker = UIDatePicker()
+
+    
+    func preconditionCar(command:PreconditionCommand, date: Date?){
+        if (self.sc.tokenExpiry == nil){ // never logged in successfully
+            self.updateActivity(type: .start)
+            self.sc.login(){(result:Bool)->() in
+                if (result){
+                    self.updateActivity(type: .start)
+                    self.sc.precondition(command: command, date: date, callback: self.preconditionState)
+                } else {
+                    self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
                     self.preconditionButton.isEnabled=true
                 }
+                self.updateActivity(type: .stop)
             }
-            // initial setup of timer display
-            preconditionTime.text = String(format: "⏲ %.02d:%02d", preconditionTimerCountdown/60, preconditionTimerCountdown%60 )
-            preconditionTime.isHidden=false
-            preconditionButton.isHidden=true
-            preconditionButton.isEnabled=false
-            
         } else {
-            // on error,
-            preconditionTime.isHidden=true
-            preconditionButton.isEnabled=true
-            preconditionButton.isHidden=false
+            if self.sc.isTokenExpired() {
+                //print("Token expired or will expire too soon (or expiry date is nil), must renew")
+                self.updateActivity(type:.start)
+                self.sc.renewToken(){(result:Bool)->() in
+                    if result {
+                        print("renewed expired token!")
+                        self.updateActivity(type:.start)
+                        self.sc.precondition(command: command, date: date, callback: self.preconditionState)
+
+                    } else {
+                        self.displayMessage(title: "Error", body:"Failed to renew expired token.")
+                        self.preconditionButton.isEnabled=true
+                        print("expired token NOT renewed!")
+                    }
+                }
+                self.updateActivity(type:.stop)
+            } else {
+                print("token still valid!")
+                self.updateActivity(type: .start)
+                self.sc.precondition(command: command, date: date, callback: self.preconditionState)
+            }
         }
-        self.updateActivity(type: .stop)
     }
     
     @IBAction func preconditionButtonPressed(_ sender: Any) {
         print("Precondition")
+        
+        
         preconditionButton.isEnabled=false;
         
-        confirmButtonPress(title:"Turn on air-conditioning?", body:"The car will immediately turn on A/C and leave it running for a couple of minutes. A configurable countdown will be displayed in place of the trigger button.", cancelButton: "Cancel", cancelCallback: {self.preconditionButton.isEnabled=true}, confirmButton: "Turn A/C On")
-        {
-            // trailing confirmCallback-closure:
-            
-        
-            if (self.sc.tokenExpiry == nil){ // never logged in successfully
-                self.updateActivity(type: .start)
-                self.sc.login(){(result:Bool)->() in
-                    if (result){
-                        self.updateActivity(type: .start)
-                        self.sc.precondition(callback: self.preconditionState)
-                    } else {
-                        self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
-                        self.preconditionButton.isEnabled=true
-                    }
-                    self.updateActivity(type: .stop)
-                }
-            } else {
-                if self.sc.isTokenExpired() {
-                    //print("Token expired or will expire too soon (or expiry date is nil), must renew")
-                    self.updateActivity(type:.start)
-                    self.sc.renewToken(){(result:Bool)->() in
-                        if result {
-                            print("renewed expired token!")
-                            self.updateActivity(type:.start)
-                            self.sc.precondition(callback: self.preconditionState)
+        let cancelAction = UIAlertAction(title: "Cancel",
+                                          style: .cancel) { (action) in
+                                            {self.preconditionButton.isEnabled=true}()
+        }
 
-                        } else {
-                            self.displayMessage(title: "Error", body:"Failed to renew expired token.")
-                            self.preconditionButton.isEnabled=true
-                            print("expired token NOT renewed!")
-                        }
-                    }
-                    self.updateActivity(type:.stop)
-                } else {
-                    print("token still valid!")
-                    self.updateActivity(type: .start)
-                    self.sc.precondition(callback: self.preconditionState)
-                }
-            }
-        
+        let confirmAction = UIAlertAction(title: "Turn on A/C",
+                                         style: .default) { (action) in
+                                            self.preconditionCar(command: .now, date: nil)
         }
         
+        let alert = UIAlertController(title: "Turn on air-conditioning?", message: "The car will immediately turn on A/C and leave it running for a couple of minutes. A configurable countdown will be displayed in place of the trigger button.", preferredStyle: .alert)
+        alert.addAction(cancelAction)
+        alert.addAction(confirmAction)
+
         
+        self.present(alert, animated: true) {
+            // The alert was presented
+        }
     }
     
 

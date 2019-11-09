@@ -9,6 +9,12 @@
 import Foundation
 import UIKit
 
+enum PreconditionCommand {
+    case now
+    case later
+    case delete
+    case read
+}
 
 
 extension String { // taken from https://stackoverflow.com/a/35360697/1149188
@@ -497,34 +503,62 @@ class ServiceConnection {
     }
     
 
-    
-    func precondition(callback:@escaping  (Bool) -> ()) {
+    func precondition(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
         
         if simulation {
             print ("precondition: simulated")
             DispatchQueue.main.async {
-                callback(false)
+                callback(false, command, date)
             }
             return
         }
         
 #if false
         DispatchQueue.main.async {
-            callback(false)
+            callback(false, command, date)
         }
         return
 #endif
         
         let preconditionURL = baseURL + "/vehicle/" + vehicleIdentification! + "/air-conditioning"
+        let preconditionWithTimerURL = baseURL + "/vehicle/" + vehicleIdentification! + "/air-conditioning/scheduler"
         
-        let tString = ""
+        var strDate = ""
+        var tString = ""
+        var url:URL
+        var httpMethod: String?
+   
+        switch command {
+        case .now:
+            url = URL(string: preconditionURL)!
+            httpMethod = "POST"
+        case .later:
+            if (date != nil){
+                let dateFormatter = DateFormatter()
+                let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+                dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+                dateFormatter.locale = NSLocale.current
+                dateFormatter.dateFormat = "HHmm"
+                strDate = dateFormatter.string(from: date!)
+                tString = "{\"start\":\"\(strDate)\"}"
+            }
+            url = URL(string: preconditionWithTimerURL)!
+            httpMethod = "POST"
+
+        case .delete:
+            url = URL(string: preconditionWithTimerURL)!
+            httpMethod = "DELETE"
+
+        case .read:
+            url = URL(string: preconditionWithTimerURL)!
+            httpMethod = "GET"
+
+        }
+        
         let uploadData = tString.data(using: String.Encoding.utf8)
         
-        let url = URL(string: preconditionURL)!
         var request = URLRequest(url: url)
-        
-        
-        request.httpMethod = "POST"
+        request.httpMethod = httpMethod
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
         request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
@@ -533,7 +567,7 @@ class ServiceConnection {
             if let error = error {
                 print ("error: \(error)")
                 DispatchQueue.main.async {
-                    callback(true)
+                    callback(true, command, nil)
                 }
                 return
             }
@@ -542,7 +576,7 @@ class ServiceConnection {
                     print ("server error")
                     print ((response as! HTTPURLResponse).description)
                     DispatchQueue.main.async {
-                        callback(true)
+                        callback(true, command, nil)
                     }
                     return
                     
@@ -599,9 +633,91 @@ class ServiceConnection {
                      
                      */
             }
-            // there is no reply to analyze, so just proceed with the callback
-            DispatchQueue.main.async {
-                callback(false)
+            
+            switch command {
+            case .read:
+                
+                // analyse response
+                if let mimeType = response2.mimeType,
+                    mimeType == "application/json",
+                    let data = data,
+                    let dataString = String(data: data, encoding: .utf8) {
+                    print ("got ac timer data: \(dataString)")
+                    // got ac timer data: {"next_start":"1313"}
+                    // got ac timer data: {"next_start":"0804"}
+                    
+                    
+                    struct acTimerStatus: Codable{
+                        var next_start: String
+                    }
+                    
+                    let decoder = JSONDecoder()
+                    if let result = try? decoder.decode(acTimerStatus.self, from: data){
+                        print ("acTimerStatus: \(result.next_start)")
+                        
+                        // combine time received with today's date:
+                        let today = Date()
+                        let dateFormatter2 = DateFormatter()
+                        dateFormatter2.dateFormat = "dd.MM.yyyy "
+                        let strDateOnly = dateFormatter2.string(from: today)
+                        
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "dd.MM.yyyy HHmm"
+                        if var date = dateFormatter.date(from: strDateOnly+result.next_start)
+                        {
+                            if (date<today){
+                                // if in the past, add one day
+                                date += TimeInterval(24*3600)
+                            }
+                            
+                            // date now is the correct time and date.
+                            
+                            // only to check:
+                            let dateFormatter3 = DateFormatter()
+                            dateFormatter3.dateFormat = "dd.MM.yyyy HH:mm:ss"
+                            let strDate = dateFormatter3.string(from: date)
+                            print("Date for next A/C timer: \(strDate)")
+                            DispatchQueue.main.async {
+                                callback(false, command, date)
+                            }
+                        }
+                        
+                    } else {
+                        print ("unexpected server response (result for acTimerStatus == nil)")
+                        DispatchQueue.main.async {
+                            callback(true, command, nil)
+                        }
+                        
+                    }
+                    
+                } else {
+                    
+                        /*
+                         If the A/C timer was not set (or deleted):
+                         Status Code: 204 (meaning: NO CONTENT)
+                         In this case, no decodable data is returned (data!.count == 0), and mimeType = "text/html"
+                         */
+                        if response2.statusCode == 204
+                        {
+                            print ("error 204 server response")
+                            print("Date for next A/C timer: NOT SET")
+                            DispatchQueue.main.async {
+                                callback(false, command, nil)
+                            }
+                        } else {
+                            print ("unexpected server response")
+                            DispatchQueue.main.async {
+                                callback(true, command, nil)
+                            }
+                        }
+                }
+                
+            default:
+                // there is no reply to analyze, so just proceed with the callback
+                DispatchQueue.main.async {
+                    callback(false, command, date) // no error
+                }
+
             }
         }
         task.resume()
