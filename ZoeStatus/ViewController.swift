@@ -123,6 +123,11 @@ class ViewController: UIViewController {
         }
     }
 
+    var preconditionRemoteTimer: Date?
+    
+    @IBAction func startEditing(_ sender: UITextField) {
+        print("start")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -141,17 +146,18 @@ class ViewController: UIViewController {
 
         
         let label =  UILabel(frame: UIScreen.main.bounds)
-        label.text = " A/C timer setting "
+        label.text = "A/C timer:"
         label.sizeToFit()
         let title = UIBarButtonItem(customView: label)
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        //  let flexibleSpace2 = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let trashButton = UIBarButtonItem(barButtonSystemItem: .trash, target: nil, action: #selector(datePickerTrash))
         let cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: #selector(datePickerCancel))
         let doneButton = UIBarButtonItem(barButtonSystemItem: .save, target: nil, action: #selector(datePickerDone))
 
         let toolbar = UIToolbar()
         toolbar.sizeToFit()
-        toolbar.setItems([trashButton, flexibleSpace, title, flexibleSpace, cancelButton, doneButton], animated: true)
+        toolbar.setItems([title, flexibleSpace, trashButton, cancelButton, doneButton], animated: false)
         dateTextField.inputAccessoryView = toolbar
     }
 
@@ -171,6 +177,13 @@ class ViewController: UIViewController {
 
     }
     @objc func datePickerCancel(){
+        // preconditionCar(command: .read, date: nil) // works, but takes too long
+        if (preconditionRemoteTimer != nil){
+            dateTextField.text = dateToTimeString(date: preconditionRemoteTimer!)
+        } else {
+            dateTextField.text = ""
+        }
+
         self.view.endEditing(true) // close picker
     }
     
@@ -437,6 +450,7 @@ class ViewController: UIViewController {
             }
             
         case .later, .read, .delete:
+            preconditionRemoteTimer = date // save current value, so the text field can be quickly restored
             if (!error){
                 if (date != nil){
                     dateTextField.text = dateToTimeString(date: date!)

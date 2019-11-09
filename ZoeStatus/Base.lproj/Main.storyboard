@@ -111,6 +111,9 @@
                                 <rect key="frame" x="16" y="364" width="76" height="27"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <action selector="startEditing:" destination="BYZ-38-t0r" eventType="editingDidBegin" id="UiJ-VS-Y3f"/>
+                                </connections>
                             </textField>
                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hmd-KZ-5jN">
                                 <rect key="frame" x="16" y="445.5" width="25.5" height="24"/>
