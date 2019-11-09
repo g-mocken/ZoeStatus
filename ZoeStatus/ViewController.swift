@@ -25,7 +25,7 @@ class ViewController: UIViewController {
             let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
             dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
             dateFormatter.locale = NSLocale.current
-            dateFormatter.dateFormat = "📅 dd.MM.yyyy ⏰ HH:mm:ss" //Specify your format that you want
+            dateFormatter.dateFormat = "📅 dd.MM.yyyy 🕰 HH:mm:ss" //Specify your format that you want
             strDate = dateFormatter.string(from: date)
         }
         return strDate
@@ -39,7 +39,7 @@ class ViewController: UIViewController {
         let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
         dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
         dateFormatter.locale = NSLocale.current
-        dateFormatter.dateFormat = "HH:mm" //Specify your format that you want
+        dateFormatter.dateFormat = "⏰ HH:mm" //Specify your format that you want
         strDate = dateFormatter.string(from: date)
         
         return strDate
@@ -109,12 +109,12 @@ class ViewController: UIViewController {
         let userDefaults = UserDefaults.standard
         let experimentalFeatures = userDefaults.bool(forKey: "experimental_preference")
         print("experimental features = \(experimentalFeatures)")
+
+        chargeNowButton.isHidden = false
+        requestStateButton.isHidden = true
+
         if (experimentalFeatures){
-            chargeNowButton.isHidden = false
-            requestStateButton.isHidden = false
         } else {
-            chargeNowButton.isHidden = true
-            requestStateButton.isHidden = true
         }
 
         // load settings
@@ -134,6 +134,10 @@ class ViewController: UIViewController {
         
         datePicker.datePickerMode = .time
         dateTextField.inputView = datePicker
+
+        // add guesture recognizer
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
+        refreshButton.addGestureRecognizer(longPress)
 
         
         let label =  UILabel(frame: UIScreen.main.bounds)
@@ -525,15 +529,25 @@ class ViewController: UIViewController {
         confirmButtonPress(title:"Request state update?", body:"Will instruct the server to fetch a state update from the car. This may take several minutes to complete or fail entirely. Depending on configuration, a text message or email may be triggered.", cancelButton: "Cancel", cancelCallback: {/*self.requestStateButton.isEnabled=true*/}, confirmButton: "Send request")
         {
             // trailing confirmCallback-closure:
-            
             self.updateActivity(type:.start)
             self.sc.batteryStateUpdateRequest(callback: self.batteryStateUpdateRequest(error:))
-            
-
         }
-
     }
     
+    @objc func longPress(_ guesture: UILongPressGestureRecognizer) {
+        if guesture.state == UIGestureRecognizer.State.began {
+            
+            print("request state after long press of refresh!")
+            confirmButtonPress(title:"Request state update?", body:"Will instruct the server to fetch a state update from the car. This may take several minutes to complete or fail entirely. Depending on configuration, a text message or email may be triggered.", cancelButton: "Cancel", cancelCallback: {/*self.requestStateButton.isEnabled=true*/}, confirmButton: "Send request")
+            {
+                // trailing confirmCallback-closure:
+                self.updateActivity(type:.start)
+                self.sc.batteryStateUpdateRequest(callback: self.batteryStateUpdateRequest(error:))
+            }
+
+            
+        }
+    }
     
     func batteryStateUpdateRequest(error: Bool)->(){
         
