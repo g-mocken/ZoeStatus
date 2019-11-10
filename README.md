@@ -34,7 +34,7 @@ They are only used to login into those services. Please check the source code fi
 
 The user interface is rather primitive and currently all icon based because doing so saves me from providing a dozen translations:
 
-<img src="./ZoeStatus-HowToUse.png" border="1" width="250"> <img src="./Screenshot_01.png" border="1" width="250"> <img src="./Screenshot_02.png" border="1" width="250"> <img src="./Screenshot_04.png" border="1" width="250">
+<img src="./Screenshot_01.png" border="1" width="250"> <img src="./Screenshot_04.png" border="1" width="250">
 
 The meaning of the symbols in order of appearance (left-to-right and top-down) on the app's main screen is as follows:
 
@@ -49,6 +49,9 @@ The meaning of the symbols in order of appearance (left-to-right and top-down) o
 - date and time of last transmission of A/C preconditioning command
 - button for sending "A/C precondition now" (will turn into an adjustable countdown if successful)
 - button for refreshing all of the above (long press will request an explicit state update)
+
+See below for a detailed description of the user interface.
+<img src="./ZoeStatus-HowToUse.png" border="1">
 
 ## Data privacy:
 The login credentials are stored locally on the iOS device as unencrypted user defaults (this may change in the future), which means that they are part of your ordinary device backup. Consequently, data security depends on your selected backup scheme (iCloud, local-unencrypted, local-encrypted).
