@@ -93,7 +93,7 @@
                                 </connections>
                             </button>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="…" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="byL-uD-5mU">
-                                <rect key="frame" x="16" y="299" width="16" height="27.5"/>
+                                <rect key="frame" x="69" y="299" width="16" height="27.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -168,7 +168,7 @@
                             <constraint firstItem="19f-Aq-YyL" firstAttribute="firstBaseline" secondItem="rbz-gd-6J5" secondAttribute="baseline" constant="48.5" id="kVc-mx-HD8"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="AhF-MA-RmR" secondAttribute="trailing" constant="14" id="liF-eJ-5AO"/>
                             <constraint firstItem="byL-uD-5mU" firstAttribute="firstBaseline" secondItem="zkf-p5-tWr" secondAttribute="firstBaseline" id="sk5-jT-QP2"/>
-                            <constraint firstItem="byL-uD-5mU" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="wIc-al-vL4"/>
+                            <constraint firstItem="byL-uD-5mU" firstAttribute="leading" secondItem="zkf-p5-tWr" secondAttribute="leading" id="wIc-al-vL4"/>
                             <constraint firstItem="rbz-gd-6J5" firstAttribute="firstBaseline" secondItem="AhF-MA-RmR" secondAttribute="baseline" constant="80" id="z2J-G8-inz"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="rbz-gd-6J5" secondAttribute="trailing" constant="16" id="zNX-bC-VG8"/>
                         </constraints>
