@@ -5,7 +5,7 @@ However, it currently only covers a small part of its functionality:
 
 - Battery state of charge (% and km)
 - Charger state (e.g. speed)
-- A/C preconditioning trigger and result of last command (experimental)
+- A/C preconditioning immediate and timed trigger, including result of last transmitted command
 
 The goal is not really to eventually cover everything but to provide easier access to the most useful features in comparison to the official app.
 
@@ -21,7 +21,7 @@ As long as there is no official API documentation, this app can never have more 
 
 ## Compilation / Installation:
 
-Use Xcode 10.1 or later to open and finally compile and install "ZoeStatus.xcodeproj" on your iOS device.
+Use Xcode 11 or later to open and finally compile and install "ZoeStatus.xcodeproj" on your iOS 13 device.
 
 
 ## Usage:
@@ -34,21 +34,21 @@ They are only used to login into those services. Please check the source code fi
 
 The user interface is rather primitive and currently all icon based because doing so saves me from providing a dozen translations:
 
-<img src="./Screenshot_03.png" border="1" width="250">  <img src="./Screenshot_04.png" border="1" width="250"> <img src="./Screenshot_01.png" border="1" width="250">
+<img src="./ZoeStatus-HowToUse.png" border="1" width="250"> <img src="./Screenshot_01.png" border="1" width="250"> <img src="./Screenshot_02.png" border="1" width="250"> <img src="./Screenshot_04.png" border="1" width="250">
 
 The meaning of the symbols in order of appearance (left-to-right and top-down) on the app's main screen is as follows:
 
 - battery state of charge in percent
 - estimated remaining range in km
-- date and time of this last retrieved status
-- charger capability (slow or accelerated)
+- date and time of transmission of status
+- charger capability (slow, fast, or accelerated)
 - charging (yes or no)
 - estimated remaining time for charging
 - plugged into charger (yes or no)
 - A/C preconditioning command successful (yes or no)
-- date and time of A/C preconditioning command
-- button for sending "A/C precondition now", will turn into an 11min countdown if successful
-- button for refreshing all of the above
+- date and time of last transmission of A/C preconditioning command
+- button for sending "A/C precondition now" (will turn into an adjustable countdown if successful)
+- button for refreshing all of the above (long press will request an explicit state update)
 
 ## Data privacy:
 The login credentials are stored locally on the iOS device as unencrypted user defaults (this may change in the future), which means that they are part of your ordinary device backup. Consequently, data security depends on your selected backup scheme (iCloud, local-unencrypted, local-encrypted).
