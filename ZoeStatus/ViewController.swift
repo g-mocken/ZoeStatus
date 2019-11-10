@@ -111,7 +111,6 @@ class ViewController: UIViewController {
         print("experimental features = \(experimentalFeatures)")
 
         chargeNowButton.isHidden = false
-        requestStateButton.isHidden = true
 
         if (experimentalFeatures){
         } else {
@@ -534,25 +533,13 @@ class ViewController: UIViewController {
     }
     
 
-    @IBOutlet var requestStateButton: UIButton!
-    @IBAction func requestStateButtonPressed(_ sender: Any) {
-    
-        print("request state!")
 
-        
-        confirmButtonPress(title:"Request state update?", body:"Will instruct the server to fetch a state update from the car. This may take several minutes to complete or fail entirely. Depending on configuration, a text message or email may be triggered.", cancelButton: "Cancel", cancelCallback: {/*self.requestStateButton.isEnabled=true*/}, confirmButton: "Send request")
-        {
-            // trailing confirmCallback-closure:
-            self.updateActivity(type:.start)
-            self.sc.batteryStateUpdateRequest(callback: self.batteryStateUpdateRequest(error:))
-        }
-    }
     
     @objc func longPress(_ guesture: UILongPressGestureRecognizer) {
         if guesture.state == UIGestureRecognizer.State.began {
             
             print("request state after long press of refresh!")
-            confirmButtonPress(title:"Request state update?", body:"Will instruct the server to fetch a state update from the car. This may take several minutes to complete or fail entirely. Depending on configuration, a text message or email may be triggered.", cancelButton: "Cancel", cancelCallback: {/*self.requestStateButton.isEnabled=true*/}, confirmButton: "Send request")
+            confirmButtonPress(title:"Request battery state update?", body:"Will instruct the back-end to fetch a battery state update from the car.", cancelButton: "Cancel", cancelCallback: { }, confirmButton: "Update")
             {
                 // trailing confirmCallback-closure:
                 self.updateActivity(type:.start)
@@ -566,10 +553,10 @@ class ViewController: UIViewController {
     func batteryStateUpdateRequest(error: Bool)->(){
         
         if (error){
-            displayMessage(title: "Error", body: "Could not request battery state, probably because of rate limiting by the server.")
+            displayMessage(title: "Error", body: "Could not request battery state, probably because of rate limiting by the back-end.")
             
         } else {
-            displayMessage(title: "Success", body: "Requested battery state.")
+            displayMessage(title: "Successfully requested battery state update.", body: "The request may take several minutes to complete or fail entirely. Depending on configuration, a text message or email may be triggered. To fetch the updated state from the back-end, use the refresh button.")
         }
         
         self.updateActivity(type:.stop)
