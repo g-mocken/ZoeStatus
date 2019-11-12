@@ -127,17 +127,75 @@ class ViewController: UIViewController {
     @IBAction func startEditing(_ sender: UITextField) {
         print("start")
     }
+    @IBOutlet var datePickerView: UIView!
+    
+    @IBAction func datePickerButtonPressed(_ sender: Any) {
+        //datePickerView.isHidden = false
+        UIView.animate(withDuration: 0.3) {
+            self.pickerViewTop.isActive = false
+            self.pickerViewBottom.isActive = true
+            self.view.layoutIfNeeded()
+        }
+
+    }
+    @IBOutlet var pickerViewToolbar: UIToolbar!
+    @IBOutlet var datePicker: UIDatePicker!
+    @IBAction func datePickerDoneButtonPressed(_ sender: Any) {
+        UIView.animate(withDuration: 0.3) {
+            self.pickerViewBottom.isActive = false
+            self.pickerViewTop.isActive = true
+            self.view.layoutIfNeeded()
+        }
+        let preconditionRemoteTimer = datePicker.date
+        preconditionCar(command: .later, date: preconditionRemoteTimer)
+    }
+    @IBAction func datePickerCancelButtonPressed(_ sender: Any) {
+        UIView.animate(withDuration: 0.3) {
+            self.pickerViewBottom.isActive = false
+            self.pickerViewTop.isActive = true
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    @IBAction func datePickerTrashButtonPressed(_ sender: Any) {
+        UIView.animate(withDuration: 0.3) {
+            self.pickerViewBottom.isActive = false
+            self.pickerViewTop.isActive = true
+            self.view.layoutIfNeeded()
+        }
+        preconditionCar(command: .delete, date: nil)
+
+    }
+    
+    @IBOutlet var datePickerButton: UIButton!
+    @IBOutlet var pickerViewTop: NSLayoutConstraint!
+    @IBOutlet var pickerViewBottom: NSLayoutConstraint!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+            pickerViewTop.constant=view.bounds.height
+
+        let toolbarlabel =  UILabel(frame: UIScreen.main.bounds)
+        toolbarlabel.text = "A/C timer:"
+        toolbarlabel.sizeToFit()
+        let toolbarTitle = UIBarButtonItem(customView: toolbarlabel)
+
+        pickerViewToolbar.sizeToFit()
+        pickerViewToolbar.setItems([toolbarTitle]+pickerViewToolbar.items!, animated: false)
+
+        
+        
+        
         
         NotificationCenter.default.removeObserver(self, name: Notification.Name("applicationDidBecomeActive"), object: nil) // remove if already present, in order to avoid double registration
         NotificationCenter.default.addObserver(self, selector: #selector(self.applicationDidBecomeActive(notification:)), name: Notification.Name("applicationDidBecomeActive"), object: nil)
 
         
         
-        datePicker.datePickerMode = .time
-        dateTextField.inputView = datePicker
+        datePicker2.datePickerMode = .time
+        dateTextField.inputView = datePicker2
 
         // add guesture recognizer
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
@@ -164,7 +222,7 @@ class ViewController: UIViewController {
     
     @objc func datePickerDone(){
         
-        let preconditionRemoteTimer = datePicker.date
+        let preconditionRemoteTimer = datePicker2.date
         preconditionCar(command: .later, date: preconditionRemoteTimer)
 
         self.view.endEditing(true) // close picker
@@ -453,11 +511,15 @@ class ViewController: UIViewController {
             if (!error){
                 if (date != nil){
                     dateTextField.text = dateToTimeString(date: date!)
+                    datePickerButton.setTitle(dateToTimeString(date: date!), for: .normal)
                 } else {
                     dateTextField.text = ""
+                    datePickerButton.setTitle("⏰ --:--", for: .normal)
+
                 }
             } else {
                 dateTextField.text = "error"
+                datePickerButton.setTitle("⏰ error", for: .normal)
             }
         }
         
@@ -465,7 +527,7 @@ class ViewController: UIViewController {
     }
 
     @IBOutlet var dateTextField: UITextField!
-    let datePicker = UIDatePicker()
+    let datePicker2 = UIDatePicker()
 
     
     func preconditionCar(command:PreconditionCommand, date: Date?){
@@ -566,7 +628,7 @@ class ViewController: UIViewController {
     @IBAction func chargeNowButtonPressed(_ sender: Any) {
         
         print("request to charge!")
-        
+            
         confirmButtonPress(title:"Charge pause override?", body:"Will tell the car to ignore any scheduled charging pause and to start charging immediately.", cancelButton: "Cancel", cancelCallback: {/*self.chargeNowButton.isEnabled=true*/}, confirmButton: "Start charging")
         {
             // trailing confirmCallback-closure:

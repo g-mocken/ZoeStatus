@@ -114,6 +114,52 @@
                                     <action selector="startEditing:" destination="BYZ-38-t0r" eventType="editingDidBegin" id="UiJ-VS-Y3f"/>
                                 </connections>
                             </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EZB-Lz-7JF">
+                                <rect key="frame" x="109" y="358.5" width="76" height="39"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                <state key="normal" title="⏰ --:--"/>
+                                <connections>
+                                    <action selector="datePickerButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eVh-SB-4jM"/>
+                                </connections>
+                            </button>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BbT-SG-YgW" userLabel="PickerView">
+                                <rect key="frame" x="0.0" y="480" width="320" height="260"/>
+                                <subviews>
+                                    <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ds7-sL-GT6">
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                                        <items>
+                                            <barButtonItem style="plain" systemItem="flexibleSpace" id="JOP-40-KeB"/>
+                                            <barButtonItem systemItem="trash" id="ioh-WZ-IHo">
+                                                <connections>
+                                                    <action selector="datePickerTrashButtonPressed:" destination="BYZ-38-t0r" id="OSU-D8-juV"/>
+                                                </connections>
+                                            </barButtonItem>
+                                            <barButtonItem systemItem="cancel" id="LG3-Ud-4TQ">
+                                                <connections>
+                                                    <action selector="datePickerCancelButtonPressed:" destination="BYZ-38-t0r" id="JWF-QR-4dX"/>
+                                                </connections>
+                                            </barButtonItem>
+                                            <barButtonItem style="done" systemItem="save" id="Tpb-6x-PlR">
+                                                <connections>
+                                                    <action selector="datePickerDoneButtonPressed:" destination="BYZ-38-t0r" id="f9E-70-eku"/>
+                                                </connections>
+                                            </barButtonItem>
+                                        </items>
+                                    </toolbar>
+                                    <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="time" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="Yv3-7p-b6B">
+                                        <rect key="frame" x="0.0" y="44" width="320" height="216"/>
+                                    </datePicker>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="opaqueSeparatorColor" red="0.77647058820000003" green="0.77647058820000003" blue="0.7843137255" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstItem="Yv3-7p-b6B" firstAttribute="top" secondItem="ds7-sL-GT6" secondAttribute="bottom" id="Cja-L5-tDc"/>
+                                    <constraint firstItem="ds7-sL-GT6" firstAttribute="top" secondItem="BbT-SG-YgW" secondAttribute="top" id="LRI-Dl-YuU"/>
+                                    <constraint firstItem="ds7-sL-GT6" firstAttribute="leading" secondItem="BbT-SG-YgW" secondAttribute="leading" id="LXU-Ul-Kz2"/>
+                                    <constraint firstAttribute="bottom" secondItem="Yv3-7p-b6B" secondAttribute="bottom" id="Utg-VX-al1"/>
+                                    <constraint firstItem="ds7-sL-GT6" firstAttribute="leading" secondItem="Yv3-7p-b6B" secondAttribute="leading" id="bHP-vG-aSV"/>
+                                    <constraint firstItem="ds7-sL-GT6" firstAttribute="centerX" secondItem="BbT-SG-YgW" secondAttribute="centerX" id="xhD-BP-mus"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" red="0.32888238445650142" green="0.8954011279678713" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -123,7 +169,9 @@
                             <constraint firstItem="awZ-qK-aid" firstAttribute="firstBaseline" secondItem="LNW-0z-EOz" secondAttribute="firstBaseline" id="3K0-cF-h4D"/>
                             <constraint firstItem="zkf-p5-tWr" firstAttribute="firstBaseline" secondItem="yBo-fs-MF9" secondAttribute="firstBaseline" id="3ls-SR-bzs"/>
                             <constraint firstItem="kyp-fD-Rii" firstAttribute="top" secondItem="yBo-fs-MF9" secondAttribute="bottom" constant="5" id="3oG-Yn-fLw"/>
+                            <constraint firstItem="BbT-SG-YgW" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="4WA-ZJ-OHh"/>
                             <constraint firstItem="b4a-jL-5hN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="4vj-hp-OEA"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="BbT-SG-YgW" secondAttribute="trailing" id="5fI-i3-b30"/>
                             <constraint firstItem="kyp-fD-Rii" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="5np-fS-WGP"/>
                             <constraint firstItem="Lnx-fw-b6P" firstAttribute="top" secondItem="kyp-fD-Rii" secondAttribute="bottom" constant="5" id="6Zf-qT-hn3"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="w8h-1m-ygi" secondAttribute="bottom" constant="10" id="6ft-xV-zgM"/>
@@ -148,27 +196,42 @@
                             <constraint firstItem="awZ-qK-aid" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="183" id="Vvb-kK-pah"/>
                             <constraint firstItem="icM-2f-gRD" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="b4a-jL-5hN" secondAttribute="trailing" constant="10" id="XcW-CW-b1X"/>
                             <constraint firstItem="emx-tM-G9P" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="YUd-eY-rdI"/>
+                            <constraint firstItem="BbT-SG-YgW" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="dUc-9z-8Ut"/>
                             <constraint firstItem="cpG-sm-aV3" firstAttribute="leading" secondItem="awZ-qK-aid" secondAttribute="trailing" constant="5" id="egY-T0-VMh"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Lnx-fw-b6P" secondAttribute="trailing" constant="16" id="ffE-RD-6Uk"/>
                             <constraint firstItem="zkf-p5-tWr" firstAttribute="leading" secondItem="yBo-fs-MF9" secondAttribute="trailing" constant="5" id="h0R-5v-Uut"/>
                             <constraint firstItem="w8h-1m-ygi" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="hIh-2e-rBd"/>
+                            <constraint firstItem="EZB-Lz-7JF" firstAttribute="leading" secondItem="Lnx-fw-b6P" secondAttribute="trailing" constant="17" id="hLL-Gs-B6O"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="kyp-fD-Rii" secondAttribute="trailing" constant="16" id="hhb-X2-GN7"/>
                             <constraint firstItem="19f-Aq-YyL" firstAttribute="firstBaseline" secondItem="rbz-gd-6J5" secondAttribute="baseline" constant="48.5" id="kVc-mx-HD8"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="AhF-MA-RmR" secondAttribute="trailing" constant="14" id="liF-eJ-5AO"/>
+                            <constraint firstItem="BbT-SG-YgW" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="njn-4d-vfB"/>
+                            <constraint firstItem="EZB-Lz-7JF" firstAttribute="firstBaseline" secondItem="Lnx-fw-b6P" secondAttribute="firstBaseline" id="pT7-uJ-KLz"/>
                             <constraint firstItem="byL-uD-5mU" firstAttribute="firstBaseline" secondItem="zkf-p5-tWr" secondAttribute="firstBaseline" id="sk5-jT-QP2"/>
                             <constraint firstItem="byL-uD-5mU" firstAttribute="leading" secondItem="zkf-p5-tWr" secondAttribute="leading" id="wIc-al-vL4"/>
                             <constraint firstItem="rbz-gd-6J5" firstAttribute="firstBaseline" secondItem="AhF-MA-RmR" secondAttribute="baseline" constant="80" id="z2J-G8-inz"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="rbz-gd-6J5" secondAttribute="trailing" constant="16" id="zNX-bC-VG8"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="dUc-9z-8Ut"/>
+                            </mask>
+                        </variation>
                     </view>
                     <connections>
                         <outlet property="activityIndicator" destination="w8h-1m-ygi" id="Dza-a6-sun"/>
                         <outlet property="chargeNowButton" destination="cpG-sm-aV3" id="VV2-a5-i5B"/>
                         <outlet property="charger" destination="LNW-0z-EOz" id="Tnh-ZJ-pPk"/>
                         <outlet property="charging" destination="awZ-qK-aid" id="wfa-kN-zdV"/>
+                        <outlet property="datePicker" destination="Yv3-7p-b6B" id="BGX-OK-f6y"/>
+                        <outlet property="datePickerButton" destination="EZB-Lz-7JF" id="DKM-IQ-9es"/>
+                        <outlet property="datePickerView" destination="BbT-SG-YgW" id="bfk-mO-wS0"/>
                         <outlet property="dateTextField" destination="Lnx-fw-b6P" id="3vg-BJ-dAV"/>
                         <outlet property="level" destination="AhF-MA-RmR" id="jl6-zj-7ei"/>
+                        <outlet property="pickerViewBottom" destination="dUc-9z-8Ut" id="qti-aM-swB"/>
+                        <outlet property="pickerViewToolbar" destination="ds7-sL-GT6" id="Ack-3b-UDa"/>
+                        <outlet property="pickerViewTop" destination="njn-4d-vfB" id="Ibc-zi-a1Z"/>
                         <outlet property="plugged" destination="icM-2f-gRD" id="L7u-vJ-Ts5"/>
                         <outlet property="preconditionButton" destination="zkf-p5-tWr" id="Mwv-35-ejh"/>
                         <outlet property="preconditionLast" destination="kyp-fD-Rii" id="ngk-i4-4Xf"/>
