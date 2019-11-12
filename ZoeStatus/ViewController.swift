@@ -193,56 +193,14 @@ class ViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.applicationDidBecomeActive(notification:)), name: Notification.Name("applicationDidBecomeActive"), object: nil)
 
         
-        
-        datePicker2.datePickerMode = .time
-        dateTextField.inputView = datePicker2
-
         // add guesture recognizer
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
         refreshButton.addGestureRecognizer(longPress)
 
         
-        let label =  UILabel(frame: UIScreen.main.bounds)
-        label.text = "A/C timer:"
-        label.sizeToFit()
-        let title = UIBarButtonItem(customView: label)
-        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        //  let flexibleSpace2 = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let trashButton = UIBarButtonItem(barButtonSystemItem: .trash, target: nil, action: #selector(datePickerTrash))
-        let cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: #selector(datePickerCancel))
-        let doneButton = UIBarButtonItem(barButtonSystemItem: .save, target: nil, action: #selector(datePickerDone))
-
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
-        toolbar.setItems([title, flexibleSpace, trashButton, cancelButton, doneButton], animated: false)
-        dateTextField.inputAccessoryView = toolbar
     }
 
     //var preconditionRemoteTimer: Date = Date.distantPast
-    
-    @objc func datePickerDone(){
-        
-        let preconditionRemoteTimer = datePicker2.date
-        preconditionCar(command: .later, date: preconditionRemoteTimer)
-
-        self.view.endEditing(true) // close picker
-    }
-
-    @objc func datePickerTrash(){
-        preconditionCar(command: .delete, date: nil)
-        self.view.endEditing(true) // close picker
-
-    }
-    @objc func datePickerCancel(){
-        // preconditionCar(command: .read, date: nil) // works, but takes too long
-        if (preconditionRemoteTimer != nil){
-            dateTextField.text = dateToTimeString(date: preconditionRemoteTimer!)
-        } else {
-            dateTextField.text = ""
-        }
-
-        self.view.endEditing(true) // close picker
-    }
     
     
     /*
@@ -510,15 +468,12 @@ class ViewController: UIViewController {
             preconditionRemoteTimer = date // save current value, so the text field can be quickly restored
             if (!error){
                 if (date != nil){
-                    dateTextField.text = dateToTimeString(date: date!)
                     datePickerButton.setTitle(dateToTimeString(date: date!), for: .normal)
                 } else {
-                    dateTextField.text = ""
                     datePickerButton.setTitle("⏰ --:--", for: .normal)
 
                 }
             } else {
-                dateTextField.text = "error"
                 datePickerButton.setTitle("⏰ error", for: .normal)
             }
         }
@@ -526,8 +481,6 @@ class ViewController: UIViewController {
         self.updateActivity(type: .stop)
     }
 
-    @IBOutlet var dateTextField: UITextField!
-    let datePicker2 = UIDatePicker()
 
     
     func preconditionCar(command:PreconditionCommand, date: Date?){
