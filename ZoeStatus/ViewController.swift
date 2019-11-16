@@ -11,40 +11,9 @@ import UIKit
 class ViewController: UIViewController {
     var percent:UInt8 = 0
 
-    let baseURL =  "https://www.services.renault-ze.com/api"
-
     var sc=ServiceConnection()
     
-    
-    func timestampToDateString(timestamp: UInt64) -> String{
-        var strDate = "undefined"
         
-        if let unixTime = Double(exactly:timestamp/1000) {
-            let date = Date(timeIntervalSince1970: unixTime)
-            let dateFormatter = DateFormatter()
-            let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
-            dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
-            dateFormatter.locale = NSLocale.current
-            dateFormatter.dateFormat = "📅 dd.MM.yyyy 🕰 HH:mm:ss" //Specify your format that you want
-            strDate = dateFormatter.string(from: date)
-        }
-        return strDate
-    }
-    
-    
-    func dateToTimeString(date: Date) -> String{
-        var strDate = "undefined"
-        
-        let dateFormatter = DateFormatter()
-        let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
-        dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
-        dateFormatter.locale = NSLocale.current
-        dateFormatter.dateFormat = "⏰ HH:mm" //Specify your format that you want
-        strDate = dateFormatter.string(from: date)
-        
-        return strDate
-    }
-    
     fileprivate func performLogin() {
 
         let userDefaults = UserDefaults.standard
@@ -65,19 +34,19 @@ class ViewController: UIViewController {
          }
          */
         
-        sc.userName = userDefaults.string(forKey: "userName_preference")
-        sc.password = userDefaults.string(forKey: "password_preference")
+        ServiceConnection.userName = userDefaults.string(forKey: "userName_preference")
+        ServiceConnection.password = userDefaults.string(forKey: "password_preference")
         
-        if ((sc.userName == nil) || (sc.password == nil)){
+        if ((ServiceConnection.userName == nil) || (ServiceConnection.password == nil)){
             print ("Enter user credentials in settings app!")
             UIApplication.shared.open(URL(string : UIApplication.openSettingsURLString)!)
         } else {
 
-            if sc.userName == "simulation", sc.password == "simulation"
+            if ServiceConnection.userName == "simulation", ServiceConnection.password == "simulation"
             {
-                sc.simulation = true
+                ServiceConnection.simulation = true
             } else {
-                sc.simulation = false
+                ServiceConnection.simulation = false
             }
             
             updateActivity(type:.start)
@@ -117,7 +86,7 @@ class ViewController: UIViewController {
         }
 
         // load settings
-        if (sc.tokenExpiry == nil){
+        if (ServiceConnection.tokenExpiry == nil){
             performLogin()
         }
     }
@@ -286,12 +255,11 @@ class ViewController: UIViewController {
         }
         print("Activity count = \(activityCount)")
     }
-    func stopActivity(){
-    }
+
     
     @IBAction func refreshButtonPressed(_ sender: UIButton) {
        
-        if (sc.tokenExpiry == nil){ // never logged in successfully
+        if (ServiceConnection.tokenExpiry == nil){ // never logged in successfully
         
             updateActivity(type:.start)
             sc.login(){(result:Bool)->() in
@@ -336,12 +304,12 @@ class ViewController: UIViewController {
                 print("token still valid!")
             
                 updateActivity(type:.start)
-                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                sc.batteryState(callback: batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
                 updateActivity(type:.start)
-                self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
+                sc.airConditioningLastState(callback:acLastState(error:date:type:result:))
 
-                self.updateActivity(type: .start)
-                self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
+                updateActivity(type: .start)
+                sc.precondition(command: .read, date: nil, callback: preconditionState)
 
             }
         }
@@ -356,46 +324,43 @@ class ViewController: UIViewController {
             displayMessage(title: "Error", body: "Could not obtain battery state.")
             
         } else {
-            self.level.text = String(format: "🔋%3d%%", charge_level)
-            self.range.text = String(format: "🛣️ %3.0f km", remaining_range) // 📏
+            level.text = String(format: "🔋%3d%%", charge_level)
+            range.text = String(format: "🛣️ %3.0f km", remaining_range) // 📏
             
-            
-            //            self.update.text = String(format: "%d", last_update)
-            
-            self.update.text = self.timestampToDateString(timestamp: last_update)
+            update.text = timestampToDateString(timestamp: last_update)
             if plugged, charging_point != nil {
                 
                 switch (charging_point!) {
                 case "INVALID":
-                    self.charger.text = "⛽️ " + "❌"
+                    charger.text = "⛽️ " + "❌"
                     break;
                 case "SLOW":
-                    self.charger.text = "⛽️ " + "🐌"
+                    charger.text = "⛽️ " + "🐌"
                     break;
                 case "FAST":
-                    self.charger.text = "⛽️ " + "✈️"
+                    charger.text = "⛽️ " + "✈️"
                     break;
                 case "ACCELERATED":
-                    self.charger.text = "⛽️ " + "🚀"
+                    charger.text = "⛽️ " + "🚀"
                     break;
                 default:
-                    self.charger.text = "⛽️ " + charging_point!
+                    charger.text = "⛽️ " + charging_point!
                     break;
                 }
             } else {
-                self.charger.text = "⛽️ …"
+                charger.text = "⛽️ …"
             }
             
             if charging, remaining_time != nil {
-                self.remaining.text = String(format: "⏳ %d min.", remaining_time!)
+                remaining.text = String(format: "⏳ %d min.", remaining_time!)
             } else {
-                self.remaining.text = "⏳ …"
+                remaining.text = "⏳ …"
             }
             self.plugged.text = plugged ? "🔌 ✅" : "🔌 ❌"
             self.charging.text = charging ? "⚡️ ✅" : "⚡️ ❌"
         }
 
-        self.updateActivity(type:.stop)
+        updateActivity(type:.stop)
     }
 
     
@@ -406,25 +371,25 @@ class ViewController: UIViewController {
             
         } else {
             if date != 0 , result != nil {
-                self.preconditionLast.text = self.timestampToDateString(timestamp: date)
+                preconditionLast.text = timestampToDateString(timestamp: date)
                 switch (result!) {
                 case "ERROR":
-                    self.preconditionResult.text = "🌡 ❌"
+                    preconditionResult.text = "🌡 ❌"
                     break
                 case "SUCCESS":
-                    self.preconditionResult.text = "🌡 ✅"
+                    preconditionResult.text = "🌡 ✅"
                     break
                 default:
-                    self.preconditionResult.text = "🌡 …"
+                    preconditionResult.text = "🌡 …"
                 }
             } else {
-                self.preconditionResult.text = "🌡 …"
+                preconditionResult.text = "🌡 …"
             }
         }
-        self.updateActivity(type:.stop)
+        updateActivity(type:.stop)
     }
         
-    func preconditionState(error: Bool, command:PreconditionCommand, date: Date?)->(){
+    func preconditionState(error: Bool, command:ServiceConnection.PreconditionCommand, date: Date?)->(){
         print("Precondition returns \(error)")
         switch command {
         case .now:
@@ -478,15 +443,15 @@ class ViewController: UIViewController {
             }
         }
         
-        self.updateActivity(type: .stop)
+        updateActivity(type: .stop)
     }
 
 
     
-    func preconditionCar(command:PreconditionCommand, date: Date?){
-        if (self.sc.tokenExpiry == nil){ // never logged in successfully
-            self.updateActivity(type: .start)
-            self.sc.login(){(result:Bool)->() in
+    func preconditionCar(command:ServiceConnection.PreconditionCommand, date: Date?){
+        if (ServiceConnection.tokenExpiry == nil){ // never logged in successfully
+            updateActivity(type: .start)
+            sc.login(){(result:Bool)->() in
                 if (result){
                     self.updateActivity(type: .start)
                     self.sc.precondition(command: command, date: date, callback: self.preconditionState)
@@ -497,10 +462,10 @@ class ViewController: UIViewController {
                 self.updateActivity(type: .stop)
             }
         } else {
-            if self.sc.isTokenExpired() {
+            if sc.isTokenExpired() {
                 //print("Token expired or will expire too soon (or expiry date is nil), must renew")
-                self.updateActivity(type:.start)
-                self.sc.renewToken(){(result:Bool)->() in
+                updateActivity(type:.start)
+                sc.renewToken(){(result:Bool)->() in
                     if result {
                         print("renewed expired token!")
                         self.updateActivity(type:.start)
@@ -512,11 +477,11 @@ class ViewController: UIViewController {
                         print("expired token NOT renewed!")
                     }
                 }
-                self.updateActivity(type:.stop)
+                updateActivity(type:.stop)
             } else {
                 print("token still valid!")
-                self.updateActivity(type: .start)
-                self.sc.precondition(command: command, date: date, callback: self.preconditionState)
+                updateActivity(type: .start)
+                sc.precondition(command: command, date: date, callback: self.preconditionState)
             }
         }
     }
@@ -560,8 +525,6 @@ class ViewController: UIViewController {
                 self.updateActivity(type:.start)
                 self.sc.batteryStateUpdateRequest(callback: self.batteryStateUpdateRequest(error:))
             }
-
-            
         }
     }
     
@@ -573,8 +536,7 @@ class ViewController: UIViewController {
         } else {
             displayMessage(title: "Successfully requested battery state update.", body: "The request may take several minutes to complete or fail entirely. Depending on configuration, a text message or email may be triggered. To fetch the updated state from the back-end, use the refresh button.")
         }
-        
-        self.updateActivity(type:.stop)
+        updateActivity(type:.stop)
     }
     
     @IBOutlet var chargeNowButton: UIButton!
@@ -600,8 +562,7 @@ class ViewController: UIViewController {
         } else {
             displayMessage(title: "Success", body: "Requested to start charging.")
         }
-        
-        self.updateActivity(type:.stop)
+        updateActivity(type:.stop)
     }
 }
 

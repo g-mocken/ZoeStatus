@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9A47C940237F5E00006A5FDB /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */; };
+		9A47C943237F5E00006A5FDB /* WidgetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A47C942237F5E00006A5FDB /* WidgetViewController.swift */; };
+		9A47C946237F5E00006A5FDB /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A47C944237F5E00006A5FDB /* MainInterface.storyboard */; };
+		9A47C94A237F5E00006A5FDB /* Zoe Battery and Range.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9A47C93E237F5E00006A5FDB /* Zoe Battery and Range.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9A512FA521B2DDCB007EFAAB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FA421B2DDCB007EFAAB /* AppDelegate.swift */; };
 		9A512FA721B2DDCB007EFAAB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FA621B2DDCB007EFAAB /* ViewController.swift */; };
 		9A512FAA21B2DDCB007EFAAB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FA821B2DDCB007EFAAB /* Main.storyboard */; };
@@ -14,10 +18,43 @@
 		9A512FAF21B2DDCD007EFAAB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FAD21B2DDCD007EFAAB /* LaunchScreen.storyboard */; };
 		9A512FB721B3F74C007EFAAB /* ServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */; };
 		9A512FB921B3FE71007EFAAB /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FB821B3FE71007EFAAB /* Settings.bundle */; };
+		9A57C96223800CAF00A01C61 /* ServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */; };
+		9A57C96423800D2B00A01C61 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A57C96323800D2B00A01C61 /* Utilities.swift */; };
+		9A57C96523800D2B00A01C61 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A57C96323800D2B00A01C61 /* Utilities.swift */; };
+		9A57C9662380110800A01C61 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FAB21B2DDCD007EFAAB /* Assets.xcassets */; };
 		9A9C859421E40A640022EC47 /* defaultValues.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9A9C859321E409DB0022EC47 /* defaultValues.plist */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		9A47C948237F5E00006A5FDB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9A512F9921B2DDCB007EFAAB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9A47C93D237F5E00006A5FDB;
+			remoteInfo = "ZoeStatus Widget";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9A47C94E237F5E00006A5FDB /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				9A47C94A237F5E00006A5FDB /* Zoe Battery and Range.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		9A47C93E237F5E00006A5FDB /* Zoe Battery and Range.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Zoe Battery and Range.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
+		9A47C942237F5E00006A5FDB /* WidgetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViewController.swift; sourceTree = "<group>"; };
+		9A47C945237F5E00006A5FDB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		9A47C947237F5E00006A5FDB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9A512FA121B2DDCB007EFAAB /* ZoeStatus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZoeStatus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A512FA421B2DDCB007EFAAB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9A512FA621B2DDCB007EFAAB /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -27,11 +64,20 @@
 		9A512FB021B2DDCD007EFAAB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceConnection.swift; sourceTree = "<group>"; };
 		9A512FB821B3FE71007EFAAB /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		9A57C96323800D2B00A01C61 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		9A9C859321E409DB0022EC47 /* defaultValues.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = defaultValues.plist; sourceTree = "<group>"; };
 		9AA98C44220F913D00A9F8ED /* ZoeStatus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZoeStatus.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		9A47C93B237F5E00006A5FDB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A47C940237F5E00006A5FDB /* NotificationCenter.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9A512F9E21B2DDCB007EFAAB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -42,10 +88,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9A47C941237F5E00006A5FDB /* ZoeStatus Widget */ = {
+			isa = PBXGroup;
+			children = (
+				9A47C942237F5E00006A5FDB /* WidgetViewController.swift */,
+				9A47C944237F5E00006A5FDB /* MainInterface.storyboard */,
+				9A47C947237F5E00006A5FDB /* Info.plist */,
+			);
+			path = "ZoeStatus Widget";
+			sourceTree = "<group>";
+		};
 		9A512F9821B2DDCB007EFAAB = {
 			isa = PBXGroup;
 			children = (
 				9A512FA321B2DDCB007EFAAB /* ZoeStatus */,
+				9A47C941237F5E00006A5FDB /* ZoeStatus Widget */,
 				9A512FA221B2DDCB007EFAAB /* Products */,
 				9AA98C41220F912C00A9F8ED /* Frameworks */,
 			);
@@ -55,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				9A512FA121B2DDCB007EFAAB /* ZoeStatus.app */,
+				9A47C93E237F5E00006A5FDB /* Zoe Battery and Range.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -66,8 +124,9 @@
 				9A9C859321E409DB0022EC47 /* defaultValues.plist */,
 				9A512FB821B3FE71007EFAAB /* Settings.bundle */,
 				9A512FA421B2DDCB007EFAAB /* AppDelegate.swift */,
-				9A512FA621B2DDCB007EFAAB /* ViewController.swift */,
+				9A57C96323800D2B00A01C61 /* Utilities.swift */,
 				9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */,
+				9A512FA621B2DDCB007EFAAB /* ViewController.swift */,
 				9A512FA821B2DDCB007EFAAB /* Main.storyboard */,
 				9A512FAB21B2DDCD007EFAAB /* Assets.xcassets */,
 				9A512FAD21B2DDCD007EFAAB /* LaunchScreen.storyboard */,
@@ -79,6 +138,7 @@
 		9AA98C41220F912C00A9F8ED /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -86,6 +146,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		9A47C93D237F5E00006A5FDB /* ZoeStatus Widget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A47C94B237F5E00006A5FDB /* Build configuration list for PBXNativeTarget "ZoeStatus Widget" */;
+			buildPhases = (
+				9A47C93A237F5E00006A5FDB /* Sources */,
+				9A47C93B237F5E00006A5FDB /* Frameworks */,
+				9A47C93C237F5E00006A5FDB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ZoeStatus Widget";
+			productName = "ZoeStatus Widget";
+			productReference = 9A47C93E237F5E00006A5FDB /* Zoe Battery and Range.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		9A512FA021B2DDCB007EFAAB /* ZoeStatus */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9A512FB321B2DDCD007EFAAB /* Build configuration list for PBXNativeTarget "ZoeStatus" */;
@@ -93,10 +170,12 @@
 				9A512F9D21B2DDCB007EFAAB /* Sources */,
 				9A512F9E21B2DDCB007EFAAB /* Frameworks */,
 				9A512F9F21B2DDCB007EFAAB /* Resources */,
+				9A47C94E237F5E00006A5FDB /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				9A47C949237F5E00006A5FDB /* PBXTargetDependency */,
 			);
 			name = ZoeStatus;
 			productName = ZoeStatus;
@@ -109,10 +188,13 @@
 		9A512F9921B2DDCB007EFAAB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1010;
+				LastSwiftUpdateCheck = 1120;
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = "Dr. Guido Mocken";
 				TargetAttributes = {
+					9A47C93D237F5E00006A5FDB = {
+						CreatedOnToolsVersion = 11.2.1;
+					};
 					9A512FA021B2DDCB007EFAAB = {
 						CreatedOnToolsVersion = 10.1;
 						LastSwiftMigration = 1020;
@@ -141,11 +223,21 @@
 			projectRoot = "";
 			targets = (
 				9A512FA021B2DDCB007EFAAB /* ZoeStatus */,
+				9A47C93D237F5E00006A5FDB /* ZoeStatus Widget */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		9A47C93C237F5E00006A5FDB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A57C9662380110800A01C61 /* Assets.xcassets in Resources */,
+				9A47C946237F5E00006A5FDB /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9A512F9F21B2DDCB007EFAAB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -161,19 +253,46 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		9A47C93A237F5E00006A5FDB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A57C96523800D2B00A01C61 /* Utilities.swift in Sources */,
+				9A57C96223800CAF00A01C61 /* ServiceConnection.swift in Sources */,
+				9A47C943237F5E00006A5FDB /* WidgetViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9A512F9D21B2DDCB007EFAAB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				9A512FB721B3F74C007EFAAB /* ServiceConnection.swift in Sources */,
 				9A512FA721B2DDCB007EFAAB /* ViewController.swift in Sources */,
+				9A57C96423800D2B00A01C61 /* Utilities.swift in Sources */,
 				9A512FA521B2DDCB007EFAAB /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		9A47C949237F5E00006A5FDB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9A47C93D237F5E00006A5FDB /* ZoeStatus Widget */;
+			targetProxy = 9A47C948237F5E00006A5FDB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
+		9A47C944237F5E00006A5FDB /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9A47C945237F5E00006A5FDB /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
 		9A512FA821B2DDCB007EFAAB /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -193,6 +312,52 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		9A47C94C237F5E00006A5FDB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.0.0.1;
+				DEVELOPMENT_TEAM = J6G8439DVH;
+				INFOPLIST_FILE = "ZoeStatus Widget/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.Widget;
+				PRODUCT_NAME = "Zoe Battery and Range";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9A47C94D237F5E00006A5FDB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.0.0.1;
+				DEVELOPMENT_TEAM = J6G8439DVH;
+				INFOPLIST_FILE = "ZoeStatus Widget/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.Widget;
+				PRODUCT_NAME = "Zoe Battery and Range";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		9A512FB121B2DDCD007EFAAB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -312,7 +477,9 @@
 		9A512FB421B2DDCD007EFAAB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ZoeStatus/ZoeStatus.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1.0.0.6;
@@ -324,7 +491,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ZoeStatus;
 				PROVISIONING_PROFILE_SPECIFIER = "ZoeStatus Developer";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -334,7 +501,9 @@
 		9A512FB521B2DDCD007EFAAB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ZoeStatus/ZoeStatus.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1.0.0.6;
@@ -346,7 +515,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ZoeStatus;
 				PROVISIONING_PROFILE_SPECIFIER = "ZoeStatus Developer";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -356,6 +525,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		9A47C94B237F5E00006A5FDB /* Build configuration list for PBXNativeTarget "ZoeStatus Widget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A47C94C237F5E00006A5FDB /* Debug */,
+				9A47C94D237F5E00006A5FDB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9A512F9C21B2DDCB007EFAAB /* Build configuration list for PBXProject "ZoeStatus" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
