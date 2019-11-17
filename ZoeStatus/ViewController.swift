@@ -17,10 +17,6 @@ class ViewController: UIViewController {
     fileprivate func performLogin() {
 
         let userDefaults = UserDefaults.standard
-        let userName = userDefaults.string(forKey: "userName_preference")
-        if userName != nil {
-            print("User name = \(userName!)")
-        }
         
         /*
          { // PERSONAL VALUES MUST BE REMOVED BEFORE GOING PUBLIC! ALSO DO NOT COMMIT TO GIT!
@@ -36,6 +32,12 @@ class ViewController: UIViewController {
         
         ServiceConnection.userName = userDefaults.string(forKey: "userName_preference")
         ServiceConnection.password = userDefaults.string(forKey: "password_preference")
+        let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatus");
+        sharedDefaults?.set(ServiceConnection.userName, forKey: "userName")
+        sharedDefaults?.set(ServiceConnection.password, forKey: "password")
+        sharedDefaults?.synchronize()
+
+
         
         if ((ServiceConnection.userName == nil) || (ServiceConnection.password == nil)){
             print ("Enter user credentials in settings app!")
@@ -54,7 +56,7 @@ class ViewController: UIViewController {
                 self.updateActivity(type:.stop)
                 if result {
                     self.refreshButtonPressed(self.refreshButton) // auto-refresh after successful login
-                    //self.displayError(errorMessage:"Login to Z.E. services successful")
+                    print("Login to Z.E. services successful")
                 } else {
                     self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
                 }
@@ -144,7 +146,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-            pickerViewTop.constant=view.bounds.height
+        pickerViewTop.constant=view.bounds.height
 
         let toolbarlabel =  UILabel(frame: UIScreen.main.bounds)
         toolbarlabel.text = "A/C timer:"
@@ -154,10 +156,7 @@ class ViewController: UIViewController {
         pickerViewToolbar.sizeToFit()
         pickerViewToolbar.setItems([toolbarTitle]+pickerViewToolbar.items!, animated: false)
 
-        
-        
-        
-        
+     
         NotificationCenter.default.removeObserver(self, name: Notification.Name("applicationDidBecomeActive"), object: nil) // remove if already present, in order to avoid double registration
         NotificationCenter.default.addObserver(self, selector: #selector(self.applicationDidBecomeActive(notification:)), name: Notification.Name("applicationDidBecomeActive"), object: nil)
 
@@ -166,7 +165,6 @@ class ViewController: UIViewController {
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
         refreshButton.addGestureRecognizer(longPress)
 
-        
     }
 
     //var preconditionRemoteTimer: Date = Date.distantPast
@@ -256,9 +254,9 @@ class ViewController: UIViewController {
         print("Activity count = \(activityCount)")
     }
 
-    
+
     @IBAction func refreshButtonPressed(_ sender: UIButton) {
-       
+               
         if (ServiceConnection.tokenExpiry == nil){ // never logged in successfully
         
             updateActivity(type:.start)

@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "9A47C93D237F5E00006A5FDB"
-               BuildableName = "Zoe Status.appex"
+               BuildableName = "Zoe.appex"
                BlueprintName = "ZoeStatus Widget"
                ReferencedContainer = "container:ZoeStatus.xcodeproj">
             </BuildableReference>
@@ -63,7 +63,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9A47C93D237F5E00006A5FDB"
-            BuildableName = "Zoe Status.appex"
+            BuildableName = "Zoe.appex"
             BlueprintName = "ZoeStatus Widget"
             ReferencedContainer = "container:ZoeStatus.xcodeproj">
          </BuildableReference>

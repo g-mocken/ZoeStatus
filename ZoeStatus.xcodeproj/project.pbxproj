@@ -10,7 +10,7 @@
 		9A47C940237F5E00006A5FDB /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */; };
 		9A47C943237F5E00006A5FDB /* WidgetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A47C942237F5E00006A5FDB /* WidgetViewController.swift */; };
 		9A47C946237F5E00006A5FDB /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A47C944237F5E00006A5FDB /* MainInterface.storyboard */; };
-		9A47C94A237F5E00006A5FDB /* Zoe Battery and Range.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9A47C93E237F5E00006A5FDB /* Zoe Battery and Range.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		9A47C94A237F5E00006A5FDB /* Zoe.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9A47C93E237F5E00006A5FDB /* Zoe.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9A512FA521B2DDCB007EFAAB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FA421B2DDCB007EFAAB /* AppDelegate.swift */; };
 		9A512FA721B2DDCB007EFAAB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FA621B2DDCB007EFAAB /* ViewController.swift */; };
 		9A512FAA21B2DDCB007EFAAB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FA821B2DDCB007EFAAB /* Main.storyboard */; };
@@ -42,7 +42,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				9A47C94A237F5E00006A5FDB /* Zoe Battery and Range.appex in Embed App Extensions */,
+				9A47C94A237F5E00006A5FDB /* Zoe.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -50,7 +50,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		9A47C93E237F5E00006A5FDB /* Zoe Battery and Range.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Zoe Battery and Range.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A47C93E237F5E00006A5FDB /* Zoe.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Zoe.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
 		9A47C942237F5E00006A5FDB /* WidgetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViewController.swift; sourceTree = "<group>"; };
 		9A47C945237F5E00006A5FDB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
@@ -65,6 +65,7 @@
 		9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceConnection.swift; sourceTree = "<group>"; };
 		9A512FB821B3FE71007EFAAB /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		9A57C96323800D2B00A01C61 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
+		9A57C967238054AE00A01C61 /* ZoeStatusWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZoeStatusWidget.entitlements; sourceTree = "<group>"; };
 		9A9C859321E409DB0022EC47 /* defaultValues.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = defaultValues.plist; sourceTree = "<group>"; };
 		9AA98C44220F913D00A9F8ED /* ZoeStatus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZoeStatus.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -91,6 +92,7 @@
 		9A47C941237F5E00006A5FDB /* ZoeStatus Widget */ = {
 			isa = PBXGroup;
 			children = (
+				9A57C967238054AE00A01C61 /* ZoeStatusWidget.entitlements */,
 				9A47C942237F5E00006A5FDB /* WidgetViewController.swift */,
 				9A47C944237F5E00006A5FDB /* MainInterface.storyboard */,
 				9A47C947237F5E00006A5FDB /* Info.plist */,
@@ -112,7 +114,7 @@
 			isa = PBXGroup;
 			children = (
 				9A512FA121B2DDCB007EFAAB /* ZoeStatus.app */,
-				9A47C93E237F5E00006A5FDB /* Zoe Battery and Range.appex */,
+				9A47C93E237F5E00006A5FDB /* Zoe.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -160,7 +162,7 @@
 			);
 			name = "ZoeStatus Widget";
 			productName = "ZoeStatus Widget";
-			productReference = 9A47C93E237F5E00006A5FDB /* Zoe Battery and Range.appex */;
+			productReference = 9A47C93E237F5E00006A5FDB /* Zoe.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		9A512FA021B2DDCB007EFAAB /* ZoeStatus */ = {
@@ -315,6 +317,7 @@
 		9A47C94C237F5E00006A5FDB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Widget/ZoeStatusWidget.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.0.0.1;
@@ -328,7 +331,7 @@
 				);
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.Widget;
-				PRODUCT_NAME = "Zoe Battery and Range";
+				PRODUCT_NAME = Zoe;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -338,6 +341,7 @@
 		9A47C94D237F5E00006A5FDB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Widget/ZoeStatusWidget.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.0.0.1;
@@ -351,7 +355,7 @@
 				);
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.Widget;
-				PRODUCT_NAME = "Zoe Battery and Range";
+				PRODUCT_NAME = Zoe;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

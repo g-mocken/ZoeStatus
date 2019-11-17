@@ -65,7 +65,7 @@
                                     <action selector="refreshButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Sgb-Ub-5aY"/>
                                 </connections>
                             </button>
-                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="w8h-1m-ygi">
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="w8h-1m-ygi">
                                 <rect key="frame" x="141.5" y="433" width="37" height="37"/>
                                 <color key="color" cocoaTouchSystemColor="darkTextColor"/>
                             </activityIndicatorView>

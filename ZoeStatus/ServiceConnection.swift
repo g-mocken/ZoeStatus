@@ -21,10 +21,10 @@ class ServiceConnection {
     }
     
     static var simulation: Bool = true
-    static var activationCode: String?
     static var userName:String?
     static var password:String?
     static var vehicleIdentification:String?
+    static var activationCode: String?
     static var token:String? // valid for a certain time, then needs to be renewed. Can be decoded.
     static var tokenExpiry:UInt64?
     static var xsrfToken:String? // can be re-used indefinitely, cannot be decoded (?)
@@ -188,6 +188,7 @@ class ServiceConnection {
                     ServiceConnection.xsrfToken = result.xsrfToken
                     ServiceConnection.token = result.token
                     ServiceConnection.tokenExpiry = self.extractExpiryDate(ofToken: ServiceConnection.token)
+                    
                     
                     DispatchQueue.main.async {
                         callback(true)
