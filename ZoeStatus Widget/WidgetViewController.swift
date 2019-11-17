@@ -11,6 +11,7 @@ import NotificationCenter
 
 var levelCache:UInt8?
 var remainingRangeCache:Float?
+var last_update_cache:UInt64?
 
 class WidgetViewController: UIViewController, NCWidgetProviding {
         
@@ -95,6 +96,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         
     @IBOutlet var level: UILabel!
     @IBOutlet var range: UILabel!
+    @IBOutlet var update: UILabel!
     @IBOutlet var refreshButton: UIButton!
     @IBAction func refreshButtonPressed(_ sender: UIButton) {
        
@@ -147,9 +149,13 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         if levelCache != nil {
             self.level.text = String(format: "🔋%3d%%", levelCache!)
         }
-        if (remainingRangeCache != nil){
+        if remainingRangeCache != nil {
             self.range.text = String(format: "🛣️ %3.0f km", remainingRangeCache!)
         }
+        if last_update_cache != nil {
+            self.update.text = timestampToDateString(timestamp: last_update_cache!)
+        }
+        
         completionHandler(NCUpdateResult.noData)
     }
     
@@ -165,6 +171,10 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
             levelCache = charge_level
             self.range.text = String(format: "🛣️ %3.0f km", remaining_range)
             remainingRangeCache = remaining_range
+            
+            self.update.text = timestampToDateString(timestamp: last_update)
+            last_update_cache = last_update
+
             
         }
         updateActivity(type:.stop)

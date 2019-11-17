@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="M4Y-Lb-cyx">
-    <device id="retina4_0" orientation="portrait" appearance="light"/>
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -16,38 +16,48 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="top" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🔋…" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="100" translatesAutoresizingMaskIntoConstraints="NO" id="GcN-lo-r42">
-                                <rect key="frame" x="5" y="-1" width="100" height="33.5"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
+                                <rect key="frame" x="5" y="-1" width="111" height="40"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="top" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🛣️ …" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="100" id="FDD-s4-pK7">
                                 <rect key="frame" x="121" y="-1" width="128" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lJF-NT-lg9">
-                                <rect key="frame" x="285" y="-7.5" width="30" height="46.5"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
+                                <rect key="frame" x="285" y="-7.5" width="30" height="44.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
                                 <state key="normal" title="↻"/>
                                 <connections>
                                     <action selector="refreshButtonPressed:" destination="M4Y-Lb-cyx" eventType="touchUpInside" id="4Tr-Cj-XRL"/>
                                 </connections>
                             </button>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="ggu-JG-Opq">
-                                <rect key="frame" x="290" y="6" width="20" height="20"/>
+                                <rect key="frame" x="290" y="5" width="20" height="20"/>
                                 <color key="color" cocoaTouchSystemColor="darkTextColor"/>
                             </activityIndicatorView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="📅 …🕰 …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="uKC-YD-bYP">
+                                <rect key="frame" x="9" y="44" width="311" height="28"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <constraints>
                             <constraint firstItem="lJF-NT-lg9" firstAttribute="trailing" secondItem="ssy-KU-ocm" secondAttribute="trailing" constant="-5" id="6T5-bk-Hf4"/>
                             <constraint firstItem="ggu-JG-Opq" firstAttribute="centerX" secondItem="lJF-NT-lg9" secondAttribute="centerX" id="6pd-5G-U5q"/>
                             <constraint firstItem="lJF-NT-lg9" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="FDD-s4-pK7" secondAttribute="trailing" id="9Q9-eU-2Ft"/>
                             <constraint firstItem="GcN-lo-r42" firstAttribute="leading" secondItem="ssy-KU-ocm" secondAttribute="leading" constant="5" id="BDI-WJ-vKg"/>
+                            <constraint firstItem="uKC-YD-bYP" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="lJF-NT-lg9" secondAttribute="trailing" id="DPM-cU-lbD"/>
                             <constraint firstItem="ggu-JG-Opq" firstAttribute="centerY" secondItem="lJF-NT-lg9" secondAttribute="centerY" id="F05-C3-prD"/>
+                            <constraint firstItem="uKC-YD-bYP" firstAttribute="leading" secondItem="GcN-lo-r42" secondAttribute="leading" id="Jgd-nW-vyb"/>
                             <constraint firstItem="FDD-s4-pK7" firstAttribute="firstBaseline" secondItem="GcN-lo-r42" secondAttribute="firstBaseline" id="MiB-i7-YOh"/>
-                            <constraint firstItem="FDD-s4-pK7" firstAttribute="leading" secondItem="GcN-lo-r42" secondAttribute="trailing" constant="16" id="bNh-hb-7Il"/>
+                            <constraint firstItem="FDD-s4-pK7" firstAttribute="leading" secondItem="GcN-lo-r42" secondAttribute="trailing" constant="5" id="bNh-hb-7Il"/>
                             <constraint firstItem="FDD-s4-pK7" firstAttribute="firstBaseline" secondItem="lJF-NT-lg9" secondAttribute="firstBaseline" id="c4Y-kw-DmM"/>
+                            <constraint firstItem="uKC-YD-bYP" firstAttribute="top" secondItem="GcN-lo-r42" secondAttribute="bottom" constant="5" id="h1W-VL-HO6"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="ssy-KU-ocm"/>
                     </view>
@@ -59,11 +69,12 @@
                         <outlet property="level" destination="GcN-lo-r42" id="ToT-xx-Nc5"/>
                         <outlet property="range" destination="FDD-s4-pK7" id="plp-GY-J0Z"/>
                         <outlet property="refreshButton" destination="lJF-NT-lg9" id="VhY-DS-mrr"/>
+                        <outlet property="update" destination="uKC-YD-bYP" id="oWa-cH-Ues"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="vXp-U4-Rya" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="129.375" y="75.528169014084511"/>
+            <point key="canvasLocation" x="128" y="74.212893553223395"/>
         </scene>
     </scenes>
 </document>
