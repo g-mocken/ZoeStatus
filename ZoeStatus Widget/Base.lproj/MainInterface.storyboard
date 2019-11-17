@@ -11,23 +11,22 @@
         <scene sceneID="cwh-vc-ff4">
             <objects>
                 <viewController title="WidgetController" id="M4Y-Lb-cyx" userLabel="WidgetViewController" customClass="WidgetViewController" customModule="Zoe" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" simulatedAppContext="notificationCenter" id="S3S-Oj-5AN">
+                    <view key="view" contentMode="scaleToFill" simulatedAppContext="notificationCenter" translatesAutoresizingMaskIntoConstraints="NO" id="S3S-Oj-5AN">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="37"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="top" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🔋…" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="100" translatesAutoresizingMaskIntoConstraints="NO" id="GcN-lo-r42">
-                                <rect key="frame" x="5" y="-1" width="111" height="40"/>
+                                <rect key="frame" x="5" y="5" width="48" height="31.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="26"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="top" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🛣️ …" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="100" id="FDD-s4-pK7">
-                                <rect key="frame" x="121" y="-1" width="128" height="34"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="top" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🛣️ …" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="120" translatesAutoresizingMaskIntoConstraints="NO" id="FDD-s4-pK7">
+                                <rect key="frame" x="58" y="5" width="54" height="31.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="26"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lJF-NT-lg9">
-                                <rect key="frame" x="285" y="-7.5" width="30" height="44.5"/>
+                                <rect key="frame" x="285" y="-1.5" width="30" height="44.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="26"/>
                                 <state key="normal" title="↻"/>
                                 <connections>
@@ -35,12 +34,11 @@
                                 </connections>
                             </button>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="ggu-JG-Opq">
-                                <rect key="frame" x="290" y="5" width="20" height="20"/>
+                                <rect key="frame" x="290" y="11" width="20" height="20"/>
                                 <color key="color" cocoaTouchSystemColor="darkTextColor"/>
                             </activityIndicatorView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="📅 …🕰 …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="uKC-YD-bYP">
-                                <rect key="frame" x="9" y="44" width="311" height="28"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="📅 …🕰 …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uKC-YD-bYP">
+                                <rect key="frame" x="5" y="41.5" width="310" height="26.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -51,10 +49,11 @@
                             <constraint firstItem="ggu-JG-Opq" firstAttribute="centerX" secondItem="lJF-NT-lg9" secondAttribute="centerX" id="6pd-5G-U5q"/>
                             <constraint firstItem="lJF-NT-lg9" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="FDD-s4-pK7" secondAttribute="trailing" id="9Q9-eU-2Ft"/>
                             <constraint firstItem="GcN-lo-r42" firstAttribute="leading" secondItem="ssy-KU-ocm" secondAttribute="leading" constant="5" id="BDI-WJ-vKg"/>
-                            <constraint firstItem="uKC-YD-bYP" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="lJF-NT-lg9" secondAttribute="trailing" id="DPM-cU-lbD"/>
+                            <constraint firstItem="uKC-YD-bYP" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="ssy-KU-ocm" secondAttribute="trailing" constant="-5" id="DPM-cU-lbD"/>
                             <constraint firstItem="ggu-JG-Opq" firstAttribute="centerY" secondItem="lJF-NT-lg9" secondAttribute="centerY" id="F05-C3-prD"/>
-                            <constraint firstItem="uKC-YD-bYP" firstAttribute="leading" secondItem="GcN-lo-r42" secondAttribute="leading" id="Jgd-nW-vyb"/>
+                            <constraint firstItem="uKC-YD-bYP" firstAttribute="leading" secondItem="ssy-KU-ocm" secondAttribute="leading" constant="5" id="Jgd-nW-vyb"/>
                             <constraint firstItem="FDD-s4-pK7" firstAttribute="firstBaseline" secondItem="GcN-lo-r42" secondAttribute="firstBaseline" id="MiB-i7-YOh"/>
+                            <constraint firstItem="GcN-lo-r42" firstAttribute="top" secondItem="ssy-KU-ocm" secondAttribute="top" constant="5" id="ScD-1P-VEI"/>
                             <constraint firstItem="FDD-s4-pK7" firstAttribute="leading" secondItem="GcN-lo-r42" secondAttribute="trailing" constant="5" id="bNh-hb-7Il"/>
                             <constraint firstItem="FDD-s4-pK7" firstAttribute="firstBaseline" secondItem="lJF-NT-lg9" secondAttribute="firstBaseline" id="c4Y-kw-DmM"/>
                             <constraint firstItem="uKC-YD-bYP" firstAttribute="top" secondItem="GcN-lo-r42" secondAttribute="bottom" constant="5" id="h1W-VL-HO6"/>
