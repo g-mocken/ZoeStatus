@@ -8,11 +8,26 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+
+class ViewController: UIViewController, MapViewControllerDelegate {
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        (segue.destination as? MapViewController)?.delegate = self
+    }
+    
+    var rangeForMap:Float?
+    func getRemainingRange()->(Float?){
+        return rangeForMap
+    }
+
     var percent:UInt8 = 0
 
     var sc=ServiceConnection()
-    
+   
+    @IBAction func unwindToViewController(segue: UIStoryboardSegue) {
+        //nothing goes here
+    }
+
         
     fileprivate func performLogin() {
 
@@ -84,7 +99,9 @@ class ViewController: UIViewController {
         chargeNowButton.isHidden = false
 
         if (experimentalFeatures){
+            mapButton.isHidden = false
         } else {
+            mapButton.isHidden = true
         }
 
         // load settings
@@ -186,6 +203,7 @@ class ViewController: UIViewController {
     
     @IBOutlet var refreshButton: UIButton!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet var mapButton: UIButton!
     @IBOutlet var preconditionButton: UIButton!
     @IBOutlet var preconditionTime: UILabel!
     @IBOutlet var preconditionLast: UILabel!
@@ -324,6 +342,7 @@ class ViewController: UIViewController {
         } else {
             level.text = String(format: "🔋%3d%%", charge_level)
             range.text = String(format: "🛣️ %3.0f km", remaining_range) // 📏
+            rangeForMap = remaining_range * 1000.0
             
             update.text = timestampToDateString(timestamp: last_update)
             if plugged, charging_point != nil {

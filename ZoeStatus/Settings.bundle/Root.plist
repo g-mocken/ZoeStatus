@@ -84,7 +84,7 @@
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
-			<string>Experimental Features (currently N/A)</string>
+			<string>Experimental Map Feature</string>
 			<key>Key</key>
 			<string>experimental_preference</string>
 			<key>DefaultValue</key>

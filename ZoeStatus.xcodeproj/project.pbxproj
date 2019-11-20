@@ -22,6 +22,7 @@
 		9A57C96423800D2B00A01C61 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A57C96323800D2B00A01C61 /* Utilities.swift */; };
 		9A57C96523800D2B00A01C61 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A57C96323800D2B00A01C61 /* Utilities.swift */; };
 		9A57C9662380110800A01C61 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FAB21B2DDCD007EFAAB /* Assets.xcassets */; };
+		9A589BC12382F59500221376 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A589BC02382F59500221376 /* MapViewController.swift */; };
 		9A9C859421E40A640022EC47 /* defaultValues.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9A9C859321E409DB0022EC47 /* defaultValues.plist */; };
 /* End PBXBuildFile section */
 
@@ -66,6 +67,7 @@
 		9A512FB821B3FE71007EFAAB /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		9A57C96323800D2B00A01C61 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		9A57C967238054AE00A01C61 /* ZoeStatusWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZoeStatusWidget.entitlements; sourceTree = "<group>"; };
+		9A589BC02382F59500221376 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		9A9C859321E409DB0022EC47 /* defaultValues.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = defaultValues.plist; sourceTree = "<group>"; };
 		9AA98C44220F913D00A9F8ED /* ZoeStatus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZoeStatus.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -130,6 +132,7 @@
 				9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */,
 				9A512FA621B2DDCB007EFAAB /* ViewController.swift */,
 				9A512FA821B2DDCB007EFAAB /* Main.storyboard */,
+				9A589BC02382F59500221376 /* MapViewController.swift */,
 				9A512FAB21B2DDCD007EFAAB /* Assets.xcassets */,
 				9A512FAD21B2DDCD007EFAAB /* LaunchScreen.storyboard */,
 				9A512FB021B2DDCD007EFAAB /* Info.plist */,
@@ -272,6 +275,7 @@
 				9A512FB721B3F74C007EFAAB /* ServiceConnection.swift in Sources */,
 				9A512FA721B2DDCB007EFAAB /* ViewController.swift in Sources */,
 				9A57C96423800D2B00A01C61 /* Utilities.swift in Sources */,
+				9A589BC12382F59500221376 /* MapViewController.swift in Sources */,
 				9A512FA521B2DDCB007EFAAB /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

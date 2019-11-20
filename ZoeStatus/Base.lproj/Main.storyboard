@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina6_5" orientation="portrait" appearance="light"/>
+    <device id="retina4_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -12,52 +12,52 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="ZoeStatus" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🔋…" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AhF-MA-RmR">
-                                <rect key="frame" x="2" y="44" width="398" height="96"/>
+                                <rect key="frame" x="2" y="0.0" width="304" height="96"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="80"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🛣️ …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rbz-gd-6J5">
-                                <rect key="frame" x="16" y="139.66666666666666" width="382" height="76.666666666666657"/>
+                                <rect key="frame" x="16" y="95.5" width="288" height="76.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="64"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="📅 …🕰 …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="19f-Aq-YyL">
-                                <rect key="frame" x="16" y="227.33333333333334" width="96" height="27.666666666666657"/>
+                                <rect key="frame" x="16" y="183" width="96" height="28"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="⛽️ …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LNW-0z-EOz">
-                                <rect key="frame" x="16" y="255.33333333333334" width="48" height="27.333333333333343"/>
+                                <rect key="frame" x="16" y="211.5" width="48" height="27"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="⏳ …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b4a-jL-5hN">
-                                <rect key="frame" x="16" y="283" width="48" height="27.666666666666686"/>
+                                <rect key="frame" x="16" y="239" width="48" height="28"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="⚡️ …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="awZ-qK-aid">
-                                <rect key="frame" x="183" y="255.33333333333334" width="48" height="27.333333333333343"/>
+                                <rect key="frame" x="183" y="211.5" width="48" height="27"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🔌 …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="icM-2f-gRD">
-                                <rect key="frame" x="183" y="283" width="48" height="27.666666666666686"/>
+                                <rect key="frame" x="183" y="239" width="48" height="28"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="emx-tM-G9P">
-                                <rect key="frame" x="190" y="802" width="34" height="60"/>
+                                <rect key="frame" x="143" y="508" width="34" height="60"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="40"/>
                                 <state key="normal" title="↻"/>
                                 <connections>
@@ -65,23 +65,23 @@
                                 </connections>
                             </button>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="w8h-1m-ygi">
-                                <rect key="frame" x="188.66666666666666" y="815" width="37" height="37"/>
+                                <rect key="frame" x="141.5" y="521" width="37" height="37"/>
                                 <color key="color" cocoaTouchSystemColor="darkTextColor"/>
                             </activityIndicatorView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="📅 …🕰 …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kyp-fD-Rii" userLabel="AClast">
-                                <rect key="frame" x="16" y="375.33333333333331" width="96" height="27.666666666666686"/>
+                                <rect key="frame" x="16" y="331.5" width="96" height="28"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🌡 …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yBo-fs-MF9" userLabel="Precondition Result">
-                                <rect key="frame" x="16" y="343" width="48" height="27.333333333333314"/>
+                                <rect key="frame" x="16" y="299.5" width="48" height="27"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zkf-p5-tWr">
-                                <rect key="frame" x="69" y="322.33333333333331" width="30" height="58"/>
+                                <rect key="frame" x="69" y="279.5" width="30" height="58"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="38"/>
                                 <state key="normal" title="♨︎">
                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="default"/>
@@ -91,13 +91,13 @@
                                 </connections>
                             </button>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="…" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="byL-uD-5mU">
-                                <rect key="frame" x="69" y="343" width="16" height="27.333333333333314"/>
+                                <rect key="frame" x="69" y="299.5" width="16" height="27"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cpG-sm-aV3">
-                                <rect key="frame" x="236" y="257" width="29.666666666666686" height="22"/>
+                                <rect key="frame" x="236" y="213.5" width="29.5" height="22"/>
                                 <state key="normal" image="play.rectangle" catalog="system">
                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large" weight="bold"/>
                                 </state>
@@ -106,18 +106,30 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EZB-Lz-7JF">
-                                <rect key="frame" x="16" y="408" width="76" height="39"/>
+                                <rect key="frame" x="16" y="364.5" width="76" height="39"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                 <state key="normal" title="⏰ --:--"/>
                                 <connections>
                                     <action selector="datePickerButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eVh-SB-4jM"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gNe-Er-rSr" userLabel="MapButton">
+                                <rect key="frame" x="147" y="459" width="26" height="27"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                <state key="normal" image="map" catalog="system">
+                                    <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
+                                </state>
+                                <connections>
+                                    <segue destination="YGS-en-4Uj" kind="popoverPresentation" popoverAnchorView="gNe-Er-rSr" id="0ha-iW-Atc">
+                                        <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
+                                    </segue>
+                                </connections>
+                            </button>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BbT-SG-YgW" userLabel="PickerView">
-                                <rect key="frame" x="0.0" y="896" width="414" height="260"/>
+                                <rect key="frame" x="0.0" y="568" width="320" height="260"/>
                                 <subviews>
                                     <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ds7-sL-GT6">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                                         <items>
                                             <barButtonItem style="plain" systemItem="flexibleSpace" id="JOP-40-KeB"/>
                                             <barButtonItem systemItem="trash" id="ioh-WZ-IHo">
@@ -164,6 +176,7 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="BbT-SG-YgW" secondAttribute="trailing" id="5fI-i3-b30"/>
                             <constraint firstItem="kyp-fD-Rii" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="5np-fS-WGP"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="w8h-1m-ygi" secondAttribute="bottom" constant="10" id="6ft-xV-zgM"/>
+                            <constraint firstItem="emx-tM-G9P" firstAttribute="top" secondItem="gNe-Er-rSr" secondAttribute="bottom" constant="22" id="80V-t8-By5"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="EZB-Lz-7JF" secondAttribute="trailing" constant="16" id="9Cj-XK-Kor"/>
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="2" id="9Ug-51-niE"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="byL-uD-5mU" secondAttribute="trailing" constant="16" id="AmI-eK-dkE"/>
@@ -171,6 +184,7 @@
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="DPm-QT-LjO"/>
                             <constraint firstItem="EZB-Lz-7JF" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Dwo-kW-Vcx"/>
                             <constraint firstItem="icM-2f-gRD" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="183" id="E09-PQ-u1t"/>
+                            <constraint firstItem="gNe-Er-rSr" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="EeR-s9-9V9"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="cpG-sm-aV3" secondAttribute="trailing" constant="16" id="FXi-O0-wLm"/>
                             <constraint firstItem="yBo-fs-MF9" firstAttribute="firstBaseline" secondItem="b4a-jL-5hN" secondAttribute="baseline" constant="60" id="Fc5-P7-Xto"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="awZ-qK-aid" secondAttribute="trailing" constant="16" id="H3o-CN-cYN"/>
@@ -208,6 +222,7 @@
                             </mask>
                         </variation>
                     </view>
+                    <navigationItem key="navigationItem" id="K8a-mk-rZc"/>
                     <connections>
                         <outlet property="activityIndicator" destination="w8h-1m-ygi" id="Dza-a6-sun"/>
                         <outlet property="chargeNowButton" destination="cpG-sm-aV3" id="VV2-a5-i5B"/>
@@ -217,6 +232,7 @@
                         <outlet property="datePickerButton" destination="EZB-Lz-7JF" id="DKM-IQ-9es"/>
                         <outlet property="datePickerView" destination="BbT-SG-YgW" id="bfk-mO-wS0"/>
                         <outlet property="level" destination="AhF-MA-RmR" id="jl6-zj-7ei"/>
+                        <outlet property="mapButton" destination="gNe-Er-rSr" id="uud-4k-Rfo"/>
                         <outlet property="pickerViewBottom" destination="dUc-9z-8Ut" id="qti-aM-swB"/>
                         <outlet property="pickerViewToolbar" destination="ds7-sL-GT6" id="Ack-3b-UDa"/>
                         <outlet property="pickerViewTop" destination="njn-4d-vfB" id="Ibc-zi-a1Z"/>
@@ -235,8 +251,54 @@
             </objects>
             <point key="canvasLocation" x="86.25" y="147.5"/>
         </scene>
+        <!--Map View Controller-->
+        <scene sceneID="r4q-Os-coj">
+            <objects>
+                <viewController id="YGS-en-4Uj" customClass="MapViewController" customModule="ZoeStatus" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="mTC-5O-JYe">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="548"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" pitchEnabled="NO" showsUserLocation="YES" showsScale="YES" showsTraffic="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bfK-14-djc">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="548"/>
+                                <connections>
+                                    <outlet property="delegate" destination="YGS-en-4Uj" id="6WD-Yx-KNo"/>
+                                </connections>
+                            </mapView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x1z-i1-xWw" userLabel="DoneButton">
+                                <rect key="frame" x="152.5" y="498" width="25" height="24"/>
+                                <state key="normal" image="x.circle" catalog="system">
+                                    <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
+                                </state>
+                                <connections>
+                                    <segue destination="Jmn-mX-Bra" kind="unwind" unwindAction="unwindToViewControllerWithSegue:" id="Yo7-Tt-VAs"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="bfK-14-djc" secondAttribute="trailing" id="3EH-OJ-4TX"/>
+                            <constraint firstItem="x1z-i1-xWw" firstAttribute="centerX" secondItem="bfK-14-djc" secondAttribute="centerX" constant="5" id="5lq-IV-fJl"/>
+                            <constraint firstItem="bfK-14-djc" firstAttribute="top" secondItem="mTC-5O-JYe" secondAttribute="top" id="8nl-we-Xvr"/>
+                            <constraint firstAttribute="bottom" secondItem="bfK-14-djc" secondAttribute="bottom" id="KcD-PK-JMR"/>
+                            <constraint firstItem="x1z-i1-xWw" firstAttribute="top" secondItem="bfK-14-djc" secondAttribute="bottom" constant="-50" id="eFF-Z3-ap3"/>
+                            <constraint firstItem="bfK-14-djc" firstAttribute="leading" secondItem="mTC-5O-JYe" secondAttribute="leading" id="io4-lW-oHZ"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="c08-oD-VTG"/>
+                    </view>
+                    <connections>
+                        <outlet property="rangeMap" destination="bfK-14-djc" id="5Rn-aU-MLD"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="7j8-yS-dMw" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="Jmn-mX-Bra" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="902.89855072463774" y="148.66071428571428"/>
+        </scene>
     </scenes>
     <resources>
+        <image name="map" catalog="system" width="64" height="56"/>
         <image name="play.rectangle" catalog="system" width="64" height="46"/>
+        <image name="x.circle" catalog="system" width="64" height="60"/>
     </resources>
 </document>
