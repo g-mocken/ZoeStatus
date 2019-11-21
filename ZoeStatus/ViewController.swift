@@ -28,7 +28,11 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         //nothing goes here
     }
 
-        
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        print("Width = \(self.view.bounds.width), font = \(level.font.pointSize)")
+    }
+
     fileprivate func performLogin() {
 
         let userDefaults = UserDefaults.standard
@@ -159,12 +163,30 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     @IBOutlet var pickerViewTop: NSLayoutConstraint!
     @IBOutlet var pickerViewBottom: NSLayoutConstraint!
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        pickerViewTop.constant=view.bounds.height
+        
+        // The following assumes that the labels' font sizes are all adjusted in IB for a 320pts screen width, and it linearly expands the font size to fill the actual width
+        let rescaleFactor = self.view.bounds.width / 320.0
+        level.font = .systemFont(ofSize: level.font.pointSize * rescaleFactor)
+        range.font = .systemFont(ofSize: range.font.pointSize * rescaleFactor)
+        update.font = .systemFont(ofSize: update.font.pointSize * rescaleFactor)
+        charger.font = .systemFont(ofSize: charger.font.pointSize * rescaleFactor)
+        remaining.font = .systemFont(ofSize: remaining.font.pointSize * rescaleFactor)
+        charging.font = .systemFont(ofSize: charging.font.pointSize * rescaleFactor)
+        plugged.font = .systemFont(ofSize: plugged.font.pointSize * rescaleFactor)
 
+        preconditionLast.font = .systemFont(ofSize: preconditionLast.font.pointSize  * rescaleFactor)
+        preconditionResult.font = .systemFont(ofSize: preconditionResult.font.pointSize * rescaleFactor)
+        preconditionTime.font = .systemFont(ofSize: preconditionTime.font.pointSize * rescaleFactor)
+
+        datePickerButton.titleLabel?.font = .systemFont(ofSize: (datePickerButton.titleLabel?.font.pointSize)! * rescaleFactor)
+        preconditionButton.titleLabel?.font = .systemFont(ofSize: (preconditionButton.titleLabel?.font.pointSize)! * rescaleFactor)
+        refreshButton.titleLabel?.font = .systemFont(ofSize: (refreshButton.titleLabel?.font.pointSize)! * rescaleFactor)
+        // Note: icon image buttons need to be adjusted using ratio constraints in IB
+
+        
         let toolbarlabel =  UILabel(frame: UIScreen.main.bounds)
         toolbarlabel.text = "A/C timer:"
         toolbarlabel.sizeToFit()
@@ -341,7 +363,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             
         } else {
             level.text = String(format: "🔋%3d%%", charge_level)
-            range.text = String(format: "🛣️ %3.0f km", remaining_range) // 📏
+            range.text = String(format: "🛣️ %3.0f km", remaining_range.rounded()) // 📏
             rangeForMap = remaining_range * 1000.0
             
             update.text = timestampToDateString(timestamp: last_update)

@@ -88,7 +88,9 @@ class ServiceConnection {
     func login (callback:@escaping(Bool)->Void) {
     
         if ServiceConnection.simulation {
-            callback(true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                callback(true)
+            }
             return
         }
         
@@ -276,15 +278,15 @@ class ServiceConnection {
        
         if ServiceConnection.simulation {
             print ("batteryState: simulated")
-            DispatchQueue.main.async {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 callback(false,
                          true,
                          true,
-                         55,
-                         111.1,
+                         100,
+                         234.5,
                          1550874142000,
                          "ACCELERATED",
-                         60)
+                         234)
             }
             return
         }

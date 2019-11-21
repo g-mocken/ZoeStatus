@@ -22,17 +22,74 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         print("Alert: \(title) \(body)")
     }
 
+    @objc func launchApp(_ guesture: UILongPressGestureRecognizer){
+        let url: NSURL = NSURL(string: "ZoeStatus://")!
+        self.extensionContext?.open(url as URL, completionHandler: nil)
+        print("launching app")
+
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        print("transition width= \(size.width)")
+        super.viewWillTransition(to: size, with: coordinator)
+    }
+    
+    
+    
+    var levelFontSize:CGFloat = 0
+    var rangeFontSize:CGFloat = 0
+    var updateFontSize:CGFloat = 0
+    var refreshFontSize:CGFloat = 0
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        print("layout width = \(self.view.bounds.width)")
+       
+        let rescaleFactor = self.view.bounds.width / 320.0 // correct factor even on iPad!
+        level.font = .systemFont(ofSize: levelFontSize * rescaleFactor)
+        range.font = .systemFont(ofSize: rangeFontSize * rescaleFactor)
+        update.font = .systemFont(ofSize: updateFontSize * rescaleFactor)
+        refreshButton.titleLabel?.font = .systemFont(ofSize: refreshFontSize * rescaleFactor)
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
 
+        // The following assumes that the labels' font sizes are all adjusted in IB for a 320pts screen width, and it linearly expands the font size to fill the actual width
+       
+        print("width = \(self.view.bounds.width)")
+        
+        // rescaling here does not work on iPad, because the factor is wrong then:
+        //let rescaleFactor = self.view.bounds.width / 320.0
+        //        level.font = .systemFont(ofSize: level.font.pointSize * rescaleFactor)
+        //        range.font = .systemFont(ofSize: range.font.pointSize * rescaleFactor)
+        //        update.font = .systemFont(ofSize: update.font.pointSize * rescaleFactor)
+        //        refreshButton.titleLabel?.font = .systemFont(ofSize: (refreshButton.titleLabel?.font.pointSize)! * rescaleFactor)
+
+        // save point sizes and do rescaling later
+        levelFontSize=level.font.pointSize
+        rangeFontSize=range.font.pointSize
+        updateFontSize=update.font.pointSize
+        refreshFontSize = (refreshButton.titleLabel?.font.pointSize)!
+        
+        
         let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatus");
         sharedDefaults?.synchronize()
         let userName = sharedDefaults?.string(forKey:"userName")
         let password = sharedDefaults?.string(forKey:"password")
 
        //print("\(userName) \(password)")
+        
+        // launch app on tap in widget
+        let tap = UITapGestureRecognizer(target: self, action: #selector(launchApp(_:)))
+        // attach to only part of widget:
+        // level.addGestureRecognizer(tap)
+        // level.isUserInteractionEnabled = true
+        self.view.addGestureRecognizer(tap) // attach to whole widget view
+
         
         
         ServiceConnection.userName = userName
@@ -99,7 +156,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
     @IBOutlet var update: UILabel!
     @IBOutlet var refreshButton: UIButton!
     @IBAction func refreshButtonPressed(_ sender: UIButton) {
-       
+        
         if (ServiceConnection.tokenExpiry == nil){ // never logged in successfully
         
             updateActivity(type:.start)
