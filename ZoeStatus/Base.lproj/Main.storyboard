@@ -99,7 +99,7 @@
                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cpG-sm-aV3">
                                 <rect key="frame" x="236" y="221.5" width="29" height="22"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" secondItem="cpG-sm-aV3" secondAttribute="height" multiplier="29:22" id="Yg6-Cn-T3p"/>
+                                    <constraint firstAttribute="height" secondItem="cpG-sm-aV3" secondAttribute="width" multiplier="22:29" id="Yg6-Cn-T3p"/>
                                 </constraints>
                                 <state key="normal" image="play.rectangle" catalog="system">
                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large" weight="bold"/>
@@ -119,7 +119,7 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gNe-Er-rSr" userLabel="MapButton">
                                 <rect key="frame" x="140" y="460.5" width="40" height="27"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" secondItem="gNe-Er-rSr" secondAttribute="height" multiplier="40:27" id="jla-uA-sE4"/>
+                                    <constraint firstAttribute="height" secondItem="gNe-Er-rSr" secondAttribute="width" multiplier="27:40" id="jla-uA-sE4"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                 <state key="normal" image="map" catalog="system">
@@ -185,7 +185,6 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="EZB-Lz-7JF" secondAttribute="trailing" constant="16" id="9Cj-XK-Kor"/>
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="2" id="9Ug-51-niE"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="byL-uD-5mU" secondAttribute="trailing" constant="16" id="AmI-eK-dkE"/>
-                            <constraint firstItem="gNe-Er-rSr" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="40:320" id="BI4-I1-8LE"/>
                             <constraint firstItem="awZ-qK-aid" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="LNW-0z-EOz" secondAttribute="trailing" constant="10" id="D7W-6n-QiS"/>
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="DPm-QT-LjO"/>
                             <constraint firstItem="EZB-Lz-7JF" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Dwo-kW-Vcx"/>
@@ -206,7 +205,6 @@
                             <constraint firstItem="awZ-qK-aid" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="183" id="Vvb-kK-pah"/>
                             <constraint firstItem="icM-2f-gRD" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="b4a-jL-5hN" secondAttribute="trailing" constant="10" id="XcW-CW-b1X"/>
                             <constraint firstItem="emx-tM-G9P" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="YUd-eY-rdI"/>
-                            <constraint firstItem="cpG-sm-aV3" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="29:320" id="cAc-5A-1kB"/>
                             <constraint firstItem="BbT-SG-YgW" firstAttribute="bottom" secondItem="8bC-Xf-vdC" secondAttribute="bottom" id="dUc-9z-8Ut"/>
                             <constraint firstItem="cpG-sm-aV3" firstAttribute="leading" secondItem="awZ-qK-aid" secondAttribute="trailing" constant="5" id="egY-T0-VMh"/>
                             <constraint firstItem="gNe-Er-rSr" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="fgK-RP-L76"/>

@@ -162,13 +162,25 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     @IBOutlet var datePickerButton: UIButton!
     @IBOutlet var pickerViewTop: NSLayoutConstraint!
     @IBOutlet var pickerViewBottom: NSLayoutConstraint!
-    
+       
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
         // The following assumes that the labels' font sizes are all adjusted in IB for a 320pts screen width, and it linearly expands the font size to fill the actual width
-        let rescaleFactor = self.view.bounds.width / 320.0
+        var rescaleFactor = self.view.bounds.width / 320.0
+        
+        if rescaleFactor > 1.5 { // limit size on iPad, as it can otherwise become ridiculously large
+            rescaleFactor = 1.5
+        }
+        print("viewDidLoad: rescaleFactor = \(rescaleFactor)")
+
+        // Note: icon image buttons need to be adjusted using width constraints (corresponding height is defined via ratio constraint in IB)
+    
+        let chargeNowButtonWidthConstraint = NSLayoutConstraint(item: chargeNowButton!, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1.0, constant: rescaleFactor * chargeNowButton.bounds.width)
+        let mapButtonWidthConstraint = NSLayoutConstraint(item: mapButton!, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1.0, constant: rescaleFactor * mapButton.bounds.width)
+        view.addConstraints([chargeNowButtonWidthConstraint, mapButtonWidthConstraint])
+        
         level.font = .systemFont(ofSize: level.font.pointSize * rescaleFactor)
         range.font = .systemFont(ofSize: range.font.pointSize * rescaleFactor)
         update.font = .systemFont(ofSize: update.font.pointSize * rescaleFactor)
@@ -184,7 +196,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         datePickerButton.titleLabel?.font = .systemFont(ofSize: (datePickerButton.titleLabel?.font.pointSize)! * rescaleFactor)
         preconditionButton.titleLabel?.font = .systemFont(ofSize: (preconditionButton.titleLabel?.font.pointSize)! * rescaleFactor)
         refreshButton.titleLabel?.font = .systemFont(ofSize: (refreshButton.titleLabel?.font.pointSize)! * rescaleFactor)
-        // Note: icon image buttons need to be adjusted using ratio constraints in IB
+        print("viewDidLoad: width = \(view.bounds.width), font = \(level.font.pointSize)")
 
         
         let toolbarlabel =  UILabel(frame: UIScreen.main.bounds)
