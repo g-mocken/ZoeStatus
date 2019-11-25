@@ -126,9 +126,7 @@
                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
                                 </state>
                                 <connections>
-                                    <segue destination="YGS-en-4Uj" kind="popoverPresentation" popoverAnchorView="gNe-Er-rSr" id="0ha-iW-Atc">
-                                        <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
-                                    </segue>
+                                    <segue destination="YGS-en-4Uj" kind="presentation" id="0ha-iW-Atc"/>
                                 </connections>
                             </button>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BbT-SG-YgW" userLabel="PickerView">
@@ -271,8 +269,13 @@
                                     <outlet property="delegate" destination="YGS-en-4Uj" id="6WD-Yx-KNo"/>
                                 </connections>
                             </mapView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x1z-i1-xWw" userLabel="DoneButton">
-                                <rect key="frame" x="152.5" y="498" width="25" height="24"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x1z-i1-xWw" userLabel="DoneButton">
+                                <rect key="frame" x="144" y="488" width="32" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="x1z-i1-xWw" secondAttribute="height" multiplier="40:40" id="dg6-Lf-e4M"/>
+                                    <constraint firstAttribute="width" constant="32" id="gTZ-Em-j1D"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="25"/>
                                 <state key="normal" image="x.circle" catalog="system">
                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
                                 </state>
@@ -284,22 +287,23 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="bfK-14-djc" secondAttribute="trailing" id="3EH-OJ-4TX"/>
-                            <constraint firstItem="x1z-i1-xWw" firstAttribute="centerX" secondItem="bfK-14-djc" secondAttribute="centerX" constant="5" id="5lq-IV-fJl"/>
+                            <constraint firstItem="x1z-i1-xWw" firstAttribute="centerX" secondItem="bfK-14-djc" secondAttribute="centerX" id="5lq-IV-fJl"/>
                             <constraint firstItem="bfK-14-djc" firstAttribute="top" secondItem="mTC-5O-JYe" secondAttribute="top" id="8nl-we-Xvr"/>
                             <constraint firstAttribute="bottom" secondItem="bfK-14-djc" secondAttribute="bottom" id="KcD-PK-JMR"/>
-                            <constraint firstItem="x1z-i1-xWw" firstAttribute="top" secondItem="bfK-14-djc" secondAttribute="bottom" constant="-50" id="eFF-Z3-ap3"/>
+                            <constraint firstItem="x1z-i1-xWw" firstAttribute="top" secondItem="bfK-14-djc" secondAttribute="bottom" constant="-60" id="eFF-Z3-ap3"/>
                             <constraint firstItem="bfK-14-djc" firstAttribute="leading" secondItem="mTC-5O-JYe" secondAttribute="leading" id="io4-lW-oHZ"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="c08-oD-VTG"/>
                     </view>
                     <connections>
+                        <outlet property="doneButton" destination="x1z-i1-xWw" id="HJc-vb-p7h"/>
                         <outlet property="rangeMap" destination="bfK-14-djc" id="5Rn-aU-MLD"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7j8-yS-dMw" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <exit id="Jmn-mX-Bra" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="902.89855072463774" y="148.66071428571428"/>
+            <point key="canvasLocation" x="901.875" y="147.88732394366198"/>
         </scene>
     </scenes>
     <resources>
