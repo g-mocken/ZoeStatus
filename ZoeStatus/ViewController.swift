@@ -440,6 +440,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         updateActivity(type:.stop)
     }
         
+    var preconditionTimer: Timer?
+    
     func preconditionState(error: Bool, command:ServiceConnection.PreconditionCommand, date: Date?)->(){
         print("Precondition returns \(error)")
         switch command {
@@ -451,7 +453,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 print ("countdown in seconds = \(preconditionTimerCountdown)")
                 let timerStartDate = Date.init() // current date & time
                 
-                _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+                preconditionTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
                     // timer periodic action:
                     let seconds = Int(round(Date.init().timeIntervalSince(timerStartDate)))
                     print("passed seconds = \(seconds)")
@@ -550,7 +552,9 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
         let confirmAction = UIAlertAction(title: "Turn on A/C",
                                          style: .default) { (action) in
-                                            self.preconditionCar(command: .now, date: nil)
+                                            if self.preconditionTimer == nil {
+                                                self.preconditionCar(command: .now, date: nil)
+                                            }
         }
         
         let alert = UIAlertController(title: "Turn on air-conditioning?", message: "The car will immediately turn on A/C and leave it running for a couple of minutes. A configurable countdown will be displayed in place of the trigger button.", preferredStyle: .alert)

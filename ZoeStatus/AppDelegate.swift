@@ -13,6 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
+    var shortcutItemToProcess: UIApplicationShortcutItem?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -27,6 +28,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print ("cannot read default values!")
         }
         
+        // If launchOptions contains the appropriate launch options key, a Home screen quick action
+        // is responsible for launching the app. Store the action for processing once the app has
+        // completed initialization.
+        if let shortcutItem = launchOptions?[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem {
+            shortcutItemToProcess = shortcutItem
+            print("Launched with shortcut \(String(describing: shortcutItemToProcess))")
+
+            let vc = self.window!.rootViewController as? ViewController
+            if vc?.preconditionTimer == nil {
+                vc?.preconditionCar(command: .now, date: nil)
+            }
+            return false
+        }
         return true
     }
 
@@ -58,6 +72,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
+    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+        // Alternatively, a shortcut item may be passed in through this delegate method if the app was
+        // still in memory when the Home screen quick action was used. Again, store it for processing.
+        shortcutItemToProcess = shortcutItem
+        print("Re-launched with shortcut \(String(describing: shortcutItemToProcess))")
+        let vc = self.window!.rootViewController as? ViewController
+        if vc?.preconditionTimer == nil {
+            vc?.preconditionCar(command: .now, date: nil)
+            completionHandler(true)
+        } else {
+            completionHandler(false)
+        }
+    }
 
 }
 
