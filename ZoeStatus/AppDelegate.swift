@@ -34,11 +34,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let shortcutItem = launchOptions?[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem {
             shortcutItemToProcess = shortcutItem
             print("Launched with shortcut \(String(describing: shortcutItemToProcess))")
-
-            let vc = self.window!.rootViewController as? ViewController
-            if vc?.preconditionTimer == nil {
-                vc?.preconditionCar(command: .now, date: nil)
-            }
             return false
         }
         return true
@@ -77,13 +72,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // still in memory when the Home screen quick action was used. Again, store it for processing.
         shortcutItemToProcess = shortcutItem
         print("Re-launched with shortcut \(String(describing: shortcutItemToProcess))")
-        let vc = self.window!.rootViewController as? ViewController
-        if vc?.preconditionTimer == nil {
-            vc?.preconditionCar(command: .now, date: nil)
-            completionHandler(true)
-        } else {
-            completionHandler(false)
-        }
     }
 
 }

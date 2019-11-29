@@ -44,7 +44,7 @@
 	<array>
 		<dict>
 			<key>UIApplicationShortcutItemIconType</key>
-			<string>UIApplicationShortcutIconTypeHome</string>
+			<string>UIApplicationShortcutIconTypePlay</string>
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>Start A/C</string>
 			<key>UIApplicationShortcutItemType</key>

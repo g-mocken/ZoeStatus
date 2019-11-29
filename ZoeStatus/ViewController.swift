@@ -86,6 +86,14 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     @objc func applicationDidBecomeActive(notification: Notification) {
         print ("applicationDidBecomeActive notification received!")
        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if ( appDelegate.shortcutItemToProcess != nil){
+            if preconditionTimer == nil { // avoid double start
+                preconditionCar(command: .now, date: nil)
+            }
+            appDelegate.shortcutItemToProcess = nil // prevent double processing
+        }
+        
         if traitCollection.userInterfaceStyle == .light {
             print("Light mode")
             self.view.backgroundColor = UIColor.init(red: 0.329, green: 0.894, blue: 1.000, alpha: 1.0)
