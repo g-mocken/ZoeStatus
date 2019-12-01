@@ -314,25 +314,17 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         print("Activity count = \(activityCount)")
     }
 
-
-    @IBAction func refreshButtonPressed(_ sender: UIButton) {
+    func handleLogin(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
                
         if (ServiceConnection.tokenExpiry == nil){ // never logged in successfully
         
             updateActivity(type:.start)
             sc.login(){(result:Bool)->() in
                 if (result){
-                    self.updateActivity(type:.start)
-                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
-
-                    self.updateActivity(type:.start)
-                    self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
-                    
-                    self.updateActivity(type: .start)
-                    self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
-
+                    actionCode()
                 } else {
                     self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
+                    errorCode()
                 }
                 self.updateActivity(type:.stop)
             }
@@ -343,33 +335,35 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 sc.renewToken(){(result:Bool)->() in
                     if result {
                         print("renewed expired token!")
-                        self.updateActivity(type:.start)
-                        self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
-                        
-                        self.updateActivity(type:.start)
-                        self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
-
-                        self.updateActivity(type: .start)
-                        self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
-
+                        actionCode()
                     } else {
                         self.displayMessage(title: "Error", body:"Failed to renew expired token.")
                         print("expired token NOT renewed!")
+                        errorCode()
                     }
                     self.updateActivity(type:.stop)
                 }
             } else {
                 print("token still valid!")
-            
-                updateActivity(type:.start)
-                sc.batteryState(callback: batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
-                updateActivity(type:.start)
-                sc.airConditioningLastState(callback:acLastState(error:date:type:result:))
-
-                updateActivity(type: .start)
-                sc.precondition(command: .read, date: nil, callback: preconditionState)
-
+                actionCode()
             }
+        }
+    }
+    
+    
+    
+    
+
+    @IBAction func refreshButtonPressed(_ sender: UIButton) {
+        handleLogin(onError: {}){
+            self.updateActivity(type:.start)
+            self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+
+            self.updateActivity(type:.start)
+            self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
+            
+            self.updateActivity(type: .start)
+            self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
         }
     }
     
@@ -507,77 +501,27 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         updateActivity(type: .stop)
     }
 
-
     
     func preconditionCar(command:ServiceConnection.PreconditionCommand, date: Date?){
-        if (ServiceConnection.tokenExpiry == nil){ // never logged in successfully
-            updateActivity(type: .start)
-            sc.login(){(result:Bool)->() in
-                if (result){
-                    self.updateActivity(type: .start)
-                    self.sc.precondition(command: command, date: date, callback: self.preconditionState)
-                } else {
-                    self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
-                    self.preconditionButton.isEnabled=true
-                }
-                self.updateActivity(type: .stop)
-            }
-        } else {
-            if sc.isTokenExpired() {
-                //print("Token expired or will expire too soon (or expiry date is nil), must renew")
-                updateActivity(type:.start)
-                sc.renewToken(){(result:Bool)->() in
-                    if result {
-                        print("renewed expired token!")
-                        self.updateActivity(type:.start)
-                        self.sc.precondition(command: command, date: date, callback: self.preconditionState)
-
-                    } else {
-                        self.displayMessage(title: "Error", body:"Failed to renew expired token.")
-                        self.preconditionButton.isEnabled=true
-                        print("expired token NOT renewed!")
-                    }
-                }
-                updateActivity(type:.stop)
-            } else {
-                print("token still valid!")
-                updateActivity(type: .start)
-                sc.precondition(command: command, date: date, callback: self.preconditionState)
-            }
+        handleLogin(onError: {self.preconditionButton.isEnabled=true}){
+            self.updateActivity(type: .start)
+            self.sc.precondition(command: command, date: date, callback: self.preconditionState)
         }
     }
     
     @IBAction func preconditionButtonPressed(_ sender: Any) {
+        preconditionButton.isEnabled=false
         print("Precondition")
-        
-        
-        preconditionButton.isEnabled=false;
-        
-        let cancelAction = UIAlertAction(title: "Cancel",
-                                          style: .cancel) { (action) in
-                                            {self.preconditionButton.isEnabled=true}()
-        }
 
-        let confirmAction = UIAlertAction(title: "Turn on A/C",
-                                         style: .default) { (action) in
-                                            if self.preconditionTimer == nil {
-                                                self.preconditionCar(command: .now, date: nil)
-                                            }
-        }
-        
-        let alert = UIAlertController(title: "Turn on air-conditioning?", message: "The car will immediately turn on A/C and leave it running for a couple of minutes. A configurable countdown will be displayed in place of the trigger button.", preferredStyle: .alert)
-        alert.addAction(cancelAction)
-        alert.addAction(confirmAction)
-
-        
-        self.present(alert, animated: true) {
-            // The alert was presented
+        confirmButtonPress(title:"Turn on air-conditioning?", body:"The car will immediately turn on A/C and leave it running for a couple of minutes. A configurable countdown will be displayed in place of the trigger button.", cancelButton: "Cancel", cancelCallback: {self.preconditionButton.isEnabled=true}, confirmButton: "Turn on A/C"){
+            
+            if self.preconditionTimer == nil {
+                self.preconditionCar(command: .now, date: nil)
+            }
         }
     }
     
 
-
-    
     @objc func longPress(_ guesture: UILongPressGestureRecognizer) {
         if guesture.state == UIGestureRecognizer.State.began {
             
@@ -604,17 +548,17 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     
     @IBOutlet var chargeNowButton: UIButton!
     @IBAction func chargeNowButtonPressed(_ sender: Any) {
-        
+        self.chargeNowButton.isEnabled=false
         print("request to charge!")
             
-        confirmButtonPress(title:"Charge pause override?", body:"Will tell the car to ignore any scheduled charging pause and to start charging immediately.", cancelButton: "Cancel", cancelCallback: {/*self.chargeNowButton.isEnabled=true*/}, confirmButton: "Start charging")
+        confirmButtonPress(title:"Charge pause override?", body:"Will tell the car to ignore any scheduled charging pause and to start charging immediately.", cancelButton: "Cancel", cancelCallback: {self.chargeNowButton.isEnabled=true}, confirmButton: "Start charging")
         {
-            // trailing confirmCallback-closure:
-            self.updateActivity(type:.start)
-            self.sc.chargeNowRequest(callback: self.chargeNowRequest(error:))
+            
+            self.handleLogin(onError: {self.chargeNowButton.isEnabled=true}){
+                self.updateActivity(type:.start)
+                self.sc.chargeNowRequest(callback: self.chargeNowRequest(error:))
+            }
         }
-
-        
     }
     
     func chargeNowRequest(error: Bool)->(){
