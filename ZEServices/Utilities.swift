@@ -31,7 +31,7 @@ extension String { // taken from https://stackoverflow.com/a/35360697/1149188
     }
 }
 
-func timestampToDateString(timestamp: UInt64) -> String{
+public func timestampToDateString(timestamp: UInt64) -> String{
     var strDate = "undefined"
     
     if let unixTime = Double(exactly:timestamp/1000) {
@@ -47,7 +47,7 @@ func timestampToDateString(timestamp: UInt64) -> String{
 }
 
 
-func dateToTimeString(date: Date) -> String{
+public func dateToTimeString(date: Date) -> String{
     var strDate = "undefined"
     
     let dateFormatter = DateFormatter()

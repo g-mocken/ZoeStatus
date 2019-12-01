@@ -8,6 +8,7 @@
 
 import UIKit
 import NotificationCenter
+import ZEServices
 
 var levelCache:UInt8?
 var remainingRangeCache:Float?

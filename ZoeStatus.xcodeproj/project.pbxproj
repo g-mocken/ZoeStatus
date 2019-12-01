@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9A244448239473990001AF9B /* ZEServices.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A244446239473990001AF9B /* ZEServices.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9A24444B239473990001AF9B /* ZEServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A244444239473990001AF9B /* ZEServices.framework */; };
+		9A24444C239473990001AF9B /* ZEServices.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9A244444239473990001AF9B /* ZEServices.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9A244451239478200001AF9B /* ServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */; };
+		9A244452239478650001AF9B /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A57C96323800D2B00A01C61 /* Utilities.swift */; };
 		9A47C940237F5E00006A5FDB /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */; };
 		9A47C943237F5E00006A5FDB /* WidgetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A47C942237F5E00006A5FDB /* WidgetViewController.swift */; };
 		9A47C946237F5E00006A5FDB /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A47C944237F5E00006A5FDB /* MainInterface.storyboard */; };
@@ -16,17 +21,20 @@
 		9A512FAA21B2DDCB007EFAAB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FA821B2DDCB007EFAAB /* Main.storyboard */; };
 		9A512FAC21B2DDCD007EFAAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FAB21B2DDCD007EFAAB /* Assets.xcassets */; };
 		9A512FAF21B2DDCD007EFAAB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FAD21B2DDCD007EFAAB /* LaunchScreen.storyboard */; };
-		9A512FB721B3F74C007EFAAB /* ServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */; };
 		9A512FB921B3FE71007EFAAB /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FB821B3FE71007EFAAB /* Settings.bundle */; };
-		9A57C96223800CAF00A01C61 /* ServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */; };
-		9A57C96423800D2B00A01C61 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A57C96323800D2B00A01C61 /* Utilities.swift */; };
-		9A57C96523800D2B00A01C61 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A57C96323800D2B00A01C61 /* Utilities.swift */; };
 		9A57C9662380110800A01C61 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FAB21B2DDCD007EFAAB /* Assets.xcassets */; };
 		9A589BC12382F59500221376 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A589BC02382F59500221376 /* MapViewController.swift */; };
 		9A9C859421E40A640022EC47 /* defaultValues.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9A9C859321E409DB0022EC47 /* defaultValues.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		9A244449239473990001AF9B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9A512F9921B2DDCB007EFAAB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9A244443239473990001AF9B;
+			remoteInfo = ZEServices;
+		};
 		9A47C948237F5E00006A5FDB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9A512F9921B2DDCB007EFAAB /* Project object */;
@@ -37,6 +45,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		9A24444D239473990001AF9B /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				9A24444C239473990001AF9B /* ZEServices.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9A47C94E237F5E00006A5FDB /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -51,6 +70,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9A244444239473990001AF9B /* ZEServices.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ZEServices.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A244446239473990001AF9B /* ZEServices.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZEServices.h; sourceTree = "<group>"; };
+		9A244447239473990001AF9B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9A47C93E237F5E00006A5FDB /* Zoe.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Zoe.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
 		9A47C942237F5E00006A5FDB /* WidgetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViewController.swift; sourceTree = "<group>"; };
@@ -73,6 +95,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		9A244441239473990001AF9B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9A47C93B237F5E00006A5FDB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -85,12 +114,24 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A24444B239473990001AF9B /* ZEServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9A244445239473990001AF9B /* ZEServices */ = {
+			isa = PBXGroup;
+			children = (
+				9A57C96323800D2B00A01C61 /* Utilities.swift */,
+				9A244446239473990001AF9B /* ZEServices.h */,
+				9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */,
+				9A244447239473990001AF9B /* Info.plist */,
+			);
+			path = ZEServices;
+			sourceTree = "<group>";
+		};
 		9A47C941237F5E00006A5FDB /* ZoeStatus Widget */ = {
 			isa = PBXGroup;
 			children = (
@@ -107,6 +148,7 @@
 			children = (
 				9A512FA321B2DDCB007EFAAB /* ZoeStatus */,
 				9A47C941237F5E00006A5FDB /* ZoeStatus Widget */,
+				9A244445239473990001AF9B /* ZEServices */,
 				9A512FA221B2DDCB007EFAAB /* Products */,
 				9AA98C41220F912C00A9F8ED /* Frameworks */,
 			);
@@ -117,6 +159,7 @@
 			children = (
 				9A512FA121B2DDCB007EFAAB /* ZoeStatus.app */,
 				9A47C93E237F5E00006A5FDB /* Zoe.appex */,
+				9A244444239473990001AF9B /* ZEServices.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -128,8 +171,6 @@
 				9A9C859321E409DB0022EC47 /* defaultValues.plist */,
 				9A512FB821B3FE71007EFAAB /* Settings.bundle */,
 				9A512FA421B2DDCB007EFAAB /* AppDelegate.swift */,
-				9A57C96323800D2B00A01C61 /* Utilities.swift */,
-				9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */,
 				9A512FA621B2DDCB007EFAAB /* ViewController.swift */,
 				9A512FA821B2DDCB007EFAAB /* Main.storyboard */,
 				9A589BC02382F59500221376 /* MapViewController.swift */,
@@ -150,7 +191,36 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		9A24443F239473990001AF9B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A244448239473990001AF9B /* ZEServices.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
+		9A244443239473990001AF9B /* ZEServices */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A244450239473990001AF9B /* Build configuration list for PBXNativeTarget "ZEServices" */;
+			buildPhases = (
+				9A24443F239473990001AF9B /* Headers */,
+				9A244440239473990001AF9B /* Sources */,
+				9A244441239473990001AF9B /* Frameworks */,
+				9A244442239473990001AF9B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ZEServices;
+			productName = ZEServices;
+			productReference = 9A244444239473990001AF9B /* ZEServices.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 		9A47C93D237F5E00006A5FDB /* ZoeStatus Widget */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9A47C94B237F5E00006A5FDB /* Build configuration list for PBXNativeTarget "ZoeStatus Widget" */;
@@ -176,11 +246,13 @@
 				9A512F9E21B2DDCB007EFAAB /* Frameworks */,
 				9A512F9F21B2DDCB007EFAAB /* Resources */,
 				9A47C94E237F5E00006A5FDB /* Embed App Extensions */,
+				9A24444D239473990001AF9B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				9A47C949237F5E00006A5FDB /* PBXTargetDependency */,
+				9A24444A239473990001AF9B /* PBXTargetDependency */,
 			);
 			name = ZoeStatus;
 			productName = ZoeStatus;
@@ -197,6 +269,9 @@
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = "Dr. Guido Mocken";
 				TargetAttributes = {
+					9A244443239473990001AF9B = {
+						CreatedOnToolsVersion = 11.2.1;
+					};
 					9A47C93D237F5E00006A5FDB = {
 						CreatedOnToolsVersion = 11.2.1;
 					};
@@ -229,11 +304,19 @@
 			targets = (
 				9A512FA021B2DDCB007EFAAB /* ZoeStatus */,
 				9A47C93D237F5E00006A5FDB /* ZoeStatus Widget */,
+				9A244443239473990001AF9B /* ZEServices */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		9A244442239473990001AF9B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9A47C93C237F5E00006A5FDB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -258,12 +341,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		9A244440239473990001AF9B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A244452239478650001AF9B /* Utilities.swift in Sources */,
+				9A244451239478200001AF9B /* ServiceConnection.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9A47C93A237F5E00006A5FDB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9A57C96523800D2B00A01C61 /* Utilities.swift in Sources */,
-				9A57C96223800CAF00A01C61 /* ServiceConnection.swift in Sources */,
 				9A47C943237F5E00006A5FDB /* WidgetViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -272,9 +362,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9A512FB721B3F74C007EFAAB /* ServiceConnection.swift in Sources */,
 				9A512FA721B2DDCB007EFAAB /* ViewController.swift in Sources */,
-				9A57C96423800D2B00A01C61 /* Utilities.swift in Sources */,
 				9A589BC12382F59500221376 /* MapViewController.swift in Sources */,
 				9A512FA521B2DDCB007EFAAB /* AppDelegate.swift in Sources */,
 			);
@@ -283,6 +371,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		9A24444A239473990001AF9B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9A244443239473990001AF9B /* ZEServices */;
+			targetProxy = 9A244449239473990001AF9B /* PBXContainerItemProxy */;
+		};
 		9A47C949237F5E00006A5FDB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9A47C93D237F5E00006A5FDB /* ZoeStatus Widget */;
@@ -318,6 +411,66 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		9A24444E239473990001AF9B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = J6G8439DVH;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = ZEServices/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZEServices;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		9A24444F239473990001AF9B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = J6G8439DVH;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = ZEServices/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZEServices;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
 		9A47C94C237F5E00006A5FDB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -533,6 +686,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		9A244450239473990001AF9B /* Build configuration list for PBXNativeTarget "ZEServices" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A24444E239473990001AF9B /* Debug */,
+				9A24444F239473990001AF9B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9A47C94B237F5E00006A5FDB /* Build configuration list for PBXNativeTarget "ZoeStatus Widget" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

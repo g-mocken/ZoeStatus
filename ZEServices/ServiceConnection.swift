@@ -7,26 +7,28 @@
 //
 
 import Foundation
-import UIKit
 
 
 
-class ServiceConnection {
+public class ServiceConnection {
 
-    enum PreconditionCommand {
+    public init(){
+    }
+    
+    public enum PreconditionCommand {
         case now
         case later
         case delete
         case read
     }
     
-    static var simulation: Bool = true
-    static var userName:String?
-    static var password:String?
+    public static var simulation: Bool = true
+    public static var userName:String?
+    public static var password:String?
     static var vehicleIdentification:String?
     static var activationCode: String?
     static var token:String? // valid for a certain time, then needs to be renewed. Can be decoded.
-    static var tokenExpiry:UInt64?
+    public static var tokenExpiry:UInt64?
     static var xsrfToken:String? // can be re-used indefinitely, cannot be decoded (?)
     // An additional "refreshToken" is received and sent back a Cookie whenever a "token" is received/sent - apparently this is handled transparently by the framework without any explicit code.
     
@@ -85,7 +87,7 @@ class ServiceConnection {
         return nil
     }
     
-    func login (callback:@escaping(Bool)->Void) {
+    public func login (callback:@escaping(Bool)->Void) {
     
         if ServiceConnection.simulation {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -205,7 +207,7 @@ class ServiceConnection {
     }
     
     
-    func renewToken (callback:@escaping(Bool)->Void) {
+    public func renewToken (callback:@escaping(Bool)->Void) {
         
         struct Refresh: Codable {
             let token: String
@@ -274,7 +276,7 @@ class ServiceConnection {
     }
 
     
-    func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+    public func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
        
         if ServiceConnection.simulation {
             print ("batteryState: simulated")
@@ -471,7 +473,7 @@ class ServiceConnection {
         task.resume()
     }
     
-    func isTokenExpired()->Bool {
+    public func isTokenExpired()->Bool {
         let date = Date()
         let now = UInt64(date.timeIntervalSince1970)
         if (  ServiceConnection.tokenExpiry != nil && ServiceConnection.tokenExpiry! > now + 60) { // must be valid for at least one more minute
@@ -484,7 +486,7 @@ class ServiceConnection {
     }
     
 
-    func precondition(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
+    public func precondition(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
         
         if ServiceConnection.simulation {
             print ("precondition: simulated")
@@ -708,7 +710,7 @@ class ServiceConnection {
     
     
     
-    func airConditioningLastState(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
+    public func airConditioningLastState(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
 
         if ServiceConnection.simulation {
             print ("airConditioningLastState: simulated")
@@ -825,7 +827,7 @@ class ServiceConnection {
     
     
     
-    func batteryStateUpdateRequest(callback:@escaping  (Bool) -> ()) {
+    public func batteryStateUpdateRequest(callback:@escaping  (Bool) -> ()) {
         if ServiceConnection.simulation {
             print ("batteryStateUpdateRequest: simulated")
             DispatchQueue.main.async {
@@ -872,7 +874,7 @@ class ServiceConnection {
     
     
     
-    func chargeNowRequest(callback:@escaping  (Bool) -> ()) {
+    public func chargeNowRequest(callback:@escaping  (Bool) -> ()) {
         if ServiceConnection.simulation {
             print ("chargeNowRequest: simulated")
             DispatchQueue.main.async {
