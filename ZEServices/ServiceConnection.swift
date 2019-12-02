@@ -22,7 +22,7 @@ public class ServiceConnection {
         case read
     }
     
-    public static var simulation: Bool = true
+    public static var simulation: Bool = false
     public static var userName:String?
     public static var password:String?
     static var vehicleIdentification:String?

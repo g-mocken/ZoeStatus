@@ -562,7 +562,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     }
     
     func chargeNowRequest(error: Bool)->(){
-        
+        self.chargeNowButton.isEnabled=true
         if (error){
             displayMessage(title: "Error", body: "Could not request to start charging.")
             
