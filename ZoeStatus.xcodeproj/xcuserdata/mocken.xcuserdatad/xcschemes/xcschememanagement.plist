@@ -4,10 +4,25 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>ZEServices Watchos.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>5</integer>
+		</dict>
 		<key>ZEServices.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>2</integer>
+		</dict>
+		<key>ZoeStatus Watch (Complication).xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
+		<key>ZoeStatus Watch.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
 		</dict>
 		<key>ZoeStatus Widget.xcscheme_^#shared#^_</key>
 		<dict>
@@ -33,6 +48,11 @@
 			<true/>
 		</dict>
 		<key>9A512FA021B2DDCB007EFAAB</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9AA73CBC23A020CE001A6234</key>
 		<dict>
 			<key>primary</key>
 			<true/>

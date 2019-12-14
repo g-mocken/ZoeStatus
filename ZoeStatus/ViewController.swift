@@ -8,6 +8,7 @@
 
 import UIKit
 import ZEServices
+import WatchConnectivity
 
 class ViewController: UIViewController, MapViewControllerDelegate {
     
@@ -55,8 +56,23 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         sharedDefaults?.set(ServiceConnection.userName, forKey: "userName")
         sharedDefaults?.set(ServiceConnection.password, forKey: "password")
         sharedDefaults?.synchronize()
+        
+        do {
+            let context =  ["userName":ServiceConnection.userName!,
+                            "password":ServiceConnection.password!,
+                           /* "timestamp": "\(UInt64(Date().timeIntervalSince1970))" */
+                // include timestamp for debugging only, so the changed context is always sent
+            ]
+            // do not use optionals for the context!
+            print ("sending \(context)")
 
+            try WCSession.default.updateApplicationContext(context) // it is only transmitted if it has changed!
+        } catch {
+            // Handle any errors
+            print ("error sending context")
+        }
 
+        
         
         if ((ServiceConnection.userName == nil) || (ServiceConnection.password == nil)){
             print ("Enter user credentials in settings app!")
@@ -117,7 +133,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         }
 
         // load settings
-        if (ServiceConnection.tokenExpiry == nil){
+        if true {//}(ServiceConnection.tokenExpiry == nil){
             performLogin()
         }
     }
@@ -353,8 +369,10 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     
     
     
+    var count = 0
 
     @IBAction func refreshButtonPressed(_ sender: UIButton) {
+                
         handleLogin(onError: {}){
             self.updateActivity(type:.start)
             self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
