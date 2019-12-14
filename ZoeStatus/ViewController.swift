@@ -57,23 +57,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         sharedDefaults?.set(ServiceConnection.password, forKey: "password")
         sharedDefaults?.synchronize()
         
-        do {
-            let context =  ["userName":ServiceConnection.userName!,
-                            "password":ServiceConnection.password!,
-                           /* "timestamp": "\(UInt64(Date().timeIntervalSince1970))" */
-                // include timestamp for debugging only, so the changed context is always sent
-            ]
-            // do not use optionals for the context!
-            print ("sending \(context)")
-
-            try WCSession.default.updateApplicationContext(context) // it is only transmitted if it has changed!
-        } catch {
-            // Handle any errors
-            print ("error sending context")
-        }
-
-        
-        
         if ((ServiceConnection.userName == nil) || (ServiceConnection.password == nil)){
             print ("Enter user credentials in settings app!")
             UIApplication.shared.open(URL(string : UIApplication.openSettingsURLString)!)
@@ -86,6 +69,26 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 ServiceConnection.simulation = false
             }
             
+
+            do {
+                let context =  ["userName":ServiceConnection.userName!,
+                                "password":ServiceConnection.password!,
+                               /* "timestamp": "\(UInt64(Date().timeIntervalSince1970))" */
+                    // include timestamp for debugging only, so the changed context is always sent
+                ]
+                // do not use optionals for the context!
+                print ("sending \(context)")
+
+                try WCSession.default.updateApplicationContext(context) // it is only transmitted if it has changed!
+            } catch {
+                // Handle any errors
+                print ("error sending context")
+            }
+
+
+            
+
+
             updateActivity(type:.start)
             sc.login(){(result:Bool)->() in
                 self.updateActivity(type:.stop)
