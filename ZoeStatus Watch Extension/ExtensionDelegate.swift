@@ -14,17 +14,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
     
     var session: WCSession!
     
-    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        print("activationDidComplete")
-    }
-    
-
-    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-       
-        print("Received context: \(applicationContext.description)")
+    fileprivate func extractCredentialsFromContext(_ context: [String:Any]) {
+        print("Trying context: \(context.description)")
         
-        if let userName = applicationContext["userName"], let password = applicationContext["password"]
-        {
+        if let userName = context["userName"], let password = context["password"] {
             ServiceConnection.userName =  userName as? String
             ServiceConnection.password = password as? String
             ServiceConnection.simulation = false
@@ -35,20 +28,31 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
             userDefaults.set(ServiceConnection.password, forKey: "password_preference")
             userDefaults.synchronize()
         }
-        
+    }
+    
+    
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        print("activationDidComplete")
+        if error == nil {
+            extractCredentialsFromContext(session.receivedApplicationContext)
+        }
+    }
+    
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+        print("Received updated context: \(applicationContext.description)")
+        extractCredentialsFromContext(applicationContext)
     }
     
     func applicationDidFinishLaunching() {
         // Perform any final initialization of your application.
-/*
+
         // for debugging:
-        print("clearing credentials")
-        let userDefaults = UserDefaults.standard
-        userDefaults.removeObject(forKey: "userName_preference")
-        userDefaults.removeObject(forKey: "password_preference")
-        userDefaults.synchronize()
-*/
-        
+//        print("clearing credentials")
+//        let userDefaults = UserDefaults.standard
+//        userDefaults.removeObject(forKey: "userName_preference")
+//        userDefaults.removeObject(forKey: "password_preference")
+//        userDefaults.synchronize()
+
         session = WCSession.default
         session.delegate = self
         session.activate()

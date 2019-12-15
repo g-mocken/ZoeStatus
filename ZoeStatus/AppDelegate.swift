@@ -13,24 +13,48 @@ import WatchConnectivity
 class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
     
     var session: WCSession!
+    var appStartTime = UInt64(Date().timeIntervalSince1970)
+    
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+        print("Received update request from Watch: \(applicationContext.description)")
+        appStartTime = UInt64(Date().timeIntervalSince1970) // to enforce update
+        NotificationCenter.default.post(name: Notification.Name("shouldTransferContext"), object: nil)
+    }
 
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        print("activationDidComplete")
-        
+        if activationState == .activated {
+            print("activationDidComplete without error")
+            print ("current context after activation: \(session.applicationContext)")
+            print("AppStartTime = \(appStartTime)")
+            if  session.isPaired {
+                if session.isWatchAppInstalled {
+                    NotificationCenter.default.post(name: Notification.Name("shouldTransferContext"), object: nil)
+                } else {
+                    NotificationCenter.default.post(name: Notification.Name("userShouldInstallApp"), object: nil)
+                }
+            }
+            
+        }  else {
+            print("activationDidComplete with error: \(String(describing: error))")
+        }
     }
     
     func sessionDidBecomeInactive(_ session: WCSession) {
+        // last chance to transfer anything while switching watches
     }
     
     func sessionDidDeactivate(_ session: WCSession) {
+        session.activate() // re-activate session for new watch
     }
     
 
     func sessionWatchStateDidChange(_ session: WCSession) {
         print("state did change")
         // The session object calls this method when the value in the isPaired, isWatchAppInstalled, isComplicationEnabled, or watchDirectoryURL properties of the WCSession object changes. Use this state to update the state of your iOS app. For example, when the complication is disabled, make a note of that fact and do not send any more data updates for the complication.
-
+        if session.isWatchAppInstalled && session.isPaired {
+            NotificationCenter.default.post(name: Notification.Name("shouldTransferContext"), object: nil)
+        }
     }
     
     var window: UIWindow?
@@ -40,15 +64,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         print("didFinishLaunchingWithOptions")
-        
-        
-        if WCSession.isSupported() {
-            session = WCSession.default
-            session.delegate = self
-            session.activate()
-            
-
-        }
         
         
         
@@ -88,10 +103,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-   
-        NotificationCenter.default.post(name: Notification.Name("applicationDidBecomeActive"), object: nil)
+       
+        // Only send notifications after application did become active, otherwise, they are lost in case of the first launch, because viewDidLoad has not registered, yet
+        
+        if WCSession.isSupported() { // not supported e.g. on iPad (static)
+            session = WCSession.default
+            session.delegate = self
+            if session.activationState != .activated {
+                session.activate()
+            } else { // if activated
+                if  session.isPaired {
+                    if session.isWatchAppInstalled {
+                        NotificationCenter.default.post(name: Notification.Name("shouldTransferContext"), object: nil)
+                    }
+                }
+            }
+        }
 
-    
+        NotificationCenter.default.post(name: Notification.Name("applicationDidBecomeActive"), object: nil)
     }
 
     func applicationWillTerminate(_ application: UIApplication) {

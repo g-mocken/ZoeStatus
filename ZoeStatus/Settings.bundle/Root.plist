@@ -8,6 +8,14 @@
 	<array>
 		<dict>
 			<key>Type</key>
+			<string>PSTextFieldSpecifier</string>
+			<key>Title</key>
+			<string></string>
+			<key>Key</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
 			<string>Z.E. Services account credential</string>
@@ -82,13 +90,25 @@
 		</dict>
 		<dict>
 			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
+			<string>PSGroupSpecifier</string>
 			<key>Title</key>
-			<string>Experimental Map Feature</string>
-			<key>Key</key>
-			<string>experimental_preference</string>
-			<key>DefaultValue</key>
-			<false/>
+			<string>Information</string>
+			<key>FooterText</key>
+			<string>Full source code and help is available at https://github.com/g-mocken/ZoeStatus.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Disclaimer</string>
+			<key>FooterText</key>
+			<string>Neither me nor this work is in any way linked to Renault.
+
+I may not be held responsible for any damage to your car or any inconveniences that you may run into as a result of using this app.
+
+The app may stop working at any time (e.g. when there is a change of the Renault Z.E. API).
+
+Use at your own risk!</string>
 		</dict>
 	</array>
 </dict>

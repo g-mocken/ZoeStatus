@@ -9,6 +9,7 @@
 import WatchKit
 import Foundation
 import ZEServices_Watchos
+import WatchConnectivity
 
 enum startStop {
     case start, stop
@@ -44,9 +45,9 @@ class InterfaceController: WKInterfaceController {
         ServiceConnection.userName = userDefaults.string(forKey: "userName_preference")
         ServiceConnection.password = userDefaults.string(forKey: "password_preference")
 
-        
+        /*
         if ((ServiceConnection.userName == nil) || (ServiceConnection.password == nil)){
-            self.displayMessage(title: "Error", body: "User credentials transfer from iPhone failed!")
+            self.displayMessage(title: "Error", body: "No user credentials present, please launch iOS app to transfer them.")
             // cannot do much else in this case,
             
         } else { // credentials are present
@@ -71,6 +72,7 @@ class InterfaceController: WKInterfaceController {
                 }
             }
         }
+         */
     }
     
     override func willActivate() {
@@ -200,9 +202,27 @@ class InterfaceController: WKInterfaceController {
     
     @IBAction func refreshButtonPressed() {
         print("Refresh!")
-        handleLogin(onError: {}){
-            self.updateActivity(type:.start)
-            self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+        if ((ServiceConnection.userName == nil) || (ServiceConnection.password == nil)){
+            self.displayMessage(title: "Error", body: "No user credentials present, please launch iOS app to transfer them.")
+            
+            // trigger transfer from iPhone
+            let context =  ["userName":"",
+                            "password":"",
+                            "timestamp": "\(UInt64(Date().timeIntervalSince1970))"  
+            ]
+            
+            do {
+                print ("queuing context transfer to watch: \(context)")
+                try WCSession.default.updateApplicationContext(context) // it is only transmitted if it has changed!
+            } catch {
+                // Handle any errors
+                print ("error queuing context transfer")
+            }
+        } else {
+            handleLogin(onError: {}){
+                self.updateActivity(type:.start)
+                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+            }
         }
     }
 

@@ -34,6 +34,55 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         print("Width = \(self.view.bounds.width), font = \(level.font.pointSize)")
     }
 
+    enum TransferResult {
+        case error
+        case success
+        case nochange
+    }
+    func transferCredentials()-> TransferResult { // the only reason why this is in the ViewController is so we can display alerts
+        
+        let userDefaults = UserDefaults.standard
+        
+        guard
+            let userName = userDefaults.string(forKey: "userName_preference"),
+            let password = userDefaults.string(forKey: "password_preference")
+            else {
+                print ("no credentials to transfer present in iPhone") // should never happen, because user is forced to store some credentials
+                return .error
+        }
+        
+        if (session.activationState == .activated) {
+            let timestamp:UInt64  = (UIApplication.shared.delegate as! AppDelegate).appStartTime
+            let context =  ["userName":userName,
+                            "password":password,
+                            "timestamp": "\(timestamp)"
+                // include timestamp, context is sent when the timestamp changes (even though the watch app does not care for the timestamp)
+            ]
+            // do not use optionals for the context!
+            
+            print ("current context: \(session.applicationContext)") // not optional, so no need to check for nil
+            if (session.applicationContext["userName"] as! String) == context["userName"] &&
+                (session.applicationContext["password"] as! String) == context["password"] &&
+                (session.applicationContext["timestamp"] as! String) == context["timestamp"] {
+                print ("no need to queue context transfer")
+                return .nochange
+            }
+            
+            do {
+                print ("queuing context transfer to watch: \(context)")
+                try session.updateApplicationContext(context) // it is only transmitted if it has changed!
+                return .success
+            } catch {
+                // Handle any errors
+                print ("error queuing context transfer")
+                return .error
+            }
+        } else {
+            return .error // should never happen, because it is called as a result of activation
+        }
+    }
+    
+    
     fileprivate func performLogin() {
 
         let userDefaults = UserDefaults.standard
@@ -69,26 +118,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 ServiceConnection.simulation = false
             }
             
-
-            do {
-                let context =  ["userName":ServiceConnection.userName!,
-                                "password":ServiceConnection.password!,
-                               /* "timestamp": "\(UInt64(Date().timeIntervalSince1970))" */
-                    // include timestamp for debugging only, so the changed context is always sent
-                ]
-                // do not use optionals for the context!
-                print ("sending \(context)")
-
-                try WCSession.default.updateApplicationContext(context) // it is only transmitted if it has changed!
-            } catch {
-                // Handle any errors
-                print ("error sending context")
-            }
-
-
-            
-
-
             updateActivity(type:.start)
             sc.login(){(result:Bool)->() in
                 self.updateActivity(type:.stop)
@@ -102,7 +131,29 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         }
     }
     
-    @objc func applicationDidBecomeActive(notification: Notification) {
+    func userShouldInstallApp(notification: Notification){
+        print ("userShouldInstallApp notification received!")
+        displayMessage(title: "Info", body: "A watch appears to be paired with this device. Please install the companion app from the Watch app.")
+
+        // confirmButtonPress(title:"Info", body:"Please install WatchApp", cancelButton: "Do not ask again", cancelCallback: {}, confirmButton: "Later"){}
+        // need to remember result, but when to reset?
+    }
+    
+    func shouldTransferContext(notification: Notification) { // will not be called on iPad
+        print ("shouldTransferContext notification received!")
+
+        switch transferCredentials() {
+        case .success:
+            displayMessage(title: "Success", body: "Queued transfer of updated credentials to watch.")
+        case .error:
+            displayMessage(title: "Error", body: "Failed to queue transfer credentials to watch.")
+        case .nochange:
+            () //displayMessage(title: "Info", body: "Credentials have not changed, no transfer queued.")
+        }
+        
+    }
+    
+    func applicationDidBecomeActive(notification: Notification) {
         print ("applicationDidBecomeActive notification received!")
        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -135,9 +186,10 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             mapButton.isHidden = true
         }
 
+        
         // load settings
-        if true {//}(ServiceConnection.tokenExpiry == nil){
-            performLogin()
+        if (ServiceConnection.tokenExpiry == nil && ServiceConnection.simulation != true){
+            performLogin() // auto-login, if never logged in before
         }
     }
 
@@ -190,8 +242,21 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     @IBOutlet var pickerViewTop: NSLayoutConstraint!
     @IBOutlet var pickerViewBottom: NSLayoutConstraint!
        
+    var session: WCSession!
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        if WCSession.isSupported(){ // do not run on iPad
+            session = WCSession.default
+            
+            NotificationCenter.default.addObserver(forName: Notification.Name("shouldTransferContext"), object: nil, queue: OperationQueue.main, using: {n in self.shouldTransferContext(notification: n)})
+            
+            NotificationCenter.default.addObserver(forName: Notification.Name("userShouldInstallApp"), object: nil, queue: OperationQueue.main, using: {n in self.userShouldInstallApp(notification: n)})
+            
+        }
+        
         // Do any additional setup after loading the view, typically from a nib.
         
         // The following assumes that the labels' font sizes are all adjusted in IB for a 320pts screen width, and it linearly expands the font size to fill the actual width
@@ -234,10 +299,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         pickerViewToolbar.sizeToFit()
         pickerViewToolbar.setItems([toolbarTitle]+pickerViewToolbar.items!, animated: false)
 
-     
-        NotificationCenter.default.removeObserver(self, name: Notification.Name("applicationDidBecomeActive"), object: nil) // remove if already present, in order to avoid double registration
-        NotificationCenter.default.addObserver(self, selector: #selector(self.applicationDidBecomeActive(notification:)), name: Notification.Name("applicationDidBecomeActive"), object: nil)
-
+        NotificationCenter.default.addObserver(forName: Notification.Name("applicationDidBecomeActive"), object: nil, queue: OperationQueue.main, using: {n in self.applicationDidBecomeActive(notification: n)})
         
         // add guesture recognizer
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
