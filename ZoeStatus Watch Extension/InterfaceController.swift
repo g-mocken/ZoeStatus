@@ -45,9 +45,9 @@ class InterfaceController: WKInterfaceController {
         ServiceConnection.userName = userDefaults.string(forKey: "userName_preference")
         ServiceConnection.password = userDefaults.string(forKey: "password_preference")
 
-        /*
+        
         if ((ServiceConnection.userName == nil) || (ServiceConnection.password == nil)){
-            self.displayMessage(title: "Error", body: "No user credentials present, please launch iOS app to transfer them.")
+            // self.displayMessage(title: "Error", body: "No user credentials present, please launch iOS app to transfer them.")
             // cannot do much else in this case,
             
         } else { // credentials are present
@@ -60,24 +60,25 @@ class InterfaceController: WKInterfaceController {
             }
             
             
-            if (ServiceConnection.tokenExpiry == nil){ // initial login
-                sc.login(){(result:Bool)->() in
-                    self.updateActivity(type:.stop)
-                    if result {
-                        self.refreshButtonPressed() // auto-refresh after successful login
-                        print("Login to Z.E. services successful")
-                    } else {
-                        self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
-                    }
-                }
-            }
+//            if (ServiceConnection.tokenExpiry == nil){ // initial login
+//                sc.login(){(result:Bool)->() in
+//                    self.updateActivity(type:.stop)
+//                    if result {
+//                        self.refreshButtonPressed() // auto-refresh after successful login
+//                        print("Login to Z.E. services successful")
+//                    } else {
+//                        self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
+//                    }
+//                }
+//            }
         }
-         */
     }
     
     override func willActivate() {
         // This method is called when watch view controller is about to be visible to user
         super.willActivate()
+        print("willActivate")
+
     }
     
     override func didDeactivate() {
@@ -85,6 +86,12 @@ class InterfaceController: WKInterfaceController {
         super.didDeactivate()
     }
     
+    override func didAppear() {
+        super.didAppear()
+        print("didAppear")
+        
+        
+    }
     
     
     var activityCount: Int = 0
@@ -203,21 +210,14 @@ class InterfaceController: WKInterfaceController {
     @IBAction func refreshButtonPressed() {
         print("Refresh!")
         if ((ServiceConnection.userName == nil) || (ServiceConnection.password == nil)){
-            self.displayMessage(title: "Error", body: "No user credentials present, please launch iOS app to transfer them.")
-            
-            // trigger transfer from iPhone
-            let context =  ["userName":"",
-                            "password":"",
-                            "timestamp": "\(UInt64(Date().timeIntervalSince1970))"  
-            ]
-            
-            do {
-                print ("queuing context transfer to watch: \(context)")
-                try WCSession.default.updateApplicationContext(context) // it is only transmitted if it has changed!
-            } catch {
-                // Handle any errors
-                print ("error queuing context transfer")
-            }
+
+            let dismiss = WKAlertAction(title: "Dismiss", style: WKAlertActionStyle.cancel, handler: {
+                let appDelegate = WKExtension.shared().delegate as! ExtensionDelegate
+                appDelegate.requestCredentials(WCSession.default)
+            })
+            presentAlert(withTitle:"Error", message:"No user credentials present, please launch iOS app to transfer them.", preferredStyle: WKAlertControllerStyle.alert, actions:[dismiss])
+
+
         } else {
             handleLogin(onError: {}){
                 self.updateActivity(type:.start)
@@ -226,4 +226,8 @@ class InterfaceController: WKInterfaceController {
         }
     }
 
+    @IBAction func requestNewCredentialsButtonPressed() {
+        let appDelegate = WKExtension.shared().delegate as! ExtensionDelegate
+        appDelegate.requestCredentials(WCSession.default)
+    }
 }

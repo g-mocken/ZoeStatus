@@ -13,12 +13,31 @@ import WatchConnectivity
 class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
     
     var session: WCSession!
-    var appStartTime = UInt64(Date().timeIntervalSince1970)
+        
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+        print("Received message: \(message.description)")
+        var reply : [String:Any] = [:]
+        
+        
+        let userDefaults = UserDefaults.standard
+        
+        if
+            let userName = userDefaults.string(forKey: "userName_preference"),
+            let password = userDefaults.string(forKey: "password_preference")
+        {
+            if message["userName"] != nil {
+                reply["userName"] = userName
+            }
+            if message["password"] != nil {
+                reply["password"] = password
+            }
+
+        } else {
+                print ("no credentials to transfer present in iPhone") // should never happen, because user is forced to store some credentials
+                
+        }
+        replyHandler(reply)
     
-    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-        print("Received update request from Watch: \(applicationContext.description)")
-        appStartTime = UInt64(Date().timeIntervalSince1970) // to enforce update
-        NotificationCenter.default.post(name: Notification.Name("shouldTransferContext"), object: nil)
     }
 
     
@@ -26,12 +45,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
         if activationState == .activated {
             print("activationDidComplete without error")
             print ("current context after activation: \(session.applicationContext)")
-            print("AppStartTime = \(appStartTime)")
+
             if  session.isPaired {
                 if session.isWatchAppInstalled {
-                    NotificationCenter.default.post(name: Notification.Name("shouldTransferContext"), object: nil)
+                    if session.isReachable {
+                        // sent something
+                    }
                 } else {
-                    NotificationCenter.default.post(name: Notification.Name("userShouldInstallApp"), object: nil)
+                    //   NotificationCenter.default.post(name: Notification.Name("userShouldInstallApp"), object: nil)
                 }
             }
             
@@ -53,7 +74,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
         print("state did change")
         // The session object calls this method when the value in the isPaired, isWatchAppInstalled, isComplicationEnabled, or watchDirectoryURL properties of the WCSession object changes. Use this state to update the state of your iOS app. For example, when the complication is disabled, make a note of that fact and do not send any more data updates for the complication.
         if session.isWatchAppInstalled && session.isPaired {
-            NotificationCenter.default.post(name: Notification.Name("shouldTransferContext"), object: nil)
+
+            if session.isReachable {
+                // sent something
+            }
+
         }
     }
     
@@ -114,7 +139,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
             } else { // if activated
                 if  session.isPaired {
                     if session.isWatchAppInstalled {
-                        NotificationCenter.default.post(name: Notification.Name("shouldTransferContext"), object: nil)
+                        if session.isReachable {
+                            // sent something
+                        }
                     }
                 }
             }

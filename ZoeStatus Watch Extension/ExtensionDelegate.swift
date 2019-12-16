@@ -20,7 +20,14 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         if let userName = context["userName"], let password = context["password"] {
             ServiceConnection.userName =  userName as? String
             ServiceConnection.password = password as? String
-            ServiceConnection.simulation = false
+           
+            if ServiceConnection.userName == "simulation", ServiceConnection.password == "simulation"
+            {
+                ServiceConnection.simulation = true
+            } else {
+                ServiceConnection.simulation = false
+            }
+            
             
             // store preferences
             let userDefaults = UserDefaults.standard
@@ -30,18 +37,31 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         }
     }
     
+    func replyHandler(reply: [String:Any])->Void{
+        print("Received reply: \(reply)")
+        extractCredentialsFromContext(reply)
+    }
+    
+    func errorHandler(error: Error) -> Void{
+        print("Received error: \(error)")
+    }
+    
+    func requestCredentials(_ session: WCSession){
+        if (session.activationState == .activated) {
+            if session.isReachable{
+                let msg = ["userName":"", "password":""]
+                session.sendMessage(msg, replyHandler: replyHandler, errorHandler: errorHandler)
+            }
+        }
+    }
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         print("activationDidComplete")
         if error == nil {
-            extractCredentialsFromContext(session.receivedApplicationContext)
+            //requestCredentials(session)
         }
     }
     
-    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-        print("Received updated context: \(applicationContext.description)")
-        extractCredentialsFromContext(applicationContext)
-    }
     
     func applicationDidFinishLaunching() {
         // Perform any final initialization of your application.
@@ -56,6 +76,8 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         session = WCSession.default
         session.delegate = self
         session.activate()
+        
+//        let visibleInterfaceController = WKExtension.shared().visibleInterfaceController
         
     }
 

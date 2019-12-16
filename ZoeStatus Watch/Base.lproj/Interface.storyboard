@@ -38,6 +38,15 @@
                             </connections>
                         </button>
                     </items>
+                    <menu key="menu" id="NM7-tU-g6t">
+                        <items>
+                            <menuItem title="Request new credentials" icon="repeat" id="OO5-nc-ztS">
+                                <connections>
+                                    <action selector="requestNewCredentialsButtonPressed" destination="AgC-eL-Hgc" id="AxH-Pu-fUO"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
                     <connections>
                         <outlet property="charger" destination="Aeg-ga-ytP" id="PrZ-mv-BST"/>
                         <outlet property="charging" destination="pbL-lH-Gdl" id="Gms-Fa-b7f"/>
