@@ -15,7 +15,7 @@ enum startStop {
     case start, stop
 }
 
-class InterfaceController: WKInterfaceController {
+class InterfaceController: WKInterfaceController, WCSessionDelegate {
     
     var sc=ServiceConnection()
 
@@ -30,15 +30,81 @@ class InterfaceController: WKInterfaceController {
     
     @IBOutlet var refreshButton: WKInterfaceButton!
     
+    // MARK: - Watch Connectivity
+
+    var session: WCSession!
+    
+    fileprivate func extractCredentialsFromContext(_ context: [String:Any]) {
+        print("Extracting credentials from: \(context.description)")
+        
+        if let userName = context["userName"], let password = context["password"] {
+            ServiceConnection.userName =  userName as? String
+            ServiceConnection.password = password as? String
+           
+            if ServiceConnection.userName == "simulation", ServiceConnection.password == "simulation"
+            {
+                ServiceConnection.simulation = true
+            } else {
+                ServiceConnection.simulation = false
+            }
+            
+            
+            // store preferences
+            let userDefaults = UserDefaults.standard
+            userDefaults.set(ServiceConnection.userName, forKey: "userName_preference")
+            userDefaults.set(ServiceConnection.password, forKey: "password_preference")
+            userDefaults.synchronize()
+        }
+    }
+    
+    func replyHandler(reply: [String:Any])->Void{
+        print("Received reply: \(reply)")
+        extractCredentialsFromContext(reply)
+        DispatchQueue.main.async{
+            self.displayMessage(title: "Success", body: "Credentials received and stored.")
+            self.refreshButtonPressed()
+        }
+    }
+    
+    func errorHandler(error: Error) -> Void{
+        print("Received error: \(error)")
+        displayMessage(title: "Error", body: "There was a problem while receiving the credentials.")
+    }
+    
+    func requestCredentials(_ session: WCSession){
+        if (session.activationState == .activated) {
+            if session.isReachable{
+                let msg = ["userName":"", "password":""]
+                session.sendMessage(msg, replyHandler: replyHandler, errorHandler: errorHandler)
+            }
+        }
+    }
+    
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        print("activationDidComplete")
+        if error == nil {
+            //requestCredentials(session)
+        }
+    }
+    
+    
+    
+    // MARK: - User Interface
+
+    
     fileprivate func displayMessage(title: String, body: String) {
         print("\(title): \(body)")
-        let dismiss = WKAlertAction(title: "Dismiss", style: WKAlertActionStyle.cancel, handler: { })
+        let dismiss = WKAlertAction(title: "Dismiss", style: WKAlertActionStyle.default, handler: { })
         presentAlert(withTitle:title, message:body, preferredStyle: WKAlertControllerStyle.alert, actions:[dismiss])
     }
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
         
+        session = WCSession.default
+        session.delegate = self
+        session.activate()
+
         // Configure interface objects here.
 
         let userDefaults = UserDefaults.standard
@@ -89,8 +155,6 @@ class InterfaceController: WKInterfaceController {
     override func didAppear() {
         super.didAppear()
         print("didAppear")
-        
-        
     }
     
     
@@ -212,10 +276,10 @@ class InterfaceController: WKInterfaceController {
         if ((ServiceConnection.userName == nil) || (ServiceConnection.password == nil)){
 
             let dismiss = WKAlertAction(title: "Dismiss", style: WKAlertActionStyle.cancel, handler: {
-                let appDelegate = WKExtension.shared().delegate as! ExtensionDelegate
-                appDelegate.requestCredentials(WCSession.default)
+                self.requestNewCredentialsButtonPressed()
             })
-            presentAlert(withTitle:"Error", message:"No user credentials present, please launch iOS app to transfer them.", preferredStyle: WKAlertControllerStyle.alert, actions:[dismiss])
+            
+            presentAlert(withTitle:"Error", message:"No user credentials present.", preferredStyle: WKAlertControllerStyle.alert, actions:[dismiss])
 
 
         } else {
@@ -227,7 +291,20 @@ class InterfaceController: WKInterfaceController {
     }
 
     @IBAction func requestNewCredentialsButtonPressed() {
-        let appDelegate = WKExtension.shared().delegate as! ExtensionDelegate
-        appDelegate.requestCredentials(WCSession.default)
+
+        let dismiss = WKAlertAction(title: "Go", style: WKAlertActionStyle.default, handler: {
+            if (self.session.activationState == .activated) {
+                if self.session.isReachable{
+                    let msg = ["userName":"", "password":""]
+                    self.session.sendMessage(msg, replyHandler: self.replyHandler, errorHandler: self.errorHandler)
+                } else {
+                    self.displayMessage(title: "Error", body: "iPhone is not reachable.")
+                }
+            }
+        })
+        presentAlert(withTitle:"Request credentials", message:"Please make sure the iOS app is launched.", preferredStyle: WKAlertControllerStyle.alert, actions:[dismiss])
+
+       
+
     }
 }

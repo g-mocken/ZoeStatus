@@ -10,58 +10,9 @@ import WatchKit
 import WatchConnectivity
 import ZEServices_Watchos
 
-class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
+class ExtensionDelegate: NSObject, WKExtensionDelegate {
     
-    var session: WCSession!
-    
-    fileprivate func extractCredentialsFromContext(_ context: [String:Any]) {
-        print("Trying context: \(context.description)")
-        
-        if let userName = context["userName"], let password = context["password"] {
-            ServiceConnection.userName =  userName as? String
-            ServiceConnection.password = password as? String
-           
-            if ServiceConnection.userName == "simulation", ServiceConnection.password == "simulation"
-            {
-                ServiceConnection.simulation = true
-            } else {
-                ServiceConnection.simulation = false
-            }
-            
-            
-            // store preferences
-            let userDefaults = UserDefaults.standard
-            userDefaults.set(ServiceConnection.userName, forKey: "userName_preference")
-            userDefaults.set(ServiceConnection.password, forKey: "password_preference")
-            userDefaults.synchronize()
-        }
-    }
-    
-    func replyHandler(reply: [String:Any])->Void{
-        print("Received reply: \(reply)")
-        extractCredentialsFromContext(reply)
-    }
-    
-    func errorHandler(error: Error) -> Void{
-        print("Received error: \(error)")
-    }
-    
-    func requestCredentials(_ session: WCSession){
-        if (session.activationState == .activated) {
-            if session.isReachable{
-                let msg = ["userName":"", "password":""]
-                session.sendMessage(msg, replyHandler: replyHandler, errorHandler: errorHandler)
-            }
-        }
-    }
-    
-    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        print("activationDidComplete")
-        if error == nil {
-            //requestCredentials(session)
-        }
-    }
-    
+
     
     func applicationDidFinishLaunching() {
         // Perform any final initialization of your application.
@@ -73,12 +24,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
 //        userDefaults.removeObject(forKey: "password_preference")
 //        userDefaults.synchronize()
 
-        session = WCSession.default
-        session.delegate = self
-        session.activate()
         
 //        let visibleInterfaceController = WKExtension.shared().visibleInterfaceController
-        
+//        let appDelegate = WKExtension.shared().delegate as! ExtensionDelegate
+
     }
 
     func applicationDidBecomeActive() {
