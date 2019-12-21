@@ -28,7 +28,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     @IBOutlet var remaining: WKInterfaceLabel!
     @IBOutlet var charging: WKInterfaceLabel!
     
-    @IBOutlet var refreshButton: WKInterfaceButton!
+//    @IBOutlet var refreshButton: WKInterfaceButton!
     
     // MARK: - Watch Connectivity
 
@@ -163,7 +163,15 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
 
         switch type {
         case .start:
-            refreshButton.setEnabled(false)
+//            refreshButton.setEnabled(false)
+            level.setAlpha(0.5)
+            range.setAlpha(0.5)
+            date.setAlpha(0.5)
+            time.setAlpha(0.5)
+            plugged.setAlpha(0.5)
+            charger.setAlpha(0.5)
+            remaining.setAlpha(0.5)
+            charging.setAlpha(0.5)
             activityCount+=1
             break
         case .stop:
@@ -172,7 +180,16 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
                 if activityCount<0 {
                     activityCount = 0
                 }
-                refreshButton.setEnabled(true)
+//                refreshButton.setEnabled(true)
+                level.setAlpha(1.0)
+                range.setAlpha(1.0)
+                date.setAlpha(1.0)
+                time.setAlpha(1.0)
+                plugged.setAlpha(1.0)
+                charger.setAlpha(1.0)
+                remaining.setAlpha(1.0)
+                charging.setAlpha(1.0)
+
             }
             break
         }
