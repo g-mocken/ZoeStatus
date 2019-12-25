@@ -11,8 +11,91 @@ import WatchConnectivity
 import ZEServices_Watchos
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
+    let sc=ServiceConnection.shared
+
+    func handleLogin(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
+               
+        if (sc.tokenExpiry == nil){ // never logged in successfully
+        
+            sc.login(){(result:Bool)->() in
+                if (result){
+                    actionCode()
+                } else {
+                    print("Failed to login to Z.E. services.")
+                    errorCode()
+                }
+            }
+        } else {
+            if sc.isTokenExpired() {
+                //print("Token expired or will expire too soon (or expiry date is nil), must renew")
+                sc.renewToken(){(result:Bool)->() in
+                    if result {
+                        print("renewed expired token!")
+                        actionCode()
+                    } else {
+                        print("Failed to renew expired token.")
+                        print("expired token NOT renewed!")
+                        errorCode()
+                    }
+                }
+            } else {
+                print("token still valid!")
+                actionCode()
+            }
+        }
+    }
+    
+    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->(){
+        
+        if (error){
+            print("Could not obtain battery state.")
+            
+        } else {
+            
+            print("Did obtain battery state.")
+            // do not use values here, but sc.cache is updated
+            
+            let complicationServer = CLKComplicationServer.sharedInstance()
+            
+            for complication in complicationServer.activeComplications! {
+                //print("reloadTimeline for complication \(complication)")
+                complicationServer.reloadTimeline(for: complication)
+            }
+        }
+    }
     
 
+    
+    func refreshTask(){
+        // refresh
+        print("Refresh triggered")
+        
+        
+        print("Refresh!")
+        if ((sc.userName == nil) || (sc.password == nil)){
+            
+           print("No user credentials present.")
+            
+        } else {
+            handleLogin(onError: {}){
+                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+            }
+        }
+        
+        
+
+    }
+
+    func rescheduleTask(){
+        // schedule next background task a certain number of seconds into the future
+        WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: Date(timeIntervalSinceNow: 2), userInfo: nil) { (error: Error?) in
+            if let error = error {
+                print("Error occured while scheduling background refresh: \(error.localizedDescription)")
+            } else {
+                print("Scheduling background refresh")
+            }
+        }
+    }
     
     func applicationDidFinishLaunching() {
         // Perform any final initialization of your application.
@@ -28,6 +111,14 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
 //        let visibleInterfaceController = WKExtension.shared().visibleInterfaceController
 //        let appDelegate = WKExtension.shared().delegate as! ExtensionDelegate
 
+
+
+    }
+    
+    func applicationDidEnterBackground() {
+        print("applicationDidEnterBackground")
+        rescheduleTask() // schedule background update
+
     }
 
     func applicationDidBecomeActive() {
@@ -37,6 +128,8 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     func applicationWillResignActive() {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, etc.
+   
+
     }
 
     func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
@@ -46,6 +139,8 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             switch task {
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
                 // Be sure to complete the background task once you’re done.
+                refreshTask()
+                rescheduleTask()
                 backgroundTask.setTaskCompletedWithSnapshot(false)
             case let snapshotTask as WKSnapshotRefreshBackgroundTask:
                 // Snapshot tasks have a unique completion call, make sure to set your expiration date
@@ -68,5 +163,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             }
         }
     }
+
+    
 
 }

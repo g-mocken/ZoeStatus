@@ -15,9 +15,10 @@ enum startStop {
     case start, stop
 }
 
+
 class InterfaceController: WKInterfaceController, WCSessionDelegate {
     
-    var sc=ServiceConnection()
+    let sc=ServiceConnection.shared
 
     @IBOutlet var level: WKInterfaceLabel!
     @IBOutlet var range: WKInterfaceLabel!
@@ -38,21 +39,21 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         print("Extracting credentials from: \(context.description)")
         
         if let userName = context["userName"], let password = context["password"] {
-            ServiceConnection.userName =  userName as? String
-            ServiceConnection.password = password as? String
+            sc.userName =  userName as? String
+            sc.password = password as? String
            
-            if ServiceConnection.userName == "simulation", ServiceConnection.password == "simulation"
+            if sc.userName == "simulation", sc.password == "simulation"
             {
-                ServiceConnection.simulation = true
+                sc.simulation = true
             } else {
-                ServiceConnection.simulation = false
+                sc.simulation = false
             }
             
             
             // store preferences
             let userDefaults = UserDefaults.standard
-            userDefaults.set(ServiceConnection.userName, forKey: "userName_preference")
-            userDefaults.set(ServiceConnection.password, forKey: "password_preference")
+            userDefaults.set(sc.userName, forKey: "userName_preference")
+            userDefaults.set(sc.password, forKey: "password_preference")
             userDefaults.synchronize()
         }
     }
@@ -108,25 +109,25 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         // Configure interface objects here.
 
         let userDefaults = UserDefaults.standard
-        ServiceConnection.userName = userDefaults.string(forKey: "userName_preference")
-        ServiceConnection.password = userDefaults.string(forKey: "password_preference")
+        sc.userName = userDefaults.string(forKey: "userName_preference")
+        sc.password = userDefaults.string(forKey: "password_preference")
 
         
-        if ((ServiceConnection.userName == nil) || (ServiceConnection.password == nil)){
+        if ((sc.userName == nil) || (sc.password == nil)){
             // self.displayMessage(title: "Error", body: "No user credentials present, please launch iOS app to transfer them.")
             // cannot do much else in this case,
             
         } else { // credentials are present
             
-            if ServiceConnection.userName == "simulation", ServiceConnection.password == "simulation"
+            if sc.userName == "simulation", sc.password == "simulation"
             {
-                ServiceConnection.simulation = true
+                sc.simulation = true
             } else {
-                ServiceConnection.simulation = false
+                sc.simulation = false
             }
             
             
-//            if (ServiceConnection.tokenExpiry == nil){ // initial login
+//            if (sc.tokenExpiry == nil){ // initial login
 //                sc.login(){(result:Bool)->() in
 //                    self.updateActivity(type:.stop)
 //                    if result {
@@ -144,6 +145,44 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         // This method is called when watch view controller is about to be visible to user
         super.willActivate()
         print("willActivate")
+        
+        var level: UInt8?
+        var range: Float?
+        var dateTime: UInt64?
+        var plugged: Bool?
+        var chargingPoint: String?
+        var remainingTime: Int?
+        var charging: Bool?
+        
+        let cache = sc.getCache()
+        
+        level = cache.charge_level
+        range = cache.remaining_range
+        dateTime = cache.last_update
+        plugged = cache.plugged
+        chargingPoint = cache.charging_point
+        charging = cache.charging
+        remainingTime = cache.remaining_time
+        
+        let levelString = (level != nil ? String(format: "🔋%3d %%", level!) : "🔋…")
+        let levelShortString = (level != nil ? String(format: "%3d", level!) : "…")
+        let rangeString = (range != nil ? String(format: "🛣️ %3.0f km", range!) : "🛣️ …")
+        let dateString = timestampToDateOnlyString(timestamp: dateTime)
+        let timeString = timestampToTimeOnlyString(timestamp: dateTime)
+        let chargerString = chargingPointToChargerString(plugged ?? false, chargingPoint)
+        let remainingString = remainingTimeToRemainingShortString(charging ?? false, remainingTime)
+        let pluggedString = (plugged != nil ? (plugged! ? "🔌 ✅" : "🔌 ❌") : "🔌 …")
+        let chargingString = (charging != nil ? (charging! ? "⚡️ ✅" : "⚡️ ❌") : "⚡️ …")
+    
+        self.level.setText(levelString)
+        self.range.setText(rangeString)
+        self.date.setText(dateString)
+        self.time.setText(timeString)
+        self.charger.setText(chargerString)
+        self.remaining.setText(remainingString)
+        self.plugged.setText(pluggedString)
+        self.charging.setText(chargingString)
+
 
     }
     
@@ -199,7 +238,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     
     func handleLogin(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
                
-        if (ServiceConnection.tokenExpiry == nil){ // never logged in successfully
+        if (sc.tokenExpiry == nil){ // never logged in successfully
         
             updateActivity(type:.start)
             sc.login(){(result:Bool)->() in
@@ -246,35 +285,8 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
                 range.setText(String(format: "🛣️ %3.0f km", remaining_range))
                 date.setText(timestampToDateOnlyString(timestamp: last_update))
                 time.setText(timestampToTimeOnlyString(timestamp: last_update))
-
-                if plugged, charging_point != nil {
-                    
-                    switch (charging_point!) {
-                    case "INVALID":
-                        charger.setText("⛽️ " + "❌")
-                        break;
-                    case "SLOW":
-                        charger.setText("⛽️ " + "🐌")
-                        break;
-                    case "FAST":
-                        charger.setText("⛽️ " + "✈️")
-                        break;
-                    case "ACCELERATED":
-                        charger.setText("⛽️ " + "🚀")
-                        break;
-                    default:
-                        charger.setText("⛽️ " + charging_point!)
-                        break;
-                    }
-                } else {
-                    charger.setText("⛽️ …")
-                }
-                
-                if charging, remaining_time != nil {
-                    remaining.setText(String(format: "⏳ %d min.", remaining_time!))
-                } else {
-                    remaining.setText("⏳ …")
-                }
+                charger.setText(chargingPointToChargerString(plugged, charging_point))
+                remaining.setText(remainingTimeToRemainingString(charging,remaining_time))
                 self.plugged.setText(plugged ? "🔌 ✅" : "🔌 ❌")
                 self.charging.setText(charging ? "⚡️ ✅" : "⚡️ ❌")
                 
@@ -290,7 +302,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     
     @IBAction func refreshButtonPressed() {
         print("Refresh!")
-        if ((ServiceConnection.userName == nil) || (ServiceConnection.password == nil)){
+        if ((sc.userName == nil) || (sc.password == nil)){
 
             let dismiss = WKAlertAction(title: "Dismiss", style: WKAlertActionStyle.cancel, handler: {
                 self.requestNewCredentialsButtonPressed()

@@ -16,7 +16,7 @@ var last_update_cache:UInt64?
 
 class WidgetViewController: UIViewController, NCWidgetProviding {
         
-    var sc=ServiceConnection()
+    let sc=ServiceConnection.shared
     
 
     fileprivate func displayMessage(title: String, body: String) {
@@ -93,16 +93,16 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
 
         
         
-        ServiceConnection.userName = userName
-        ServiceConnection.password = password
-        if ServiceConnection.userName == "simulation", ServiceConnection.password == "simulation"
+        sc.userName = userName
+        sc.password = password
+        if sc.userName == "simulation", sc.password == "simulation"
         {
-            ServiceConnection.simulation = true
+            sc.simulation = true
         } else {
-            ServiceConnection.simulation = false
+            sc.simulation = false
         }
 
-        if (ServiceConnection.tokenExpiry == nil){
+        if (sc.tokenExpiry == nil){
             
             sc.login(){(result:Bool)->() in
                 self.updateActivity(type:.stop)
@@ -158,7 +158,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
     @IBOutlet var refreshButton: UIButton!
     @IBAction func refreshButtonPressed(_ sender: UIButton) {
         
-        if (ServiceConnection.tokenExpiry == nil){ // never logged in successfully
+        if (sc.tokenExpiry == nil){ // never logged in successfully
         
             updateActivity(type:.start)
             sc.login(){(result:Bool)->() in

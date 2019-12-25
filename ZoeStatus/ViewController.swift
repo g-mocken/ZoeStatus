@@ -23,8 +23,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
     var percent:UInt8 = 0
 
-    var sc=ServiceConnection()
-   
+    let sc=ServiceConnection.shared
+
     @IBAction func unwindToViewController(segue: UIStoryboardSegue) {
         //nothing goes here
     }
@@ -53,23 +53,23 @@ class ViewController: UIViewController, MapViewControllerDelegate {
          }
          */
         
-        ServiceConnection.userName = userDefaults.string(forKey: "userName_preference")
-        ServiceConnection.password = userDefaults.string(forKey: "password_preference")
+        sc.userName = userDefaults.string(forKey: "userName_preference")
+        sc.password = userDefaults.string(forKey: "password_preference")
         let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatus");
-        sharedDefaults?.set(ServiceConnection.userName, forKey: "userName")
-        sharedDefaults?.set(ServiceConnection.password, forKey: "password")
+        sharedDefaults?.set(sc.userName, forKey: "userName")
+        sharedDefaults?.set(sc.password, forKey: "password")
         sharedDefaults?.synchronize()
         
-        if ((ServiceConnection.userName == nil) || (ServiceConnection.password == nil)){
+        if ((sc.userName == nil) || (sc.password == nil)){
             print ("Enter user credentials in settings app!")
             UIApplication.shared.open(URL(string : UIApplication.openSettingsURLString)!)
         } else {
 
-            if ServiceConnection.userName == "simulation", ServiceConnection.password == "simulation"
+            if sc.userName == "simulation", sc.password == "simulation"
             {
-                ServiceConnection.simulation = true
+                sc.simulation = true
             } else {
-                ServiceConnection.simulation = false
+                sc.simulation = false
             }
             
             updateActivity(type:.start)
@@ -129,7 +129,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
         
         // load settings
-        if (ServiceConnection.tokenExpiry == nil && ServiceConnection.simulation != true){
+        if (sc.tokenExpiry == nil && sc.simulation != true){
             performLogin() // auto-login, if never logged in before
         }
     }
@@ -337,7 +337,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
     func handleLogin(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
                
-        if (ServiceConnection.tokenExpiry == nil){ // never logged in successfully
+        if (sc.tokenExpiry == nil){ // never logged in successfully
         
             updateActivity(type:.start)
             sc.login(){(result:Bool)->() in
@@ -393,6 +393,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     
     
     
+    
+    
     func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->(){
         
         if (error){
@@ -404,28 +406,9 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             rangeForMap = remaining_range * 1000.0
             
             update.text = timestampToDateString(timestamp: last_update)
-            if plugged, charging_point != nil {
-                
-                switch (charging_point!) {
-                case "INVALID":
-                    charger.text = "⛽️ " + "❌"
-                    break;
-                case "SLOW":
-                    charger.text = "⛽️ " + "🐌"
-                    break;
-                case "FAST":
-                    charger.text = "⛽️ " + "✈️"
-                    break;
-                case "ACCELERATED":
-                    charger.text = "⛽️ " + "🚀"
-                    break;
-                default:
-                    charger.text = "⛽️ " + charging_point!
-                    break;
-                }
-            } else {
-                charger.text = "⛽️ …"
-            }
+           
+            
+            charger.text = chargingPointToChargerString(plugged, charging_point)
             
             if charging, remaining_time != nil {
                 remaining.text = String(format: "⏳ %d min.", remaining_time!)

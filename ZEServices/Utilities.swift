@@ -31,54 +31,93 @@ extension String { // taken from https://stackoverflow.com/a/35360697/1149188
     }
 }
 
-public func timestampToDateString(timestamp: UInt64) -> String{
-    var strDate = "undefined"
+public func timestampToDateString(timestamp: UInt64?) -> String{
+    var strDate = "📅 … 🕰 …"
     
-    if let unixTime = Double(exactly:timestamp/1000) {
-        let date = Date(timeIntervalSince1970: unixTime)
-        let dateFormatter = DateFormatter()
-        let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
-        dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
-        dateFormatter.locale = NSLocale.current
-        dateFormatter.dateFormat = "📅 dd.MM.yyyy 🕰 HH:mm:ss" //Specify your format that you want
-        strDate = dateFormatter.string(from: date)
+    if timestamp != nil {
+        if let unixTime = Double(exactly:timestamp!/1000) {
+            let date = Date(timeIntervalSince1970: unixTime)
+            let dateFormatter = DateFormatter()
+            let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+            dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+            dateFormatter.locale = NSLocale.current
+            dateFormatter.dateFormat = "📅 dd.MM.yyyy 🕰 HH:mm:ss" //Specify your format that you want
+            strDate = dateFormatter.string(from: date)
+        }
     }
     return strDate
 }
 
 
-public func timestampToDateOnlyString(timestamp: UInt64) -> String{
-    var strDate = "undefined"
+public func timestampToDateOnlyString(timestamp: UInt64?) -> String{
+    var strDate = "📅 …"
     
-    if let unixTime = Double(exactly:timestamp/1000) {
-        let date = Date(timeIntervalSince1970: unixTime)
-        let dateFormatter = DateFormatter()
-        let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
-        dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
-        dateFormatter.locale = NSLocale.current
-        dateFormatter.dateFormat = "📅 dd.MM.yyyy" //Specify your format that you want
-        strDate = dateFormatter.string(from: date)
+    if timestamp != nil {
+        if let unixTime = Double(exactly:timestamp!/1000) {
+            let date = Date(timeIntervalSince1970: unixTime)
+            let dateFormatter = DateFormatter()
+            let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+            dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+            dateFormatter.locale = NSLocale.current
+            dateFormatter.dateFormat = "📅 dd.MM.yyyy" //Specify your format that you want
+            strDate = dateFormatter.string(from: date)
+        }
     }
     return strDate
 }
 
-public func timestampToTimeOnlyString(timestamp: UInt64) -> String{
-    var strDate = "undefined"
+public func timestampToDateOnlyNoYearString(timestamp: UInt64?) -> String{
+    var strDate = "📅 …"
     
-    if let unixTime = Double(exactly:timestamp/1000) {
-        let date = Date(timeIntervalSince1970: unixTime)
-        let dateFormatter = DateFormatter()
-        let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
-        dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
-        dateFormatter.locale = NSLocale.current
-        dateFormatter.dateFormat = "🕰 HH:mm:ss" //Specify your format that you want
-        strDate = dateFormatter.string(from: date)
+    if timestamp != nil {
+        if let unixTime = Double(exactly:timestamp!/1000) {
+            let date = Date(timeIntervalSince1970: unixTime)
+            let dateFormatter = DateFormatter()
+            let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+            dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+            dateFormatter.locale = NSLocale.current
+            dateFormatter.dateFormat = "📅 dd.MM." //Specify your format that you want
+            strDate = dateFormatter.string(from: date)
+        }
+    }
+    return strDate
+}
+
+public func timestampToTimeOnlyString(timestamp: UInt64?) -> String{
+    var strDate = "🕰 …"
+    
+    if timestamp != nil {
+        if let unixTime = Double(exactly:timestamp!/1000) {
+            let date = Date(timeIntervalSince1970: unixTime)
+            let dateFormatter = DateFormatter()
+            let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+            dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+            dateFormatter.locale = NSLocale.current
+            dateFormatter.dateFormat = "🕰 HH:mm:ss" //Specify your format that you want
+            strDate = dateFormatter.string(from: date)
+        }
     }
     return strDate
 }
 
 
 
+public func timestampToTimeOnlyNoSecondsString(timestamp: UInt64?) -> String{
+    var strDate = "🕰 …"
+    
+    if timestamp != nil {
+        if let unixTime = Double(exactly:timestamp!/1000) {
+            let date = Date(timeIntervalSince1970: unixTime)
+            let dateFormatter = DateFormatter()
+            let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+            dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+            dateFormatter.locale = NSLocale.current
+            dateFormatter.dateFormat = "🕰 HH:mm" //Specify your format that you want
+            strDate = dateFormatter.string(from: date)
+        }
+    }
+    return strDate
+}
 
 
 public func dateToTimeString(date: Date) -> String{
@@ -92,4 +131,54 @@ public func dateToTimeString(date: Date) -> String{
     strDate = dateFormatter.string(from: date)
     
     return strDate
+}
+
+
+ public func chargingPointToChargerString(_ plugged: Bool, _ charging_point: String?) -> (String) {
+    
+    var text = "⛽️ …"
+    
+    if plugged, (charging_point != nil) {
+        
+        switch (charging_point!) {
+        case "INVALID":
+            text = "⛽️ " + "❌"
+            break;
+        case "SLOW":
+            text = "⛽️ " + "🐌"
+            break;
+        case "FAST":
+            text = "⛽️ " + "✈️"
+            break;
+        case "ACCELERATED":
+            text = "⛽️ " + "🚀"
+            break;
+        default:
+            text = "⛽️ " + charging_point! // in case an unknown value appears, print the raw text instead of an icon
+            break;
+        }
+    }
+    return text
+}
+
+
+ public func remainingTimeToRemainingString(_ charging: Bool, _ remaining_time: Int?) -> (String) {
+    
+    var text = "⏳ …"
+    
+    if charging, (remaining_time != nil) {
+        text = String(format: "⏳ %d min.", remaining_time!)
+    }
+    return text
+}
+
+
+ public func remainingTimeToRemainingShortString(_ charging: Bool, _ remaining_time: Int?) -> (String) {
+    
+    var text = "⏳ …"
+    
+    if charging, (remaining_time != nil) {
+        text = String(format: "⏳ %d '", remaining_time!)
+    }
+    return text
 }

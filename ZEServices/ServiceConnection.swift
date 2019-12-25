@@ -12,7 +12,24 @@ import Foundation
 
 public class ServiceConnection {
 
-    public init(){
+    
+    public static let shared = ServiceConnection() // Singleton!
+    
+    public struct Cache {
+        public var charging: Bool?
+        public var plugged: Bool?
+        public var charge_level: UInt8?
+        public var remaining_range: Float?
+        public var last_update: UInt64? //TimeInterval
+        public var charging_point: String?
+        public var remaining_time: Int?
+    }
+    var cache = Cache()
+    
+    public func getCache()->Cache{
+        return cache
+    }
+    private init(){
     }
     
     public enum PreconditionCommand {
@@ -22,17 +39,17 @@ public class ServiceConnection {
         case read
     }
     
-    public static var simulation: Bool = false
-    public static var userName:String?
-    public static var password:String?
-    static var vehicleIdentification:String?
-    static var activationCode: String?
-    static var token:String? // valid for a certain time, then needs to be renewed. Can be decoded.
-    public static var tokenExpiry:UInt64?
-    static var xsrfToken:String? // can be re-used indefinitely, cannot be decoded (?)
+    public var simulation: Bool = false
+    public var userName:String?
+    public var password:String?
+    var vehicleIdentification:String?
+    var activationCode: String?
+    var token:String? // valid for a certain time, then needs to be renewed. Can be decoded.
+    public var tokenExpiry:UInt64?
+    var xsrfToken:String? // can be re-used indefinitely, cannot be decoded (?)
     // An additional "refreshToken" is received and sent back a Cookie whenever a "token" is received/sent - apparently this is handled transparently by the framework without any explicit code.
     
-   static let baseURL = "https://www.services.renault-ze.com/api"
+   let baseURL = "https://www.services.renault-ze.com/api"
     
     
     fileprivate func extractExpiryDate(ofToken:String?)->UInt64? { // token is usually valid for 15min after it was issued
@@ -89,7 +106,7 @@ public class ServiceConnection {
     
     public func login (callback:@escaping(Bool)->Void) {
     
-        if ServiceConnection.simulation {
+        if simulation {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 callback(true)
             }
@@ -100,12 +117,12 @@ public class ServiceConnection {
             let username: String
             let password: String
         }
-        guard (ServiceConnection.userName != nil && ServiceConnection.password != nil) else{
+        guard (userName != nil && password != nil) else{
             callback(false)
             return
         }
-        let credentials = Credentials(username: ServiceConnection.userName!,
-                                      password: ServiceConnection.password!)
+        let credentials = Credentials(username: userName!,
+                                      password: password!)
         guard let uploadData = try? JSONEncoder().encode(credentials) else {
             callback(false)
             return
@@ -114,7 +131,7 @@ public class ServiceConnection {
 //        print(String(data: uploadData, encoding: .utf8)!)
         print("login - Sending: "+String(decoding: uploadData, as: UTF8.self))
 
-        let loginURL = ServiceConnection.baseURL + "/user/login"
+        let loginURL = baseURL + "/user/login"
         let url = URL(string: loginURL)!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -187,11 +204,11 @@ public class ServiceConnection {
                     }
                     */
                     
-                    ServiceConnection.vehicleIdentification = result.user.vehicle_details.VIN
-                    ServiceConnection.activationCode = result.user.vehicle_details.activation_code
-                    ServiceConnection.xsrfToken = result.xsrfToken
-                    ServiceConnection.token = result.token
-                    ServiceConnection.tokenExpiry = self.extractExpiryDate(ofToken: ServiceConnection.token)
+                    self.vehicleIdentification = result.user.vehicle_details.VIN
+                    self.activationCode = result.user.vehicle_details.activation_code
+                    self.xsrfToken = result.xsrfToken
+                    self.token = result.token
+                    self.tokenExpiry = self.extractExpiryDate(ofToken: self.token)
                     
                     
                     DispatchQueue.main.async {
@@ -212,11 +229,11 @@ public class ServiceConnection {
         struct Refresh: Codable {
             let token: String
         }
-        guard (ServiceConnection.userName != nil && ServiceConnection.password != nil) else{
+        guard (userName != nil && password != nil) else{
             callback(false)
             return
         }
-        let refresh = Refresh(token: ServiceConnection.token!)
+        let refresh = Refresh(token: token!)
         guard let uploadData = try? JSONEncoder().encode(refresh) else {
             return
         }
@@ -224,13 +241,13 @@ public class ServiceConnection {
         //        print(String(data: uploadData, encoding: .utf8)!)
         print("renew - Sending: "+String(decoding: uploadData, as: UTF8.self))
         
-        let refreshURL = ServiceConnection.baseURL + "/user/token/refresh"
+        let refreshURL = baseURL + "/user/token/refresh"
         let url = URL(string: refreshURL)!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(ServiceConnection.token!)", forHTTPHeaderField: "Authorization")
-        request.setValue("\(ServiceConnection.xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
+        request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
 
 
         
@@ -259,8 +276,8 @@ public class ServiceConnection {
                     let decoder = JSONDecoder()
                     let result = try decoder.decode(refreshResult.self, from: data)
                     
-                    ServiceConnection.token = result.token
-                    ServiceConnection.tokenExpiry = self.extractExpiryDate(ofToken: ServiceConnection.token)
+                    self.token = result.token
+                    self.tokenExpiry = self.extractExpiryDate(ofToken: self.token)
 
                     DispatchQueue.main.async {
                         callback(true)
@@ -278,22 +295,39 @@ public class ServiceConnection {
     
     public func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
        
-        if ServiceConnection.simulation {
+        if simulation {
             print ("batteryState: simulated")
+            self.cache.charging=true
+            self.cache.plugged=true
+            if (self.cache.charge_level == nil || self.cache.charge_level! > 100){
+                self.cache.charge_level=50
+            } else {
+                self.cache.charge_level! += 1
+            }
+
+            self.cache.remaining_range=234.5
+            self.cache.last_update=1550874142000
+            self.cache.charging_point="ACCELERATED"
+            if (self.cache.remaining_time == nil || self.cache.remaining_time! == 0){
+                self.cache.remaining_time=345
+            } else {
+                self.cache.remaining_time! -= 1
+            }
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 callback(false,
-                         true,
-                         true,
-                         100,
-                         234.5,
-                         1550874142000,
-                         "ACCELERATED",
-                         234)
+                         self.cache.charging!,
+                         self.cache.plugged!,
+                         self.cache.charge_level!,
+                         self.cache.remaining_range!,
+                         self.cache.last_update!,
+                         self.cache.charging_point!,
+                         self.cache.remaining_time!)
             }
             return
         }
         
-        let batteryURL = ServiceConnection.baseURL + "/vehicle/" + ServiceConnection.vehicleIdentification! + "/battery"
+        let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/battery"
         
         let tString = ""
         let uploadData = tString.data(using: String.Encoding.utf8)
@@ -301,8 +335,8 @@ public class ServiceConnection {
         let url = URL(string: batteryURL)!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(ServiceConnection.token!)", forHTTPHeaderField: "Authorization")
-        request.setValue("\(ServiceConnection.xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
+        request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
         
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
@@ -379,6 +413,15 @@ public class ServiceConnection {
                             if  resultPlugged.charging {
                                 if let resultPluggedAndCharging = try? decoder.decode(batteryStatusPluggedAndCharging.self, from: data)
                                 { // plugged and charging
+                                    
+                                    self.cache.charging=resultPluggedAndCharging.charging
+                                    self.cache.plugged=resultPluggedAndCharging.plugged
+                                    self.cache.charge_level=resultPluggedAndCharging.charge_level
+                                    self.cache.remaining_range=resultPluggedAndCharging.remaining_range
+                                    self.cache.last_update=resultPluggedAndCharging.last_update
+                                    self.cache.charging_point=resultPluggedAndCharging.charging_point
+                                    self.cache.remaining_time=resultPluggedAndCharging.remaining_time
+
                                     DispatchQueue.main.async {
                                         callback(false,
                                                  resultPluggedAndCharging.charging,
@@ -404,6 +447,15 @@ public class ServiceConnection {
                                     }
                                 }
                             } else { // not charging
+                                
+                                self.cache.charging=resultPlugged.charging
+                                self.cache.plugged=resultPlugged.plugged
+                                self.cache.charge_level=resultPlugged.charge_level
+                                self.cache.remaining_range=resultPlugged.remaining_range
+                                self.cache.last_update=resultPlugged.last_update
+                                self.cache.charging_point=resultPlugged.charging_point
+                                self.cache.remaining_time=nil
+                                
                                 DispatchQueue.main.async {
                                     callback(false,
                                              resultPlugged.charging,
@@ -430,6 +482,15 @@ public class ServiceConnection {
                             }
                         }
                     } else { // not plugged
+                        
+                        self.cache.charging=resultAlways.charging
+                        self.cache.plugged=resultAlways.plugged
+                        self.cache.charge_level=resultAlways.charge_level
+                        self.cache.remaining_range=resultAlways.remaining_range
+                        self.cache.last_update=resultAlways.last_update
+                        self.cache.charging_point=nil
+                        self.cache.remaining_time=nil
+
                         DispatchQueue.main.async {
                             callback(false,
                                      resultAlways.charging,
@@ -476,7 +537,7 @@ public class ServiceConnection {
     public func isTokenExpired()->Bool {
         let date = Date()
         let now = UInt64(date.timeIntervalSince1970)
-        if (  ServiceConnection.tokenExpiry != nil && ServiceConnection.tokenExpiry! > now + 60) { // must be valid for at least one more minute
+        if (  tokenExpiry != nil && tokenExpiry! > now + 60) { // must be valid for at least one more minute
             print("Token still valid")
             return false
         } else {
@@ -488,7 +549,7 @@ public class ServiceConnection {
 
     public func precondition(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
         
-        if ServiceConnection.simulation {
+        if simulation {
             print ("precondition: simulated")
             DispatchQueue.main.async {
                 callback(false, command, date)
@@ -503,8 +564,8 @@ public class ServiceConnection {
         return
 #endif
         
-        let preconditionURL = ServiceConnection.baseURL + "/vehicle/" + ServiceConnection.vehicleIdentification! + "/air-conditioning"
-        let preconditionWithTimerURL = ServiceConnection.baseURL + "/vehicle/" + ServiceConnection.vehicleIdentification! + "/air-conditioning/scheduler"
+        let preconditionURL = baseURL + "/vehicle/" + vehicleIdentification! + "/air-conditioning"
+        let preconditionWithTimerURL = baseURL + "/vehicle/" + vehicleIdentification! + "/air-conditioning/scheduler"
         
         var strDate = ""
         var tString = ""
@@ -543,8 +604,8 @@ public class ServiceConnection {
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(ServiceConnection.token!)", forHTTPHeaderField: "Authorization")
-        request.setValue("\(ServiceConnection.xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
+        request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
 
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
@@ -712,7 +773,7 @@ public class ServiceConnection {
     
     public func airConditioningLastState(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
 
-        if ServiceConnection.simulation {
+        if simulation {
             print ("airConditioningLastState: simulated")
             DispatchQueue.main.async {
                 callback(false,
@@ -722,7 +783,7 @@ public class ServiceConnection {
             }
             return
         }
-        let acLastURL = ServiceConnection.baseURL + "/vehicle/" + ServiceConnection.vehicleIdentification! + "/air-conditioning/last"
+        let acLastURL = baseURL + "/vehicle/" + vehicleIdentification! + "/air-conditioning/last"
         
         let tString = ""
         let uploadData = tString.data(using: String.Encoding.utf8)
@@ -730,8 +791,8 @@ public class ServiceConnection {
         let url = URL(string: acLastURL)!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(ServiceConnection.token!)", forHTTPHeaderField: "Authorization")
-        request.setValue("\(ServiceConnection.xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
+        request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
         
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
@@ -828,7 +889,7 @@ public class ServiceConnection {
     
     
     public func batteryStateUpdateRequest(callback:@escaping  (Bool) -> ()) {
-        if ServiceConnection.simulation {
+        if simulation {
             print ("batteryStateUpdateRequest: simulated")
             DispatchQueue.main.async {
                 callback(false)
@@ -836,7 +897,7 @@ public class ServiceConnection {
             return
         }
         
-        let batteryURL = ServiceConnection.baseURL + "/vehicle/" + ServiceConnection.vehicleIdentification! + "/battery"
+        let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/battery"
         
         let tString = ""
         let uploadData = tString.data(using: String.Encoding.utf8)
@@ -844,8 +905,8 @@ public class ServiceConnection {
         let url = URL(string: batteryURL)!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("Bearer \(ServiceConnection.token!)", forHTTPHeaderField: "Authorization")
-        request.setValue("\(ServiceConnection.xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
+        request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
         
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
@@ -875,7 +936,7 @@ public class ServiceConnection {
     
     
     public func chargeNowRequest(callback:@escaping  (Bool) -> ()) {
-        if ServiceConnection.simulation {
+        if simulation {
             print ("chargeNowRequest: simulated")
             DispatchQueue.main.async {
                 callback(false)
@@ -883,7 +944,7 @@ public class ServiceConnection {
             return
         }
         
-        let batteryURL = ServiceConnection.baseURL + "/vehicle/" + ServiceConnection.vehicleIdentification! + "/charge"
+        let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/charge"
         
         let tString = ""
         let uploadData = tString.data(using: String.Encoding.utf8)
@@ -891,8 +952,8 @@ public class ServiceConnection {
         let url = URL(string: batteryURL)!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("Bearer \(ServiceConnection.token!)", forHTTPHeaderField: "Authorization")
-        request.setValue("\(ServiceConnection.xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
+        request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
         
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
