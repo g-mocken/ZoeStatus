@@ -88,7 +88,8 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
 
     func rescheduleTask(){
         // schedule next background task a certain number of seconds into the future
-        WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: Date(timeIntervalSinceNow: 15*60), userInfo: nil) { (error: Error?) in
+        // "If you have a complication on the active watch face, you can safely schedule four refresh tasks an hour."
+        WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: Date(timeIntervalSinceNow: 15.0*60.0), userInfo: nil) { (error: Error?) in
             if let error = error {
                 print("Error occured while scheduling background refresh: \(error.localizedDescription)")
             } else {

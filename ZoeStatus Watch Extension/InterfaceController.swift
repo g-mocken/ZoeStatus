@@ -270,7 +270,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     
     
     
-    func refreshStatus() {
+    @IBAction func refreshStatus() {
         print("Refresh!")
         if ((sc.userName == nil) || (sc.password == nil)){
 
