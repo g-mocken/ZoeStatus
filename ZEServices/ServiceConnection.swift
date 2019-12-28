@@ -106,6 +106,15 @@ public class ServiceConnection {
     
     public func login (callback:@escaping(Bool)->Void) {
     
+        if userName == "simulation", password == "simulation"
+        {
+            simulation = true
+        } else {
+            simulation = false
+        }
+    
+
+        
         if simulation {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 callback(true)

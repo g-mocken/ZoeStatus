@@ -20,6 +20,8 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     
     let sc=ServiceConnection.shared
 
+    var firstRun = true
+    
     @IBOutlet var level: WKInterfaceLabel!
     @IBOutlet var range: WKInterfaceLabel!
     @IBOutlet var date: WKInterfaceLabel!
@@ -29,7 +31,6 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     @IBOutlet var remaining: WKInterfaceLabel!
     @IBOutlet var charging: WKInterfaceLabel!
     
-//    @IBOutlet var refreshButton: WKInterfaceButton!
     
     // MARK: - Watch Connectivity
 
@@ -42,14 +43,6 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
             sc.userName =  userName as? String
             sc.password = password as? String
            
-            if sc.userName == "simulation", sc.password == "simulation"
-            {
-                sc.simulation = true
-            } else {
-                sc.simulation = false
-            }
-            
-            
             // store preferences
             let userDefaults = UserDefaults.standard
             userDefaults.set(sc.userName, forKey: "userName_preference")
@@ -63,7 +56,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         extractCredentialsFromContext(reply)
         DispatchQueue.main.async{
             self.displayMessage(title: "Success", body: "Credentials received and stored.")
-            self.refreshButtonPressed()
+            self.refreshStatus()
         }
     }
     
@@ -112,33 +105,6 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         sc.userName = userDefaults.string(forKey: "userName_preference")
         sc.password = userDefaults.string(forKey: "password_preference")
 
-        
-        if ((sc.userName == nil) || (sc.password == nil)){
-            // self.displayMessage(title: "Error", body: "No user credentials present, please launch iOS app to transfer them.")
-            // cannot do much else in this case,
-            
-        } else { // credentials are present
-            
-            if sc.userName == "simulation", sc.password == "simulation"
-            {
-                sc.simulation = true
-            } else {
-                sc.simulation = false
-            }
-            
-            
-//            if (sc.tokenExpiry == nil){ // initial login
-//                sc.login(){(result:Bool)->() in
-//                    self.updateActivity(type:.stop)
-//                    if result {
-//                        self.refreshButtonPressed() // auto-refresh after successful login
-//                        print("Login to Z.E. services successful")
-//                    } else {
-//                        self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
-//                    }
-//                }
-//            }
-        }
     }
     
     override func willActivate() {
@@ -165,8 +131,8 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         remainingTime = cache.remaining_time
         
         let levelString = (level != nil ? String(format: "🔋%3d %%", level!) : "🔋…")
-        let levelShortString = (level != nil ? String(format: "%3d", level!) : "…")
-        let rangeString = (range != nil ? String(format: "🛣️ %3.0f km", range!) : "🛣️ …")
+//        let levelShortString = (level != nil ? String(format: "%3d", level!) : "…")
+        let rangeString = (range != nil ? String(format: "🛣️ %3.0f km", range!.rounded()) : "🛣️ …")
         let dateString = timestampToDateOnlyString(timestamp: dateTime)
         let timeString = timestampToTimeOnlyString(timestamp: dateTime)
         let chargerString = chargingPointToChargerString(plugged ?? false, chargingPoint)
@@ -194,6 +160,12 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     override func didAppear() {
         super.didAppear()
         print("didAppear")
+        if firstRun { // necessary, because this method is called whenever the main screen re-appears
+            firstRun = false
+            print("First start")
+            refreshStatus()
+            
+        }
     }
     
     
@@ -202,7 +174,6 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
 
         switch type {
         case .start:
-//            refreshButton.setEnabled(false)
             level.setAlpha(0.5)
             range.setAlpha(0.5)
             date.setAlpha(0.5)
@@ -219,7 +190,6 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
                 if activityCount<0 {
                     activityCount = 0
                 }
-//                refreshButton.setEnabled(true)
                 level.setAlpha(1.0)
                 range.setAlpha(1.0)
                 date.setAlpha(1.0)
@@ -282,7 +252,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
             } else {
                         
                 level.setText(String(format: "🔋%3d %%", charge_level))
-                range.setText(String(format: "🛣️ %3.0f km", remaining_range))
+                range.setText(String(format: "🛣️ %3.0f km", remaining_range.rounded()))
                 date.setText(timestampToDateOnlyString(timestamp: last_update))
                 time.setText(timestampToTimeOnlyString(timestamp: last_update))
                 charger.setText(chargingPointToChargerString(plugged, charging_point))
@@ -300,7 +270,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     
     
     
-    @IBAction func refreshButtonPressed() {
+    func refreshStatus() {
         print("Refresh!")
         if ((sc.userName == nil) || (sc.password == nil)){
 

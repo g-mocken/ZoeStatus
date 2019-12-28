@@ -41,7 +41,7 @@
                             </menuItem>
                             <menuItem title="Refresh" icon="resume" id="27L-iz-roL">
                                 <connections>
-                                    <action selector="refreshButtonPressed" destination="AgC-eL-Hgc" id="i1f-Ks-GBB"/>
+                                    <action selector="refreshStatus" destination="AgC-eL-Hgc" id="i1f-Ks-GBB"/>
                                 </connections>
                             </menuItem>
                         </items>

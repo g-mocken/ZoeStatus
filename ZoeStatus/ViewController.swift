@@ -64,13 +64,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             print ("Enter user credentials in settings app!")
             UIApplication.shared.open(URL(string : UIApplication.openSettingsURLString)!)
         } else {
-
-            if sc.userName == "simulation", sc.password == "simulation"
-            {
-                sc.simulation = true
-            } else {
-                sc.simulation = false
-            }
             
             updateActivity(type:.start)
             sc.login(){(result:Bool)->() in

@@ -72,7 +72,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
 
         let levelString = (level != nil ? String(format: "🔋%3d %%", level!) : "🔋…")
         let levelShortString = (level != nil ? String(format: "%3d", level!) : "…")
-        let rangeString = (range != nil ? String(format: "🛣️ %3.0f km", range!) : "🛣️ …")
+        let rangeString = (range != nil ? String(format: "🛣️ %3.0f km", range!.rounded()) : "🛣️ …")
   //      let dateString = timestampToDateOnlyNoYearString(timestamp: dateTime)
   //      let timeString = timestampToTimeOnlyNoSecondsString(timestamp: dateTime)
         let chargerString = chargingPointToChargerString(plugged ?? false, chargingPoint)
