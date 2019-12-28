@@ -86,14 +86,13 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
 
     }
 
-    func rescheduleTask(){
+    func rescheduleTask(after timeInterval: TimeInterval){
         // schedule next background task a certain number of seconds into the future
-        // "If you have a complication on the active watch face, you can safely schedule four refresh tasks an hour."
-        WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: Date(timeIntervalSinceNow: 15.0*60.0), userInfo: nil) { (error: Error?) in
+        WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: Date(timeIntervalSinceNow: timeInterval), userInfo: nil) { (error: Error?) in
             if let error = error {
                 print("Error occured while scheduling background refresh: \(error.localizedDescription)")
             } else {
-                print("Scheduling background refresh")
+                print("Scheduling background refresh in \(timeInterval) seconds")
             }
         }
     }
@@ -118,7 +117,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     
     func applicationDidEnterBackground() {
         print("applicationDidEnterBackground")
-        rescheduleTask() // schedule background update
+        rescheduleTask(after:1.0) // schedule background update
 
     }
 
@@ -141,8 +140,9 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
                 // Be sure to complete the background task once you’re done.
                 refreshTask()
-                rescheduleTask()
-                backgroundTask.setTaskCompletedWithSnapshot(false)
+                // "If you have a complication on the active watch face, you can safely schedule four refresh tasks an hour."
+                rescheduleTask(after: 15.0*60.0 )
+                backgroundTask.setTaskCompletedWithSnapshot(true)
             case let snapshotTask as WKSnapshotRefreshBackgroundTask:
                 // Snapshot tasks have a unique completion call, make sure to set your expiration date
                 snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date.distantFuture, userInfo: nil)
