@@ -315,7 +315,13 @@ public class ServiceConnection {
             }
 
             self.cache.remaining_range=234.5
-            self.cache.last_update=1550874142000
+
+            if (self.cache.remaining_time == nil ){
+                self.cache.last_update=1550874142000
+            } else {
+                self.cache.last_update! += 30*60
+            }
+
             self.cache.charging_point="ACCELERATED"
             if (self.cache.remaining_time == nil || self.cache.remaining_time! == 0){
                 self.cache.remaining_time=345

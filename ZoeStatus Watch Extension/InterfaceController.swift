@@ -56,6 +56,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         extractCredentialsFromContext(reply)
         DispatchQueue.main.async{
             self.displayMessage(title: "Success", body: "Credentials received and stored.")
+            self.sc.tokenExpiry = nil // require new login
             self.refreshStatus()
         }
     }

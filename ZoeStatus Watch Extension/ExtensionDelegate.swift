@@ -12,6 +12,8 @@ import ZEServices_Watchos
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
     let sc=ServiceConnection.shared
+    var previous_last_update:UInt64?
+    let refreshInterval:TimeInterval = 15 * 60
 
     func handleLogin(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
                
@@ -53,14 +55,20 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         } else {
             
             print("Did obtain battery state.")
-            // do not use values here, but sc.cache is updated
-            
-            let complicationServer = CLKComplicationServer.sharedInstance()
-            
-            for complication in complicationServer.activeComplications! {
-                //print("reloadTimeline for complication \(complication)")
-                complicationServer.reloadTimeline(for: complication)
+            // do not use the values just retrieved here, but rely on sc.cache is updated
+        
+            if (previous_last_update == nil) || (previous_last_update! != last_update){
+                print("Reload required.")
+                let complicationServer = CLKComplicationServer.sharedInstance()
+                for complication in complicationServer.activeComplications! {
+                    //print("reloadTimeline for complication \(complication)")
+                    complicationServer.reloadTimeline(for: complication)
+                }
+            } else {
+                print("No reload required.")
             }
+            
+            previous_last_update = last_update
         }
     }
     
@@ -70,8 +78,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         // refresh
         print("Refresh triggered")
         
-        
-        print("Refresh!")
         if ((sc.userName == nil) || (sc.password == nil)){
             
            print("No user credentials present.")
@@ -87,12 +93,15 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
 
     func rescheduleTask(after timeInterval: TimeInterval){
+        
+        print("Scheduling next background refresh after \(timeInterval) seconds.")
+
         // schedule next background task a certain number of seconds into the future
         WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: Date(timeIntervalSinceNow: timeInterval), userInfo: nil) { (error: Error?) in
             if let error = error {
-                print("Error occured while scheduling background refresh: \(error.localizedDescription)")
+                print("Error occured while running background refresh: \(error.localizedDescription)")
             } else {
-                print("Scheduling background refresh in \(timeInterval) seconds")
+                print("No error occured while running background refresh.")
             }
         }
     }
@@ -117,8 +126,21 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     
     func applicationDidEnterBackground() {
         print("applicationDidEnterBackground")
-        rescheduleTask(after:1.0) // schedule background update
+        
+        // do instant update of complication, if necessary
+        let cache = sc.getCache()
+        if cache.charging != nil, cache.plugged != nil, cache.charge_level != nil, cache.remaining_range != nil, cache.last_update != nil, cache.charging_point != nil, cache.remaining_time != nil {
+        
+            print("Updating from cache")
+            batteryState(error: false, charging: cache.charging!, plugged: cache.plugged!, charge_level: cache.charge_level!, remaining_range: cache.remaining_range!, last_update: cache.last_update!, charging_point: cache.charging_point!, remaining_time: cache.remaining_time!)
+        } else {
+            //refreshTask() // refresh from network, if no cache is present
+        }
 
+        let complicationServer = CLKComplicationServer.sharedInstance()
+        if complicationServer.activeComplications != nil && complicationServer.activeComplications!.count != 0 {
+            rescheduleTask(after: refreshInterval) // schedule next update (from network) afterwards only if at least one complication is active
+        }
     }
 
     func applicationDidBecomeActive() {
@@ -139,10 +161,17 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             switch task {
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
                 // Be sure to complete the background task once you’re done.
-                refreshTask()
+
+                refreshTask() // refresh from network
                 // "If you have a complication on the active watch face, you can safely schedule four refresh tasks an hour."
-                rescheduleTask(after: 15.0*60.0 )
-                backgroundTask.setTaskCompletedWithSnapshot(true)
+                
+                let complicationServer = CLKComplicationServer.sharedInstance()
+                if complicationServer.activeComplications != nil && complicationServer.activeComplications!.count != 0 {
+                    rescheduleTask(after: refreshInterval) // schedule next update (from network) afterwards only if at least one complication is (still) active
+                }
+
+                backgroundTask.setTaskCompletedWithSnapshot(false)
+                
             case let snapshotTask as WKSnapshotRefreshBackgroundTask:
                 // Snapshot tasks have a unique completion call, make sure to set your expiration date
                 snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date.distantFuture, userInfo: nil)
