@@ -13,7 +13,7 @@ import ZEServices_Watchos
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
     let sc=ServiceConnection.shared
     var previous_last_update:UInt64?
-    let refreshInterval:TimeInterval = 15 * 60
+    let refreshInterval:TimeInterval = 1.0 * 60
 
     func handleLogin(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
                
@@ -63,6 +63,11 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                 for complication in complicationServer.activeComplications! {
                     //print("reloadTimeline for complication \(complication)")
                     complicationServer.reloadTimeline(for: complication)
+                    NSLog("reloadTimeline for complication \(complication.family.rawValue)")
+                    
+                   // let customLog = OSLog(subsystem: "com.grm.zoestatus", category: "ZOE")
+                   // os_log("Log default.", log: customLog, type: .default)
+
                 }
             } else {
                 print("No reload required.")
@@ -92,16 +97,34 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
 
     }
 
-    func rescheduleTask(after timeInterval: TimeInterval){
+    func nextScheduleTime()->Date{
+        //let date = Date(timeIntervalSinceNow: refreshInterval)
+        let now = Date() // current time
+        let calendar = Calendar(identifier: .gregorian)
+        let targetMinutes = DateComponents(minute: 0) // at every full hour
+
+        let date = calendar.nextDate(after: now, matching: targetMinutes, matchingPolicy: .nextTime)!
         
-        print("Scheduling next background refresh after \(timeInterval) seconds.")
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        let dateString = formatter.string(from: date)
+
+        NSLog("Date for next schuedule = \(date) = \(dateString).")
+
+        return date
+    }
+    
+    func rescheduleTask(){
+        
+        NSLog("Scheduling next background refresh.")
 
         // schedule next background task a certain number of seconds into the future
-        WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: Date(timeIntervalSinceNow: timeInterval), userInfo: nil) { (error: Error?) in
+        WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: nextScheduleTime(), userInfo: nil) { (error: Error?) in
             if let error = error {
-                print("Error occured while running background refresh: \(error.localizedDescription)")
+                NSLog("Error occured while scheduling background refresh: \(error.localizedDescription)")
             } else {
-                print("No error occured while running background refresh.")
+                NSLog("No error occured while scheduling background refresh.")
             }
         }
     }
@@ -139,7 +162,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
 
         let complicationServer = CLKComplicationServer.sharedInstance()
         if complicationServer.activeComplications != nil && complicationServer.activeComplications!.count != 0 {
-            rescheduleTask(after: refreshInterval) // schedule next update (from network) afterwards only if at least one complication is active
+            rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is active
         }
     }
 
@@ -167,7 +190,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                 
                 let complicationServer = CLKComplicationServer.sharedInstance()
                 if complicationServer.activeComplications != nil && complicationServer.activeComplications!.count != 0 {
-                    rescheduleTask(after: refreshInterval) // schedule next update (from network) afterwards only if at least one complication is (still) active
+                    rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is (still) active
                 }
 
                 backgroundTask.setTaskCompletedWithSnapshot(false)

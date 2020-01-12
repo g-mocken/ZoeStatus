@@ -129,7 +129,9 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     
     func getCurrentTimelineEntry(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void) {
         // Call the handler with the current timeline entry
-        print("getCurrentTimelineEntry for \(complication.family.rawValue)")
+        //print("getCurrentTimelineEntry for \(complication.family.rawValue)")
+        NSLog("getCurrentTimelineEntry for \(complication.family.rawValue)")
+
         if let genericTemplate = createTemplate(for:complication, usingDummyValues: false) {
             // Create the timeline entry.
             let entry = CLKComplicationTimelineEntry(date: Date(),
