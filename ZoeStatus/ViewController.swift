@@ -9,6 +9,7 @@
 import UIKit
 import ZEServices
 import WatchConnectivity
+import os
 
 class ViewController: UIViewController, MapViewControllerDelegate {
     
@@ -312,9 +313,11 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             refreshButton.isHidden=true
             activityIndicator.startAnimating()
             activityCount+=1
+            os_log("Activity start, count = %{public}d", log: customLog, type: .default, activityCount)
             break
         case .stop:
             activityCount-=1
+            os_log("Activity stop, count = %{public}d", log: customLog, type: .default, activityCount)
             if activityCount<=0 {
                 if activityCount<0 {
                     activityCount = 0
@@ -325,7 +328,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             }
             break
         }
-        print("Activity count = \(activityCount)")
+        //print("Activity count = \(activityCount)")
     }
 
     func handleLogin(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {

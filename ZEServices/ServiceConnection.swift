@@ -7,10 +7,12 @@
 //
 
 import Foundation
-
+import os
 
 
 public class ServiceConnection {
+
+    let serviceLog = OSLog(subsystem: "com.grm.ZEServices", category: "ZOE")
 
     
     public static let shared = ServiceConnection() // Singleton!
@@ -30,6 +32,7 @@ public class ServiceConnection {
         return cache
     }
     private init(){
+        os_log("ServiceConnection log started.", log: serviceLog, type: .default)
     }
     
     public enum PreconditionCommand {
@@ -106,6 +109,8 @@ public class ServiceConnection {
     
     public func login (callback:@escaping(Bool)->Void) {
     
+        os_log("login", log: serviceLog, type: .default)
+
         if userName == "simulation", password == "simulation"
         {
             simulation = true
@@ -137,8 +142,8 @@ public class ServiceConnection {
             return
         }
         
-//        print(String(data: uploadData, encoding: .utf8)!)
-        print("login - Sending: "+String(decoding: uploadData, as: UTF8.self))
+        //print("login - Sending: "+String(decoding: uploadData, as: UTF8.self))
+        os_log("Sending login credentials: %s", log: self.serviceLog, type: .default, String(decoding: uploadData, as: UTF8.self))
 
         let loginURL = baseURL + "/user/login"
         let url = URL(string: loginURL)!
@@ -148,21 +153,23 @@ public class ServiceConnection {
         
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
-                print ("URLSession error: \(error)")
+                //print ("URLSession error: \(error)")
+                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
                 DispatchQueue.main.async {
                     callback(false)
                 }
                 return
             }
-            guard let response = response as? HTTPURLResponse,
-                (200...299).contains(response.statusCode) else {
-                    print ("server error")
+            guard let resp = response as? HTTPURLResponse,
+                (200...299).contains(resp.statusCode) else {
+                    //print ("server error")
+                    os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
                     DispatchQueue.main.async {
                         callback(false)
                     }
                     return
             }
-            if let mimeType = response.mimeType,
+            if let mimeType = resp.mimeType,
                 mimeType == "application/json",
                 let data = data,
                 let dataString = String(data: data, encoding: .utf8) {
@@ -234,7 +241,8 @@ public class ServiceConnection {
     
     
     public func renewToken (callback:@escaping(Bool)->Void) {
-        
+        os_log("renewToken", log: serviceLog, type: .default)
+
         struct Refresh: Codable {
             let token: String
         }
@@ -244,6 +252,7 @@ public class ServiceConnection {
         }
         let refresh = Refresh(token: token!)
         guard let uploadData = try? JSONEncoder().encode(refresh) else {
+            callback(false)
             return
         }
         
@@ -262,15 +271,23 @@ public class ServiceConnection {
         
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
-                print ("error: \(error)")
+                //print ("error: \(error)")
+                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
+                DispatchQueue.main.async {
+                    callback(false)
+                }
                 return
             }
-            guard let response = response as? HTTPURLResponse,
-                (200...299).contains(response.statusCode) else {
-                    print ("server error")
+            guard let resp = response as? HTTPURLResponse,
+                (200...299).contains(resp.statusCode) else {
+                    //print ("server error")
+                    os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
+                    DispatchQueue.main.async {
+                        callback(false)
+                    }
                     return
             }
-            if let mimeType = response.mimeType,
+            if let mimeType = resp.mimeType,
                 mimeType == "application/json",
                 let data = data,
                 let dataString = String(data: data, encoding: .utf8) {
@@ -303,7 +320,8 @@ public class ServiceConnection {
 
     
     public func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
-       
+       os_log("batteryState", log: serviceLog, type: .default)
+
         if simulation {
             print ("batteryState: simulated")
             self.cache.charging=true
@@ -355,7 +373,8 @@ public class ServiceConnection {
         
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
-                print ("error: \(error)")
+                //print ("error: \(error)")
+                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
                 DispatchQueue.main.async {
                     callback(true,
                              false,
@@ -368,9 +387,11 @@ public class ServiceConnection {
                 }
                 return
             }
-            guard let response = response as? HTTPURLResponse,
-                (200...299).contains(response.statusCode) else {
-                    print ("server error")
+            guard let resp = response as? HTTPURLResponse,
+                (200...299).contains(resp.statusCode) else {
+                    //print ("server error")
+                    os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
+
                     DispatchQueue.main.async {
                         callback(true,
                                  false,
@@ -383,7 +404,7 @@ public class ServiceConnection {
                     }
                     return
             }
-            if let mimeType = response.mimeType,
+            if let mimeType = resp.mimeType,
                 mimeType == "application/json",
                 let data = data,
                 let dataString = String(data: data, encoding: .utf8) {
@@ -564,6 +585,8 @@ public class ServiceConnection {
 
     public func precondition(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
         
+        os_log("precondition", log: serviceLog, type: .default)
+
         if simulation {
             print ("precondition: simulated")
             DispatchQueue.main.async {
@@ -624,7 +647,8 @@ public class ServiceConnection {
 
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
-                print ("error: \(error)")
+                //print ("error: \(error)")
+                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
                 DispatchQueue.main.async {
                     callback(true, command, nil)
                 }
@@ -632,8 +656,10 @@ public class ServiceConnection {
             }
             guard let response2 = response as? HTTPURLResponse,
                 (200...299).contains(response2.statusCode) else {
-                    print ("server error")
-                    print ((response as! HTTPURLResponse).description)
+                    //print ("server error")
+                    //print ((response as! HTTPURLResponse).description)
+                    os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
+
                     DispatchQueue.main.async {
                         callback(true, command, nil)
                     }
@@ -788,6 +814,8 @@ public class ServiceConnection {
     
     public func airConditioningLastState(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
 
+        os_log("airConditioningLastState", log: serviceLog, type: .default)
+
         if simulation {
             print ("airConditioningLastState: simulated")
             DispatchQueue.main.async {
@@ -811,7 +839,8 @@ public class ServiceConnection {
         
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
-                print ("error: \(error)")
+                //print ("error: \(error)")
+                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
                 DispatchQueue.main.async {
                     callback(true,
                              0,
@@ -820,9 +849,10 @@ public class ServiceConnection {
                 }
                 return
             }
-            guard let response = response as? HTTPURLResponse,
-                (200...299).contains(response.statusCode) else {
-                    print ("server error")
+            guard let resp = response as? HTTPURLResponse,
+                (200...299).contains(resp.statusCode) else {
+                    //print ("server error")
+                    os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
                     DispatchQueue.main.async {
                         callback(true,
                                  0,
@@ -832,7 +862,7 @@ public class ServiceConnection {
                     return
             }
             
-            if let mimeType = response.mimeType,
+            if let mimeType = resp.mimeType,
                 mimeType == "application/json",
                 let data = data,
                 let dataString = String(data: data, encoding: .utf8) {
@@ -862,7 +892,9 @@ public class ServiceConnection {
                         
                     }
                 } else {
-                    print ("unexpected server response (result for acLastStatus == nil)")
+                    //print ("unexpected server response (result for acLastStatus == nil)")
+                    os_log("unexpected server response (result for acLastStatus == nil)", log: self.serviceLog, type: .default)
+
                     DispatchQueue.main.async {
                         callback(true,
                                  0,
@@ -877,9 +909,11 @@ public class ServiceConnection {
                  Status Code: 204 (meaning: NO CONTENT)
                  In this case, no decodable data is returned (data!.count == 0), and mimeType = "text/html"
                  */
-                if response.statusCode == 204
+                if resp.statusCode == 204
                 {
-                    print ("error 204 server response")
+                    //print ("error 204 server response")
+                    os_log("error 204 server response", log: self.serviceLog, type: .default)
+
                     DispatchQueue.main.async {
                         callback(false,
                                  0,
@@ -925,7 +959,8 @@ public class ServiceConnection {
         
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
-                print ("error: \(error)")
+                //print ("error: \(error)")
+                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
                 DispatchQueue.main.async {
                     callback(true)
                 }
@@ -972,7 +1007,8 @@ public class ServiceConnection {
         
         let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
             if let error = error {
-                print ("error: \(error)")
+                //print ("error: \(error)")
+                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
                 DispatchQueue.main.async {
                     callback(true)
                 }

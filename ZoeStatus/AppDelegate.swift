@@ -8,6 +8,9 @@
 
 import UIKit
 import WatchConnectivity
+import os // for os_log
+
+let customLog = OSLog(subsystem: "com.grm.ZoeStatus", category: "ZOE")
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
@@ -86,6 +89,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
 
     var shortcutItemToProcess: UIApplicationShortcutItem?
 
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         print("didFinishLaunchingWithOptions")
@@ -148,6 +152,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
         }
 
         NotificationCenter.default.post(name: Notification.Name("applicationDidBecomeActive"), object: nil)
+        os_log("ZOE Custom default log mesage.", log: customLog, type: .default)
+        os_log("ZOE Custom info log mesage.", log: customLog, type: .info)
+        os_log("ZOE Custom error log mesage.", log: customLog, type: .error)
+        os_log("Private: %{private}s", log: customLog, type: .error, "top secret")
+        os_log("Public: %{public}s", log: customLog, type: .error, "not a secret")
+
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
