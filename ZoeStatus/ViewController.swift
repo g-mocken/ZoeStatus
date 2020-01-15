@@ -356,6 +356,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                     } else {
                         self.displayMessage(title: "Error", body:"Failed to renew expired token.")
                         print("expired token NOT renewed!")
+                        self.sc.tokenExpiry = nil // force new login next time
                         errorCode()
                     }
                     self.updateActivity(type:.stop)

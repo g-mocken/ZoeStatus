@@ -231,6 +231,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
                         actionCode()
                     } else {
                         self.displayMessage(title: "Error", body:"Failed to renew expired token.")
+                        self.sc.tokenExpiry = nil // force new login next time
                         print("expired token NOT renewed!")
                         errorCode()
                     }
