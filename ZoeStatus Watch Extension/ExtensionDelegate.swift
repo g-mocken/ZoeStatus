@@ -82,7 +82,17 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     func refreshTask(){
         // refresh
         print("Refresh triggered")
+
+        sc.updateCacheTimestamp() // is called at the scheduled time!
+        print("Reload required.")
+        let complicationServer = CLKComplicationServer.sharedInstance()
+        for complication in complicationServer.activeComplications! {
+            //print("reloadTimeline for complication \(complication)")
+            complicationServer.reloadTimeline(for: complication) // maybe is called, but is ignored?
+            NSLog("reloadTimeline for complication \(complication.family.rawValue)")
+        }
         
+        /*
         if ((sc.userName == nil) || (sc.password == nil)){
             
            print("No user credentials present.")
@@ -92,7 +102,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                 self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
             }
         }
-        
+         */
         
 
     }
@@ -102,15 +112,16 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         let now = Date() // current time
         let calendar = Calendar(identifier: .gregorian)
         let targetMinutes = DateComponents(minute: 0) // at every full hour
+        let targetSeconds = DateComponents(second: 0) // at every full minute
 
-        let date = calendar.nextDate(after: now, matching: targetMinutes, matchingPolicy: .nextTime)!
+        let date = calendar.nextDate(after: now, matching: targetSeconds, matchingPolicy: .nextTime)!
         
         let formatter = DateFormatter()
         formatter.timeZone = TimeZone.current
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         let dateString = formatter.string(from: date)
 
-        NSLog("Date for next schuedule = \(date) = \(dateString).")
+        NSLog("Date/Time for next schuedule = \(date) = \(dateString).")
 
         return date
     }
@@ -149,7 +160,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     
     func applicationDidEnterBackground() {
         print("applicationDidEnterBackground")
-        
+        /*
         // do instant update of complication, if necessary
         let cache = sc.getCache()
         if cache.charging != nil, cache.plugged != nil, cache.charge_level != nil, cache.remaining_range != nil, cache.last_update != nil, cache.charging_point != nil, cache.remaining_time != nil {
@@ -159,8 +170,17 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         } else {
             //refreshTask() // refresh from network, if no cache is present
         }
-
+        */
+        
+        print("Reload forced.")
         let complicationServer = CLKComplicationServer.sharedInstance()
+        for complication in complicationServer.activeComplications! {
+            //print("reloadTimeline for complication \(complication)")
+            complicationServer.reloadTimeline(for: complication)
+            NSLog("reloadTimeline for complication \(complication.family.rawValue)")
+        }
+
+
         if complicationServer.activeComplications != nil && complicationServer.activeComplications!.count != 0 {
             rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is active
         }

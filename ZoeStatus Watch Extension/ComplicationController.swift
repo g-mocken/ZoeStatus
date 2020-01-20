@@ -40,6 +40,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         
         var genericTemplate:CLKComplicationTemplate?
         
+        var timestamp:Date?
         
         var level: UInt8?
         var range: Float?
@@ -50,6 +51,8 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         var charging: Bool?
         
         if simulation {
+            timestamp = Date()
+
             level = 100
             range = 234.5
             dateTime = 1550874142000
@@ -60,6 +63,8 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         } else {
             
             let cache = sc.getCache()
+            
+            timestamp = cache.timestamp
             level = cache.charge_level
             range = cache.remaining_range
             dateTime = cache.last_update
@@ -76,7 +81,19 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         let /*dateString*/ _ = timestampToDateOnlyNoYearString(timestamp: dateTime)
         let /*timeString*/ _ = timestampToTimeOnlyNoSecondsString(timestamp: dateTime)
         let chargerString = chargingPointToChargerString(plugged ?? false, chargingPoint)
-        let remainingString = remainingTimeToRemainingShortString(charging ?? false, remainingTime)
+
+//        let remainingString = remainingTimeToRemainingShortString(charging ?? false, remainingTime)
+
+        let dateFormatter = DateFormatter()
+        let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+        dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+        dateFormatter.locale = NSLocale.current
+        dateFormatter.dateFormat = "HH:mm:ss" //Specify your format that you want
+       
+        let remainingString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
+
+
+
         let pluggedString = (plugged != nil ? (plugged! ? "🔌 ✅" : "🔌 ❌") : "🔌 …")
         let chargingString = (charging != nil ? (charging! ? "⚡️ ✅" : "⚡️ ❌") : "⚡️ …")
 

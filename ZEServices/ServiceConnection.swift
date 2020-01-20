@@ -18,6 +18,7 @@ public class ServiceConnection {
     public static let shared = ServiceConnection() // Singleton!
     
     public struct Cache {
+        public var timestamp: Date? // cache update at this time
         public var charging: Bool?
         public var plugged: Bool?
         public var charge_level: UInt8?
@@ -28,6 +29,9 @@ public class ServiceConnection {
     }
     var cache = Cache()
     
+    public func updateCacheTimestamp(){
+        cache.timestamp = Date()
+     }
     public func getCache()->Cache{
         return cache
     }
@@ -320,8 +324,9 @@ public class ServiceConnection {
 
     
     public func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
-       os_log("batteryState", log: serviceLog, type: .default)
+        os_log("batteryState", log: serviceLog, type: .default)
 
+        cache.timestamp = Date()
         if simulation {
             print ("batteryState: simulated")
             self.cache.charging=true

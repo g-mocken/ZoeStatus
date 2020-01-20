@@ -261,13 +261,8 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
                 remaining.setText(remainingTimeToRemainingString(charging,remaining_time))
                 self.plugged.setText(plugged ? "🔌 ✅" : "🔌 ❌")
                 self.charging.setText(charging ? "⚡️ ✅" : "⚡️ ❌")
-                
-                
-                
-                
             }
             updateActivity(type:.stop)
-
         }
     
     
