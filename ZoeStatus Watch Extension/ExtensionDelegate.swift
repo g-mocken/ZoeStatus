@@ -111,7 +111,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         //let date = Date(timeIntervalSinceNow: refreshInterval)
         let now = Date() // current time
         let calendar = Calendar(identifier: .gregorian)
-        let targetMinutes = DateComponents(minute: 0) // at every full hour
+      //  let targetMinutes = DateComponents(minute: 0) // at every full hour
         let targetSeconds = DateComponents(second: 0) // at every full minute
 
         let date = calendar.nextDate(after: now, matching: targetSeconds, matchingPolicy: .nextTime)!
@@ -172,6 +172,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         }
         */
         
+        /*
         print("Reload forced.")
         let complicationServer = CLKComplicationServer.sharedInstance()
         for complication in complicationServer.activeComplications! {
@@ -184,6 +185,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         if complicationServer.activeComplications != nil && complicationServer.activeComplications!.count != 0 {
             rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is active
         }
+         */
     }
 
     func applicationDidBecomeActive() {

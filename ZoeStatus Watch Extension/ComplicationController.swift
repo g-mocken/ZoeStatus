@@ -82,7 +82,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         let /*timeString*/ _ = timestampToTimeOnlyNoSecondsString(timestamp: dateTime)
         let chargerString = chargingPointToChargerString(plugged ?? false, chargingPoint)
 
-//        let remainingString = remainingTimeToRemainingShortString(charging ?? false, remainingTime)
+        var remainingString = remainingTimeToRemainingShortString(charging ?? false, remainingTime)
 
         let dateFormatter = DateFormatter()
         let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
@@ -90,7 +90,8 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         dateFormatter.locale = NSLocale.current
         dateFormatter.dateFormat = "HH:mm:ss" //Specify your format that you want
        
-        let remainingString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
+        // for testing, overwrite it with cache timestamp:
+        remainingString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
 
 
 
