@@ -10,10 +10,12 @@ import Foundation
 import os
 
 
+
 public class ServiceConnection {
 
     let serviceLog = OSLog(subsystem: "com.grm.ZEServices", category: "ZOE")
 
+    var myR: MyR!
     
     public static let shared = ServiceConnection() // Singleton!
     
@@ -46,9 +48,17 @@ public class ServiceConnection {
         case read
     }
     
+    public enum ApiVersion: Int {
+        case ZE = 0
+        case MyRv1
+        case MyRv2
+    }
+    
     public var simulation: Bool = false
     public var userName:String?
     public var password:String?
+    public var api_version:ApiVersion?
+    
     var vehicleIdentification:String?
     var activationCode: String?
     var token:String? // valid for a certain time, then needs to be renewed. Can be decoded.
@@ -111,34 +121,50 @@ public class ServiceConnection {
         return nil
     }
     
-    public func login (callback:@escaping(Bool)->Void) {
+    public func login (callback c:@escaping(Bool)->Void) {
     
         os_log("login", log: serviceLog, type: .default)
-
+        
         if userName == "simulation", password == "simulation"
         {
             simulation = true
         } else {
             simulation = false
         }
-    
-
-        
         if simulation {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                callback(true)
+                c(true)
             }
             return
         }
         
-        struct Credentials: Codable {
-            let username: String
-            let password: String
-        }
         guard (userName != nil && password != nil) else{
-            callback(false)
+            c(false)
             return
         }
+
+        switch api_version {
+        case .ZE:
+            login_ZE(callback:c)
+        case .MyRv1, .MyRv2:
+            login_MyR(callback:c)
+        case .none:
+            ()
+        }
+    }
+    
+    func login_MyR (callback:@escaping(Bool)->Void) {
+        print ("New API login")
+        myR = MyR(username: userName!, password: password!)
+        myR.handleLoginProcess(onError: {DispatchQueue.main.async{callback(false)}}, onSuccess: {DispatchQueue.main.async{callback(false)}}) // later change latte to true
+    }
+        
+    func login_ZE (callback:@escaping(Bool)->Void) {
+        struct Credentials: Codable {
+                     let username: String
+                     let password: String
+                 }
+      
         let credentials = Credentials(username: userName!,
                                       password: password!)
         guard let uploadData = try? JSONEncoder().encode(credentials) else {
@@ -236,7 +262,9 @@ public class ServiceConnection {
                     }
                 } catch {
                     print (error)
-                    callback(false)
+                    DispatchQueue.main.async {
+                        callback(false)
+                    }
                 }
             }
         }
@@ -323,7 +351,7 @@ public class ServiceConnection {
     }
 
     
-    public func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+    public func batteryState(callback c:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
         os_log("batteryState", log: serviceLog, type: .default)
 
         cache.timestamp = Date()
@@ -353,18 +381,42 @@ public class ServiceConnection {
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                callback(false,
-                         self.cache.charging!,
-                         self.cache.plugged!,
-                         self.cache.charge_level!,
-                         self.cache.remaining_range!,
-                         self.cache.last_update!,
-                         self.cache.charging_point!,
-                         self.cache.remaining_time!)
+                c(false,
+                  self.cache.charging!,
+                  self.cache.plugged!,
+                  self.cache.charge_level!,
+                  self.cache.remaining_range!,
+                  self.cache.last_update!,
+                  self.cache.charging_point!,
+                  self.cache.remaining_time!)
             }
             return
         }
         
+        
+        switch api_version {
+              case .ZE:
+                  batteryState_ZE(callback:c)
+              case .MyRv1, .MyRv2:
+                  batteryState_MyR(callback:c)
+              case .none:
+                  ()
+              }
+    }
+    func batteryState_MyR(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+
+        callback(true,
+                 false,
+                 false,
+                 0,
+                 0.0,
+                 0,
+                 nil,
+                 nil)
+
+    }
+    func batteryState_ZE(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+
         let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/battery"
         
         let tString = ""

@@ -13,6 +13,8 @@
 		9A244451239478200001AF9B /* ServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */; };
 		9A244452239478650001AF9B /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A57C96323800D2B00A01C61 /* Utilities.swift */; };
 		9A244456239556B60001AF9B /* ZEServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A244444239473990001AF9B /* ZEServices.framework */; };
+		9A368F1023E3415800DE95BF /* MyR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A368F0F23E3415800DE95BF /* MyR.swift */; };
+		9A368F1123E34A4000DE95BF /* MyR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A368F0F23E3415800DE95BF /* MyR.swift */; };
 		9A47C940237F5E00006A5FDB /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */; };
 		9A47C943237F5E00006A5FDB /* WidgetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A47C942237F5E00006A5FDB /* WidgetViewController.swift */; };
 		9A47C946237F5E00006A5FDB /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A47C944237F5E00006A5FDB /* MainInterface.storyboard */; };
@@ -141,6 +143,7 @@
 		9A244444239473990001AF9B /* ZEServices.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ZEServices.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A244446239473990001AF9B /* ZEServices.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZEServices.h; sourceTree = "<group>"; };
 		9A244447239473990001AF9B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9A368F0F23E3415800DE95BF /* MyR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyR.swift; sourceTree = "<group>"; };
 		9A47C93E237F5E00006A5FDB /* Zoe.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Zoe.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
 		9A47C942237F5E00006A5FDB /* WidgetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViewController.swift; sourceTree = "<group>"; };
@@ -317,6 +320,7 @@
 			children = (
 				9A57C96323800D2B00A01C61 /* Utilities.swift */,
 				9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */,
+				9A368F0F23E3415800DE95BF /* MyR.swift */,
 				9A244445239473990001AF9B /* ZEServices */,
 				9AA73CEE23A154B2001A6234 /* ZEServices Watchos */,
 			);
@@ -587,6 +591,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A368F1023E3415800DE95BF /* MyR.swift in Sources */,
 				9A244452239478650001AF9B /* Utilities.swift in Sources */,
 				9A244451239478200001AF9B /* ServiceConnection.swift in Sources */,
 			);
@@ -624,6 +629,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A368F1123E34A4000DE95BF /* MyR.swift in Sources */,
 				9AA73CFB23A15638001A6234 /* Utilities.swift in Sources */,
 				9AA73CFC23A1563B001A6234 /* ServiceConnection.swift in Sources */,
 			);
