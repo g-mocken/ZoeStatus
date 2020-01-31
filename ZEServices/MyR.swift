@@ -66,14 +66,30 @@ class MyR {
                 self.apiKeysAndUrls = result
 
                 // continue: call next step func, with next closure
-                self.getSessionKey(){ result in
+                
+                let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.login")!
+                var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+                components.queryItems = [
+                    URLQueryItem(name: "apiKey", value: self.apiKeysAndUrls!.servers.gigyaProd.apikey),
+                    URLQueryItem(name: "loginID", value: self.username),
+                    URLQueryItem(name: "password", value: self.password)
+                ]
+                self.getAnyInfoByPOST(components) { (result:SessionInfo?) -> Void in
+                // self.getSessionKey(){ result in
                     if result != nil {
                         print("Successfully retrieved session key:")
                         print("Cookie value: \(result!.sessionInfo.cookieValue)")
                         
                         self.sessionInfo = result
                         
-                        self.getAccountInfo(){ result in
+                        let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getAccountInfo")!
+                        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+                        components.queryItems = [
+                            URLQueryItem(name: "oauth_token", value: self.sessionInfo!.sessionInfo.cookieValue)
+                        ]
+
+                        self.getAnyInfoByPOST(components) { (result:AccountInfo?) -> Void in
+                        // self.getAccountInfo(){ result in
                             if result != nil {
                                 print("Successfully retrieved account info:")
                                 print("person ID: \(result!.data.personId)")
@@ -216,6 +232,47 @@ class MyR {
 
                 let decoder = JSONDecoder()
                 let result = try? decoder.decode(AccountInfo.self, from: jsonData)
+                callback(result)
+            } else {
+                callback(nil)
+            }
+        } // task completion handler end
+        
+        task.resume()
+        
+    }
+
+    
+    
+    
+    func getAnyInfoByPOST<T> (_ components:URLComponents, callback:@escaping(T?)->Void) where T:Decodable {
+    
+        let query = components.url!.query
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "POST"
+        request.httpBody = Data(query!.utf8)
+        
+        let task = URLSession.shared.dataTask(with: request){ data, response, error in
+            
+            if let error = error {
+                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
+                callback(nil)
+                return
+            }
+            
+            guard let resp = response as? HTTPURLResponse,
+                (200...299).contains(resp.statusCode) else {
+                    os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
+                    callback(nil)
+                    return
+            }
+            
+            if let jsonData = data {
+                let dataString = String(data: jsonData, encoding: .utf8)
+                print ("got raw data: \(dataString!)")
+
+                let decoder = JSONDecoder()
+                let result = try? decoder.decode(T.self, from: jsonData)
                 callback(result)
             } else {
                 callback(nil)
