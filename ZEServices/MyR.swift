@@ -56,7 +56,10 @@ class MyR {
 
     
     func handleLoginProcess(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
-        getkeys(){ result in
+        let endpointUrl = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_en_GB.json")!
+        let components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+        self.getAnyInfo(.GET, components) { (result:ApiKeyResult?) -> Void in
+       // getkeys(){ result in
             if result != nil {
                 
                 print("Successfully retrieved targets and api keys:")
@@ -74,7 +77,7 @@ class MyR {
                     URLQueryItem(name: "loginID", value: self.username),
                     URLQueryItem(name: "password", value: self.password)
                 ]
-                self.getAnyInfoByPOST(components) { (result:SessionInfo?) -> Void in
+                self.getAnyInfo(.POST, components) { (result:SessionInfo?) -> Void in
                 // self.getSessionKey(){ result in
                     if result != nil {
                         print("Successfully retrieved session key:")
@@ -88,7 +91,7 @@ class MyR {
                             URLQueryItem(name: "oauth_token", value: self.sessionInfo!.sessionInfo.cookieValue)
                         ]
 
-                        self.getAnyInfoByPOST(components) { (result:AccountInfo?) -> Void in
+                        self.getAnyInfo(.POST, components) { (result:AccountInfo?) -> Void in
                         // self.getAccountInfo(){ result in
                             if result != nil {
                                 print("Successfully retrieved account info:")
@@ -243,15 +246,31 @@ class MyR {
     }
 
     
+    enum HttpMethod {
+        case GET
+        case POST
+        case PUT
+        
+        var string: String { // computed property
+               switch self {
+               case .GET:
+                return "GET"
+               case .PUT:
+                return "PUT"
+               case .POST:
+                return "POST"
+               }
+           }
+    }
     
-    
-    func getAnyInfoByPOST<T> (_ components:URLComponents, callback:@escaping(T?)->Void) where T:Decodable {
+    func getAnyInfo<T> (_ method:HttpMethod, _ components:URLComponents, callback:@escaping(T?)->Void) where T:Decodable {
     
         let query = components.url!.query
         var request = URLRequest(url: components.url!)
-        request.httpMethod = "POST"
-        request.httpBody = Data(query!.utf8)
-        
+        request.httpMethod = method.string
+        if query != nil { // not used for GET
+            request.httpBody = Data(query!.utf8)
+        }
         let task = URLSession.shared.dataTask(with: request){ data, response, error in
             
             if let error = error {
@@ -268,8 +287,8 @@ class MyR {
             }
             
             if let jsonData = data {
-                let dataString = String(data: jsonData, encoding: .utf8)
-                print ("got raw data: \(dataString!)")
+                //let dataString = String(data: jsonData, encoding: .utf8)
+                //print ("got raw data: \(dataString!)")
 
                 let decoder = JSONDecoder()
                 let result = try? decoder.decode(T.self, from: jsonData)
