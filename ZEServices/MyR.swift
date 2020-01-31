@@ -31,6 +31,15 @@ class MyR {
         }
     }
     
+    
+    struct AccountInfo: Codable {
+        var data:Data
+        struct Data: Codable {
+            var personId: String
+        }
+
+    }
+    
     var username: String!
     var password: String!
     
@@ -41,6 +50,7 @@ class MyR {
     
     var apiKeysAndUrls: ApiKeyResult?
     var sessionInfo: SessionInfo?
+    var accountInfo: AccountInfo?
     
     let serviceLog = OSLog(subsystem: "com.grm.ZEServices", category: "ZOE")
 
@@ -48,20 +58,30 @@ class MyR {
     func handleLoginProcess(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
         getkeys(){ result in
             if result != nil {
-                print(result!.servers.wiredProd.target)
-                print(result!.servers.wiredProd.apikey)
-                print(result!.servers.gigyaProd.target)
-                print(result!.servers.gigyaProd.apikey)
+                
+                print("Successfully retrieved targets and api keys:")
+                print("Kamereon: \(result!.servers.wiredProd.target), key=\(result!.servers.wiredProd.apikey)")
+                print("Gigya: \(result!.servers.gigyaProd.target), key=\(result!.servers.gigyaProd.apikey)")
 
                 self.apiKeysAndUrls = result
 
                 // continue: call next step func, with next closure
                 self.getSessionKey(){ result in
                     if result != nil {
+                        print("Successfully retrieved session key:")
                         print("Cookie value: \(result!.sessionInfo.cookieValue)")
                         
                         self.sessionInfo = result
-                        actionCode()
+                        
+                        self.getAccountInfo(){ result in
+                            if result != nil {
+                                print("Successfully retrieved account info:")
+                                print("person ID: \(result!.data.personId)")
+                                actionCode()
+                            }  else {
+                                errorCode()
+                            }
+                        }
                     }
                     else {
                         errorCode()
@@ -83,12 +103,9 @@ class MyR {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         
-        let tString = ""
-        let uploadData = tString.data(using: String.Encoding.utf8)
-        let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
             if let error = error {
-                //print ("URLSession error: \(error)")
                 os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
                 callback(nil)
                 return
@@ -96,20 +113,14 @@ class MyR {
             
             guard let resp = response as? HTTPURLResponse,
                 (200...299).contains(resp.statusCode) else {
-                    //print ("server error")
                     os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
                     callback(nil)
                     return
             }
             
-            if let mimeType = resp.mimeType,
-                mimeType == "application/json",
-                let data = data
-            /* let dataString = String(data: data, encoding: .utf8) */ {
-                print ("got api key data! Decoding keys and urls...")
-                
+            if let jsonData = data {
                 let decoder = JSONDecoder()
-                let result = try? decoder.decode(ApiKeyResult.self, from: data)
+                let result = try? decoder.decode(ApiKeyResult.self, from: jsonData)
                 callback(result)
             } else {
                 callback(nil)
@@ -136,12 +147,11 @@ class MyR {
         let query = components.url!.query
         var request = URLRequest(url: endpointUrl)
         request.httpMethod = "POST"
-        print("Query: \(query!)")
-        let uploadData = Data(query!.utf8)
-        let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
+        request.httpBody = Data(query!.utf8)
+        
+        let task = URLSession.shared.dataTask(with: request){ data, response, error in
             
             if let error = error {
-                print ("URLSession error: \(error)")
                 os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
                 callback(nil)
                 return
@@ -149,20 +159,14 @@ class MyR {
             
             guard let resp = response as? HTTPURLResponse,
                 (200...299).contains(resp.statusCode) else {
-                    //print ("server error")
                     os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
                     callback(nil)
                     return
             }
             
-            if /*let mimeType = resp.mimeType,
-                mimeType == "application/json",*/
-                let data = data
-            /* let dataString = String(data: data, encoding: .utf8) */ {
-                print ("session info data! Decoding cookie value...")
-                
+            if let jsonData = data {
                 let decoder = JSONDecoder()
-                let result = try? decoder.decode(SessionInfo.self, from: data)
+                let result = try? decoder.decode(SessionInfo.self, from: jsonData)
                 callback(result)
             } else {
                 callback(nil)
@@ -173,4 +177,53 @@ class MyR {
         
     }
     
+    
+    
+    
+    
+    
+    func getAccountInfo (callback:@escaping(AccountInfo?)->Void) {
+        let endpointUrl = URL(string: apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getAccountInfo")!
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+
+        components.queryItems = [
+            URLQueryItem(name: "oauth_token", value: sessionInfo!.sessionInfo.cookieValue)
+        ]
+
+        let query = components.url!.query
+        var request = URLRequest(url: endpointUrl)
+        request.httpMethod = "POST"
+        request.httpBody = Data(query!.utf8)
+        
+        let task = URLSession.shared.dataTask(with: request){ data, response, error in
+            
+            if let error = error {
+                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
+                callback(nil)
+                return
+            }
+            
+            guard let resp = response as? HTTPURLResponse,
+                (200...299).contains(resp.statusCode) else {
+                    os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
+                    callback(nil)
+                    return
+            }
+            
+            if let jsonData = data {
+                let dataString = String(data: jsonData, encoding: .utf8)
+                print ("got raw data: \(dataString!)")
+
+                let decoder = JSONDecoder()
+                let result = try? decoder.decode(AccountInfo.self, from: jsonData)
+                callback(result)
+            } else {
+                callback(nil)
+            }
+        } // task completion handler end
+        
+        task.resume()
+        
+    }
+
 }
