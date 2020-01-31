@@ -56,10 +56,11 @@ class MyR {
 
     
     func handleLoginProcess(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
+
+        /// Fetch URLs and API keys from a fixed URL
         let endpointUrl = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_en_GB.json")!
         let components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         self.getAnyInfo(.GET, components) { (result:ApiKeyResult?) -> Void in
-       // getkeys(){ result in
             if result != nil {
                 
                 print("Successfully retrieved targets and api keys:")
@@ -78,7 +79,6 @@ class MyR {
                     URLQueryItem(name: "password", value: self.password)
                 ]
                 self.getAnyInfo(.POST, components) { (result:SessionInfo?) -> Void in
-                // self.getSessionKey(){ result in
                     if result != nil {
                         print("Successfully retrieved session key:")
                         print("Cookie value: \(result!.sessionInfo.cookieValue)")
@@ -92,7 +92,6 @@ class MyR {
                         ]
 
                         self.getAnyInfo(.POST, components) { (result:AccountInfo?) -> Void in
-                        // self.getAccountInfo(){ result in
                             if result != nil {
                                 print("Successfully retrieved account info:")
                                 print("person ID: \(result!.data.personId)")
@@ -113,137 +112,7 @@ class MyR {
         }
     }
     
-    /// Fetch URLs and API keys from a fixed URL
-    func getkeys (callback:@escaping(ApiKeyResult?)->Void) {
-        
-        let apiKeysUrl = "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_en_GB.json"
-        
-        let url = URL(string: apiKeysUrl)!
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            
-            if let error = error {
-                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
-                callback(nil)
-                return
-            }
-            
-            guard let resp = response as? HTTPURLResponse,
-                (200...299).contains(resp.statusCode) else {
-                    os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
-                    callback(nil)
-                    return
-            }
-            
-            if let jsonData = data {
-                let decoder = JSONDecoder()
-                let result = try? decoder.decode(ApiKeyResult.self, from: jsonData)
-                callback(result)
-            } else {
-                callback(nil)
-            }
-        } // task completion handler end
-        
-        task.resume()
-        
-    }
-    
-    
-    
-    
-    func getSessionKey (callback:@escaping(SessionInfo?)->Void) {
-        let endpointUrl = URL(string: apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.login")!
-        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
 
-        components.queryItems = [
-            URLQueryItem(name: "apiKey", value: apiKeysAndUrls!.servers.gigyaProd.apikey),
-            URLQueryItem(name: "loginID", value: username),
-            URLQueryItem(name: "password", value: password)
-        ]
-
-        let query = components.url!.query
-        var request = URLRequest(url: endpointUrl)
-        request.httpMethod = "POST"
-        request.httpBody = Data(query!.utf8)
-        
-        let task = URLSession.shared.dataTask(with: request){ data, response, error in
-            
-            if let error = error {
-                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
-                callback(nil)
-                return
-            }
-            
-            guard let resp = response as? HTTPURLResponse,
-                (200...299).contains(resp.statusCode) else {
-                    os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
-                    callback(nil)
-                    return
-            }
-            
-            if let jsonData = data {
-                let decoder = JSONDecoder()
-                let result = try? decoder.decode(SessionInfo.self, from: jsonData)
-                callback(result)
-            } else {
-                callback(nil)
-            }
-        } // task completion handler end
-        
-        task.resume()
-        
-    }
-    
-    
-    
-    
-    
-    
-    func getAccountInfo (callback:@escaping(AccountInfo?)->Void) {
-        let endpointUrl = URL(string: apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getAccountInfo")!
-        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-
-        components.queryItems = [
-            URLQueryItem(name: "oauth_token", value: sessionInfo!.sessionInfo.cookieValue)
-        ]
-
-        let query = components.url!.query
-        var request = URLRequest(url: endpointUrl)
-        request.httpMethod = "POST"
-        request.httpBody = Data(query!.utf8)
-        
-        let task = URLSession.shared.dataTask(with: request){ data, response, error in
-            
-            if let error = error {
-                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
-                callback(nil)
-                return
-            }
-            
-            guard let resp = response as? HTTPURLResponse,
-                (200...299).contains(resp.statusCode) else {
-                    os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
-                    callback(nil)
-                    return
-            }
-            
-            if let jsonData = data {
-                let dataString = String(data: jsonData, encoding: .utf8)
-                print ("got raw data: \(dataString!)")
-
-                let decoder = JSONDecoder()
-                let result = try? decoder.decode(AccountInfo.self, from: jsonData)
-                callback(result)
-            } else {
-                callback(nil)
-            }
-        } // task completion handler end
-        
-        task.resume()
-        
-    }
 
     
     enum HttpMethod {
