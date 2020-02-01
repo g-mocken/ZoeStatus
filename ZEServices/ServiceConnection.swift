@@ -156,7 +156,7 @@ public class ServiceConnection {
     func login_MyR (callback:@escaping(Bool)->Void) {
         print ("New API login")
         myR = MyR(username: userName!, password: password!)
-        myR.handleLoginProcess(onError: {DispatchQueue.main.async{callback(false)}}, onSuccess: {DispatchQueue.main.async{callback(false)}}) // later change latte to true
+        myR.handleLoginProcess(onError: {DispatchQueue.main.async{callback(false)}}, onSuccess: {DispatchQueue.main.async{callback(true)}}) // later change latter to true
     }
         
     func login_ZE (callback:@escaping(Bool)->Void) {
@@ -395,15 +395,17 @@ public class ServiceConnection {
         
         
         switch api_version {
-              case .ZE:
-                  batteryState_ZE(callback:c)
-              case .MyRv1, .MyRv2:
-                  batteryState_MyR(callback:c)
-              case .none:
-                  ()
-              }
+        case .ZE:
+            batteryState_ZE(callback:c)
+        case .MyRv1, .MyRv2:
+            batteryState_MyR(callback:c)
+        case .none:
+            ()
+        }
     }
     func batteryState_MyR(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+     
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
 
         callback(true,
                  false,
@@ -413,6 +415,8 @@ public class ServiceConnection {
                  0,
                  nil,
                  nil)
+            
+        }
 
     }
     func batteryState_ZE(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
@@ -658,7 +662,25 @@ public class ServiceConnection {
         }
         return
 #endif
-        
+
+        switch api_version {
+              case .ZE:
+                precondition_ZE(command: command, date: date, callback:callback)
+              case .MyRv1, .MyRv2:
+                precondition_MyR(command: command, date: date, callback:callback)
+              case .none:
+                  ()
+              }
+    }
+    
+    public func precondition_MyR(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
+        DispatchQueue.main.async {
+            callback(false, command, date)
+        }
+    }
+    
+    public func precondition_ZE(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
+
         let preconditionURL = baseURL + "/vehicle/" + vehicleIdentification! + "/air-conditioning"
         let preconditionWithTimerURL = baseURL + "/vehicle/" + vehicleIdentification! + "/air-conditioning/scheduler"
         
@@ -869,20 +891,42 @@ public class ServiceConnection {
     
     
     
-    public func airConditioningLastState(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
+    public func airConditioningLastState(callback c:@escaping  (Bool, UInt64, String?, String?) -> ()) {
 
         os_log("airConditioningLastState", log: serviceLog, type: .default)
 
         if simulation {
             print ("airConditioningLastState: simulated")
             DispatchQueue.main.async {
-                callback(false,
+                c(false,
                          1550874142000,
                          "-",
                          "SUCCESS")
             }
             return
         }
+        
+        switch api_version {
+               case .ZE:
+                airConditioningLastState_ZE(callback:c)
+               case .MyRv1, .MyRv2:
+                airConditioningLastState_MyR(callback:c)
+               case .none:
+                   ()
+               }
+    }
+    
+    public func airConditioningLastState_MyR(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
+        DispatchQueue.main.async {
+            callback(false,
+                     1550874142000,
+                     "-",
+                     "SUCCESS")
+        }
+    }
+
+    public func airConditioningLastState_ZE(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
+
         let acLastURL = baseURL + "/vehicle/" + vehicleIdentification! + "/air-conditioning/last"
         
         let tString = ""
