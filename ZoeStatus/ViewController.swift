@@ -61,7 +61,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatus");
         sharedDefaults?.set(sc.userName, forKey: "userName")
         sharedDefaults?.set(sc.password, forKey: "password")
-        sharedDefaults?.set(sc.api_version?.rawValue, forKey: "api")
+        sharedDefaults?.set(sc.api_version!.rawValue, forKey: "api")
         
         sharedDefaults?.synchronize()
         
@@ -358,10 +358,19 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                         print("renewed expired token!")
                         actionCode()
                     } else {
-                        self.displayMessage(title: "Error", body:"Failed to renew expired token.")
                         print("expired token NOT renewed!")
                         self.sc.tokenExpiry = nil // force new login next time
-                        errorCode()
+                        // instead of error, attempt new login right now:
+                        self.updateActivity(type:.start)
+                        self.sc.login(){(result:Bool)->() in
+                            if (result){
+                                actionCode()
+                            } else {
+                                self.displayMessage(title: "Error", body:"Failed to renew expired token and to login to Z.E. services.")
+                                errorCode()
+                            }
+                            self.updateActivity(type:.stop)
+                        }
                     }
                     self.updateActivity(type:.stop)
                 }

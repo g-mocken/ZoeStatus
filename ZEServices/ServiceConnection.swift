@@ -84,8 +84,8 @@ public class ServiceConnection {
                 print("Payload: \(payload)")
                 
                 struct payloadResult: Codable{
-                    let sub: String
-                    let userId: String
+                    let sub: String?
+                    let userId: String?
                     let iat: UInt64
                     let exp: UInt64
                 }
@@ -96,6 +96,7 @@ public class ServiceConnection {
                     let result = try? decoder.decode(payloadResult.self, from: payloadData)
                     if let result = result {
                         
+                        print("Issued \(result.iat)")
                         print("Expires \(result.exp)")
                         let date = Date()
                         let interval = UInt64(date.timeIntervalSince1970)
@@ -156,7 +157,16 @@ public class ServiceConnection {
     func login_MyR (callback:@escaping(Bool)->Void) {
         print ("New API login")
         myR = MyR(username: userName!, password: password!)
-        myR.handleLoginProcess(onError: {DispatchQueue.main.async{callback(false)}}, onSuccess: {DispatchQueue.main.async{callback(true)}}) // later change latter to true
+        myR.handleLoginProcess(onError: {
+            print("debug tokens:")
+            self.myR.decodeToken(token: self.myR.kamereonTokenInfo!.idToken) // = idToken
+            self.myR.decodeToken(token:  self.myR.tokenInfo!.id_token) // = original gigya JWT
+            DispatchQueue.main.async{callback(false)}
+        }, onSuccess: {
+            self.tokenExpiry = self.extractExpiryDate(ofToken: self.myR.tokenInfo!.id_token)
+
+            DispatchQueue.main.async{callback(true)}
+        }) // later change latter to true
     }
         
     func login_ZE (callback:@escaping(Bool)->Void) {
@@ -274,6 +284,24 @@ public class ServiceConnection {
     
     public func renewToken (callback:@escaping(Bool)->Void) {
         os_log("renewToken", log: serviceLog, type: .default)
+
+        
+        switch api_version {
+        case .ZE:
+            renewToken_ZE(callback:callback)
+        case .MyRv1, .MyRv2:
+            renewToken_MyR(callback:callback)
+        case .none:
+            ()
+        }
+    }
+    
+    public func renewToken_MyR (callback:@escaping(Bool)->Void) {
+        callback(false) // cannot renew, just trigger automatic new login
+    }
+
+    public func renewToken_ZE (callback:@escaping(Bool)->Void) {
+            os_log("renewToken", log: serviceLog, type: .default)
 
         struct Refresh: Codable {
             let token: String
@@ -624,10 +652,10 @@ public class ServiceConnection {
         let date = Date()
         let now = UInt64(date.timeIntervalSince1970)
         if (  tokenExpiry != nil && tokenExpiry! > now + 60) { // must be valid for at least one more minute
-            print("Token still valid")
+            print("isTokenExpired: Token still valid")
             return false
         } else {
-            print("Token expired or will expire too soon (or expiry date is nil), must renew")
+            print("isTokenExpired: Token expired or will expire too soon (or expiry date is nil), must renew")
             return true
         }        
     }

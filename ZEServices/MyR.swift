@@ -1,6 +1,6 @@
 //
 //  MyR.swift
-//  ZEServices
+//  MyR Services
 //
 //  Created by Dr. Guido Mocken on 30.01.20.
 //  Copyright © 2020 Dr. Guido Mocken. All rights reserved.
@@ -53,6 +53,8 @@ class MyR {
     
     struct KamereonTokenInfo: Codable {
         var accessToken:String
+        var refreshToken:String
+        var idToken:String
     }
 
     struct VehiclesInfo: Codable {
@@ -136,8 +138,19 @@ class MyR {
     let serviceLog = OSLog(subsystem: "com.grm.ZEServices", category: "ZOE")
 
     
+    func decodeToken(token:String) {
+        print("Decoding token:")
+        let indexFirstPeriod = token.firstIndex(of: ".") ?? token.startIndex
+        let header = String(token[..<indexFirstPeriod]).fromBase64()
+        print("Header: \(header!)") // first part
+        let indexSecondPeriod = token[token.index(after:indexFirstPeriod)...].firstIndex(of: ".") ?? token.endIndex
+        if let payload = String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]).fromBase64(){ // second part
+            print ("Payload: \(payload)")
+        }
+        // the third part is the signature of the JSON web token, and not decoded/validated here
+    }
     func handleLoginProcess(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
-
+        
         // Fetch URLs and API keys from a fixed URL
         let endpointUrl = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_en_GB.json")!
         let components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
@@ -147,36 +160,39 @@ class MyR {
                 print("Successfully retrieved targets and api keys:")
                 print("Kamereon: \(result!.servers.wiredProd.target), key=\(result!.servers.wiredProd.apikey)")
                 print("Gigya: \(result!.servers.gigyaProd.target), key=\(result!.servers.gigyaProd.apikey)")
-
+                
                 self.apiKeysAndUrls = result // save for later use
-
+                
                 // Fetch session key from the previously learned URL using the retreived API key
                 let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.login")!
                 var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                 components.queryItems = [
                     URLQueryItem(name: "apiKey", value: self.apiKeysAndUrls!.servers.gigyaProd.apikey),
                     URLQueryItem(name: "loginID", value: self.username),
-                    URLQueryItem(name: "password", value: self.password)
+                    URLQueryItem(name: "password", value: self.password),
+                    URLQueryItem(name: "sessionExpiration",value: "900") // try to set it myself, so I know the value
+                    // see https://developers.gigya.com/display/GD/accounts.login+REST
                 ]
                 self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:SessionInfo?) -> Void in
                     if result != nil {
                         print("Successfully retrieved session key:")
                         print("Cookie value: \(result!.sessionInfo.cookieValue)")
                         
-                        self.sessionInfo = result // save for later use
+                        self.sessionInfo = result // save for later use.
+                        // do not know how to decode the cookie.
                         
                         let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getAccountInfo")!
                         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                         components.queryItems = [
                             URLQueryItem(name: "oauth_token", value: self.sessionInfo!.sessionInfo.cookieValue)
                         ]
-
+                        
                         // Fetch person ID from the same URL using the retrieved session key
                         self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:AccountInfo?) -> Void in
                             if result != nil {
                                 print("Successfully retrieved account info:")
                                 print("person ID: \(result!.data.personId)")
-
+                                
                                 self.accountInfo = result // save for later use
                                 
                                 let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getJWT")!
@@ -191,10 +207,9 @@ class MyR {
                                 self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:TokenInfo?) -> Void in
                                     if result != nil {
                                         print("Successfully retrieved Gigya JWT token:")
-                                        print("Gigya JWT token: \(result!.id_token)")
-                                        
+                                        print("Gigya JWT token:")
                                         self.tokenInfo = result // save for later use
-                                        
+                                        self.decodeToken(token:result!.id_token) // "exp" fields contains timestamp 900s in the future
                                         
                                         let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/persons/"+self.accountInfo!.data.personId)!
                                         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
@@ -205,7 +220,7 @@ class MyR {
                                             "x-gigya-id_token":self.tokenInfo!.id_token,
                                             "apikey":self.apiKeysAndUrls!.servers.wiredProd.apikey
                                         ]
-                                        // Fetch Kaereon account ID from the same URL using the retrieved Gigya JWT token
+                                        // Fetch Kamereon account ID from the person-id dependent URL using the retrieved Gigya JWT token
                                         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:KamereonAccountInfo?) -> Void in
                                             if result != nil {
                                                 print("Successfully retrieved Kamereon accounts:")
@@ -223,22 +238,26 @@ class MyR {
                                                     "x-gigya-id_token":self.tokenInfo!.id_token,
                                                     "apikey":self.apiKeysAndUrls!.servers.wiredProd.apikey
                                                 ]
-                                                // Fetch Kaereon account ID from the same URL using the retrieved Gigya JWT token
+                                                // Fetch Kamereon accessToken from the account dependent URL using the retrieved Gigya JWT token
                                                 self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:KamereonTokenInfo?) -> Void in
                                                     if result != nil {
                                                         print("Successfully retrieved Kamereon token:")
-                                                        print("accessToken: \(result!.accessToken)")
-                                                        
+                                                        print("accessToken:")
                                                         self.kamereonTokenInfo = result // save for later use
-                                                        
-                                                        
+                                                        self.decodeToken(token:result!.accessToken) // "expires_in":3600000 = 1h ?
+                                                        // not used, just investigating:
+                                                        print("refreshToken:")
+                                                        self.decodeToken(token: result!.refreshToken)
+                                                        print("idToken:")
+                                                        self.decodeToken(token: result!.idToken)
+
                                                         let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
                                                         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                                                         components.queryItems = [
                                                             URLQueryItem(name: "country", value: "DE")
                                                         ]
                                                         let headers = [
-                                                            "x-gigya-id_token":self.tokenInfo!.id_token,
+                                                            "x-gigya-id_token": self.tokenInfo!.id_token,
                                                             "apikey":self.apiKeysAndUrls!.servers.wiredProd.apikey,
                                                             "x-kamereon-authorization": "Bearer " + self.kamereonTokenInfo!.accessToken
                                                         ]
@@ -250,48 +269,29 @@ class MyR {
                                                                 
                                                                 self.vehiclesInfo = result // save for later use
                                                                 
-                                                                
-                                                                
-                                                                
                                                                 actionCode()
                                                                 
-                                                                
-                                                                
-                                                            }   else {
+                                                            } else {
                                                                 errorCode()
                                                             }
                                                         }
-                                                        
-                                                        
-                                                        
-                                                        
-                                                    }   else {
+                                                    } else {
                                                         errorCode()
                                                     }
                                                 }
-                                                
-                                                
-                                                
-                                                
-                                            }   else {
+                                            } else {
                                                 errorCode()
                                             }
                                         }
-                                        
-                                        
-                                        
-                                        
-                                        
-                                    }   else {
+                                    } else {
                                         errorCode()
                                     }
                                 }
-                            }  else {
+                            } else {
                                 errorCode()
                             }
                         }
-                    }
-                    else {
+                    } else {
                         errorCode()
                     }
                 }
@@ -306,10 +306,12 @@ class MyR {
     func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
         
         let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
+       
+        
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         components.queryItems = nil
         let headers = [
-            "x-gigya-id_token":self.tokenInfo!.id_token,
+            "x-gigya-id_token": self.tokenInfo!.id_token,
             "apikey":self.apiKeysAndUrls!.servers.wiredProd.apikey,
             "x-kamereon-authorization": "Bearer " + self.kamereonTokenInfo!.accessToken
         ]
@@ -427,8 +429,8 @@ class MyR {
             }
             
             if let jsonData = data {
-                let dataString = String(data: jsonData, encoding: .utf8)
-                print ("raw JSON data: \(dataString!)")
+//                let dataString = String(data: jsonData, encoding: .utf8)
+//                print ("raw JSON data: \(dataString!)")
 
                 let decoder = JSONDecoder()
                 let result = try? decoder.decode(T.self, from: jsonData)

@@ -187,6 +187,18 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
                         self.displayMessage(title: "Error", body:"Failed to renew expired token.")
                         self.sc.tokenExpiry = nil // force new login next time
                         print("expired token NOT renewed!")
+                        // instead of error, attempt new login right now:
+                        self.updateActivity(type:.start)
+                        self.sc.login(){(result:Bool)->() in
+                            if (result){
+                                self.updateActivity(type:.start)
+                                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+
+                            } else {
+                                self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
+                            }
+                            self.updateActivity(type:.stop)
+                        }
                     }
                     self.updateActivity(type:.stop)
                 }
