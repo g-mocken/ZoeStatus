@@ -404,19 +404,8 @@ public class ServiceConnection {
         }
     }
     func batteryState_MyR(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
-     
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-
-        callback(true,
-                 false,
-                 false,
-                 0,
-                 0.0,
-                 0,
-                 nil,
-                 nil)
-            
-        }
+        
+        myR.batteryState(callback: callback)
 
     }
     func batteryState_ZE(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {

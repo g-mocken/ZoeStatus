@@ -62,6 +62,61 @@ class MyR {
            }
        }
     
+    struct BatteryInfo: Codable {
+        var data: CarInfo
+        struct CarInfo: Codable {
+            var type: String
+            var id: String
+            var attributes: Attributes
+            struct Attributes: Codable {
+                var batteryLevel: Int
+                var batteryTemperature: Int
+                var chargePower: Int?
+                var rangeHvacOff: Float
+                var timeRequiredToFullSlow: Int?
+                var plugStatus: Int
+                var instantaneousPower: Int?
+                var lastUpdateTime: String
+                var chargeStatus: Int
+            }
+        }
+    }
+    /*
+     Sample Data while slow charging:
+     {
+         "data":{
+             "type":"Car",
+             "id":"...",
+             "attributes":{
+                 "batteryLevel":79,
+                 "batteryTemperature":11,
+                 "chargePower":1,
+                 "rangeHvacOff":98,
+                 "timeRequiredToFullSlow":175,
+                 "plugStatus":1,
+                 "instantaneousPower":2200,
+                 "lastUpdateTime":"2020-01-29T20:14:28+01:00",
+                 "chargeStatus":1
+             }
+         }
+     }
+     
+     Sample Data while NOT charging:
+
+     {"data":{"type":"Car","id":"...",
+     "attributes":{
+         "batteryTemperature":14,
+         "chargeStatus":-1,
+         "batteryLevel":59,
+         "rangeHvacOff":78,
+         "lastUpdateTime":"2020-01-31T17:39:52+01:00",
+         "plugStatus":0}}
+     }
+
+     
+
+     */
+    
     var username: String!
     var password: String!
     
@@ -247,6 +302,87 @@ class MyR {
     }
     
     
+    
+    func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+        
+        let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+        components.queryItems = nil
+        let headers = [
+            "x-gigya-id_token":self.tokenInfo!.id_token,
+            "apikey":self.apiKeysAndUrls!.servers.wiredProd.apikey,
+            "x-kamereon-authorization": "Bearer " + self.kamereonTokenInfo!.accessToken
+        ]
+        // Fetch info using the retrieved access token
+        self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:BatteryInfo?) -> Void in
+            if result != nil {
+                print("Successfully retrieved battery state:")
+                print("level: \(result!.data.attributes.batteryLevel)")
+                print("temperature: \(result!.data.attributes.batteryTemperature)")
+                
+                var charging_point: String?
+                if let power=result!.data.attributes.chargePower {
+                    switch power {
+                    case 0:
+                        charging_point = "INVALID"
+                    case 1:
+                        charging_point = "SLOW"
+                    case 2:
+                        charging_point = "FAST"
+                    case 3:
+                        charging_point = "ACCELERATED"
+                    default:
+                        charging_point = "\(power)"
+                    }
+                }
+                
+                
+                let dateString = result!.data.attributes.lastUpdateTime // e.g. "2020-01-31T17:39:52+01:00"
+
+                let dateFormatter = DateFormatter()
+                dateFormatter.locale = NSLocale.current
+                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                let date = dateFormatter.date(from:dateString)!
+                let unixMs = UInt64(date.timeIntervalSince1970) * 1000
+                print(date)
+                
+                
+ //               batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
+                DispatchQueue.main.async{
+                    callback(false,
+                             result!.data.attributes.chargeStatus > 0,
+                             result!.data.attributes.plugStatus > 0,
+                             UInt8(result!.data.attributes.batteryLevel),
+                             result!.data.attributes.rangeHvacOff,
+                             unixMs,
+                             charging_point,
+                             result!.data.attributes.timeRequiredToFullSlow)
+                    
+                }
+                
+                
+            }   else {
+                DispatchQueue.main.async{
+                    callback(true,
+                             false,
+                             false,
+                             0,
+                             0.0,
+                             0,
+                             nil,
+                             nil)
+                    
+                }            }
+        }
+        
+        
+    }
+    
+    
+    
+    
+    
+    
     enum HttpMethod {
         case GET
         case POST
@@ -291,8 +427,8 @@ class MyR {
             }
             
             if let jsonData = data {
-                //let dataString = String(data: jsonData, encoding: .utf8)
-                //print ("got raw data: \(dataString!)")
+                let dataString = String(data: jsonData, encoding: .utf8)
+                print ("raw JSON data: \(dataString!)")
 
                 let decoder = JSONDecoder()
                 let result = try? decoder.decode(T.self, from: jsonData)
