@@ -39,14 +39,15 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     fileprivate func extractCredentialsFromContext(_ context: [String:Any]) {
         print("Extracting credentials from: \(context.description)")
         
-        if let userName = context["userName"], let password = context["password"] {
+        if let userName = context["userName"], let password = context["password"], let api = context["api"] {
             sc.userName =  userName as? String
             sc.password = password as? String
-           
+            sc.api = ServiceConnection.ApiVersion(rawValue: (api as? Int) ?? 0)
             // store preferences
             let userDefaults = UserDefaults.standard
             userDefaults.set(sc.userName, forKey: "userName_preference")
             userDefaults.set(sc.password, forKey: "password_preference")
+            userDefaults.set(sc.api?.rawValue, forKey: "api_preference")
             userDefaults.synchronize()
         }
     }
@@ -105,7 +106,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         let userDefaults = UserDefaults.standard
         sc.userName = userDefaults.string(forKey: "userName_preference")
         sc.password = userDefaults.string(forKey: "password_preference")
-
+        sc.api = ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference"))
     }
     
     override func willActivate() {
@@ -230,10 +231,19 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
                         print("renewed expired token!")
                         actionCode()
                     } else {
-                        self.displayMessage(title: "Error", body:"Failed to renew expired token.")
+                        //self.displayMessage(title: "Error", body:"Failed to renew expired token.")
                         self.sc.tokenExpiry = nil // force new login next time
                         print("expired token NOT renewed!")
-                        errorCode()
+                        self.updateActivity(type:.start)
+                        self.sc.login(){(result:Bool)->() in
+                            if (result){
+                                actionCode()
+                            } else {
+                                self.displayMessage(title: "Error", body:"Failed to renew expired token and to login to Z.E. services.")
+                                errorCode()
+                            }
+                            self.updateActivity(type:.stop)
+                        }
                     }
                     self.updateActivity(type:.stop)
                 }

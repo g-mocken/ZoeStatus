@@ -81,7 +81,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         sharedDefaults?.synchronize()
         let userName = sharedDefaults?.string(forKey:"userName")
         let password = sharedDefaults?.string(forKey:"password")
-        let api_version = sharedDefaults?.integer(forKey: "api")
+        let api = sharedDefaults?.integer(forKey: "api")
        //print("\(userName) \(password)")
         
         // launch app on tap in widget
@@ -95,7 +95,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         
         sc.userName = userName
         sc.password = password
-        sc.api_version = ServiceConnection.ApiVersion(rawValue: api_version!)
+        sc.api = ServiceConnection.ApiVersion(rawValue: api!)
 
         if sc.userName == "simulation", sc.password == "simulation"
         {

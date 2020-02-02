@@ -57,7 +57,7 @@ public class ServiceConnection {
     public var simulation: Bool = false
     public var userName:String?
     public var password:String?
-    public var api_version:ApiVersion?
+    public var api:ApiVersion?
     
     var vehicleIdentification:String?
     var activationCode: String?
@@ -144,7 +144,7 @@ public class ServiceConnection {
             return
         }
 
-        switch api_version {
+        switch api {
         case .ZE:
             login_ZE(callback:c)
         case .MyRv1, .MyRv2:
@@ -286,7 +286,7 @@ public class ServiceConnection {
         os_log("renewToken", log: serviceLog, type: .default)
 
         
-        switch api_version {
+        switch api {
         case .ZE:
             renewToken_ZE(callback:callback)
         case .MyRv1, .MyRv2:
@@ -422,7 +422,7 @@ public class ServiceConnection {
         }
         
         
-        switch api_version {
+        switch api {
         case .ZE:
             batteryState_ZE(callback:c)
         case .MyRv1, .MyRv2:
@@ -680,7 +680,7 @@ public class ServiceConnection {
         return
 #endif
 
-        switch api_version {
+        switch api {
               case .ZE:
                 precondition_ZE(command: command, date: date, callback:callback)
               case .MyRv1, .MyRv2:
@@ -923,7 +923,7 @@ public class ServiceConnection {
             return
         }
         
-        switch api_version {
+        switch api {
                case .ZE:
                 airConditioningLastState_ZE(callback:c)
                case .MyRv1, .MyRv2:

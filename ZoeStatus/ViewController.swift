@@ -56,12 +56,12 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         
         sc.userName = userDefaults.string(forKey: "userName_preference")
         sc.password = userDefaults.string(forKey: "password_preference")
-        sc.api_version = ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference"))
+        sc.api = ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference"))
         // share preferences with widget:
         let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatus");
         sharedDefaults?.set(sc.userName, forKey: "userName")
         sharedDefaults?.set(sc.password, forKey: "password")
-        sharedDefaults?.set(sc.api_version!.rawValue, forKey: "api")
+        sharedDefaults?.set(sc.api!.rawValue, forKey: "api")
         
         sharedDefaults?.synchronize()
         
