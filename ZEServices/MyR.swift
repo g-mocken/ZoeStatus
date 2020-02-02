@@ -426,6 +426,159 @@ class MyR {
     
     
     
+    /*
+     
+     'actions/hvac-start',
+     {
+        'type': 'HvacStart',
+        'attributes‘:{
+                'action': 'start' / ‚cancel’
+                'targetTemperature': temperature
+                'startDateTime‘: "%Y-%m-%dT%H:%M:%SZ"
+        }
+      }
+     
+     */
+    
+    /**
+     
+        date picker + save :
+     preconditionCar(command: .later, date: preconditionRemoteTimer)
+        date picker + trash button:
+     preconditionCar(command: .delete, date: nil)
+        AC now (also shortcut from 3d touch):
+     preconditionCar(command: .now, date: nil)
+     
+        refresh status:
+     sc.precondition(command: .read, date: nil, callback: self.preconditionState)
+
+
+     */
+    public func precondition(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
+        
+        let endpointUrl:URL
+        
+        switch command {
+        case .read:
+            endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/hvac-status")!
+        case .now, .later, .delete:
+            endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/actions/hvac-start")!
+        }
+        
+        
+        struct PreconditionInfo: Codable {
+            var data: Data
+            struct Data: Codable {
+                var type: String
+                var id: String
+                var attributes: Attributes
+                struct Attributes: Codable {
+                    var hvacStatus: String
+                    var externalTemperature: Float
+                    var lastUpdateTime: String? // TODO: check what pops up in reply
+                    var nextHvacStartDate: String?
+                }
+            }
+        }
+        
+        struct Precondition: Codable {
+            var type: String
+            var attributes:Attributes
+            struct Attributes:Codable {
+                var action: String
+                var targetTemperature: Int?
+                var startDateTime: String?
+            }
+        }
+        
+        let precondition:Precondition?
+        
+        switch command {
+        case .now:
+            precondition = Precondition(type: "HvacStart", attributes: Precondition.Attributes(action: "start", targetTemperature: 21))
+        case .later:
+            let dateFormatter = DateFormatter()
+            let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+            dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+            dateFormatter.locale = NSLocale.current
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ" //Specify your format that you want
+            let strDate = dateFormatter.string(from: date!)
+            
+            precondition = Precondition(type: "HvacStart", attributes: Precondition.Attributes(action: "start", targetTemperature: 21, startDateTime: strDate))
+        case .delete:
+            precondition = Precondition(type: "HvacStart", attributes: Precondition.Attributes(action: "cancel"))
+        case .read:
+            precondition = nil
+        }
+        
+        let uploadData:Data?
+        
+        if (precondition == nil){ // for .read
+            uploadData = nil
+        } else {
+            uploadData = try? JSONEncoder().encode(precondition)
+            if (uploadData == nil) {
+                callback(false, command, date)
+                return
+            } else {
+                print(String(data: uploadData!, encoding: .utf8)!)
+            }
+        }
+        
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+        components.queryItems = nil
+        
+        let headers = [
+            "Content-Type": "application/vnd.api+json",
+            "x-gigya-id_token": self.tokenInfo!.id_token,
+            "apikey":self.apiKeysAndUrls!.servers.wiredProd.apikey,
+            "x-kamereon-authorization": "Bearer " + self.kamereonTokenInfo!.accessToken
+        ]
+        
+        if (command == .read) { // for .read GET status
+            self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:PreconditionInfo?) -> Void in
+                if result != nil {
+                    print("Successfully sent request, got: \(result!)")
+                    let date:Date?
+                    if let dateString = result!.data.attributes.nextHvacStartDate {
+                        // e.g. "2020-02-03T06:30:00Z"
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.locale = NSLocale.current
+                        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                        date = dateFormatter.date(from:dateString)!
+                    } else {
+                        date = nil
+                    }
+                    DispatchQueue.main.async{
+                        callback(false, command, date)
+                    }
+                } else {
+                    DispatchQueue.main.async{
+                        callback(true, command, date)
+                    }
+                }
+            }
+        } else { // all other commands POST action
+            self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:Precondition?) -> Void in
+                if result != nil {
+                    print("Successfully sent request, got: \(result!)")
+                    // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
+                    DispatchQueue.main.async{
+                        callback(false, command, date)
+                    }
+                } else {
+                    DispatchQueue.main.async{
+                        callback(true, command, date)
+                    }
+                }
+            }
+        }
+        
+        
+        
+    }
+    
+    
     enum HttpMethod {
         case GET
         case POST
@@ -475,8 +628,7 @@ class MyR {
             }
             
             if let jsonData = data {
-//                let dataString = String(data: jsonData, encoding: .utf8)
-//                print ("raw JSON data: \(dataString!)")
+                print ("raw JSON data: \(String(data: jsonData, encoding: .utf8)!)")
 
                 let decoder = JSONDecoder()
                 let result = try? decoder.decode(T.self, from: jsonData)

@@ -460,7 +460,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         
     var preconditionTimer: Timer?
     
-    func preconditionState(error: Bool, command:ServiceConnection.PreconditionCommand, date: Date?)->(){
+    func preconditionState(error: Bool, command:PreconditionCommand, date: Date?)->(){
         print("Precondition returns \(error)")
         switch command {
         case .now:
@@ -518,7 +518,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     }
 
     
-    func preconditionCar(command:ServiceConnection.PreconditionCommand, date: Date?){
+    func preconditionCar(command:PreconditionCommand, date: Date?){
         handleLogin(onError: {self.preconditionButton.isEnabled=true}){
             self.updateActivity(type: .start)
             self.sc.precondition(command: command, date: date, callback: self.preconditionState)

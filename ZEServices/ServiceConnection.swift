@@ -9,7 +9,12 @@
 import Foundation
 import os
 
-
+public enum PreconditionCommand {
+     case now
+     case later
+     case delete
+     case read
+ }
 
 public class ServiceConnection {
 
@@ -41,12 +46,7 @@ public class ServiceConnection {
         os_log("ServiceConnection log started.", log: serviceLog, type: .default)
     }
     
-    public enum PreconditionCommand {
-        case now
-        case later
-        case delete
-        case read
-    }
+ 
     
     public enum ApiVersion: Int {
         case ZE = 0
@@ -702,9 +702,7 @@ public class ServiceConnection {
     }
     
     public func precondition_MyR(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
-        DispatchQueue.main.async {
-            callback(false, command, date)
-        }
+        myR.precondition(command: command, date: date, callback: callback)
     }
     
     public func precondition_ZE(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
