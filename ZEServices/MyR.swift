@@ -306,7 +306,6 @@ class MyR {
     func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
         
         let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
-       
         
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         components.queryItems = nil
@@ -338,18 +337,16 @@ class MyR {
                     }
                 }
                 
-                
                 let dateString = result!.data.attributes.lastUpdateTime // e.g. "2020-01-31T17:39:52+01:00"
-
+                
                 let dateFormatter = DateFormatter()
                 dateFormatter.locale = NSLocale.current
                 dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
                 let date = dateFormatter.date(from:dateString)!
                 let unixMs = UInt64(date.timeIntervalSince1970) * 1000
                 print(date)
-                
-                
- //               batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
+
+                // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
                 DispatchQueue.main.async{
                     callback(false,
                              result!.data.attributes.chargeStatus > 0,
@@ -361,9 +358,7 @@ class MyR {
                              result!.data.attributes.timeRequiredToFullSlow)
                     
                 }
-                
-                
-            }   else {
+            } else {
                 DispatchQueue.main.async{
                     callback(true,
                              false,
@@ -373,14 +368,60 @@ class MyR {
                              0,
                              nil,
                              nil)
-                    
-                }            }
+                }
+            }
         }
-        
-        
     }
     
     
+    public func chargeNowRequest(callback:@escaping  (Bool) -> ()) {
+        
+        let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/actions/charging-start")!
+        
+        
+        struct StartCharging: Codable {
+            var data: Data
+            struct Data:Codable {
+                var type: String
+                var id: String?
+                var attributes:Attributes
+                struct Attributes:Codable {
+                    var action:String
+                }
+            }
+        }
+           
+        let startCharging = StartCharging(data: StartCharging.Data(type: "ChargingStart", attributes: StartCharging.Data.Attributes(action: "start")))
+        
+        guard let uploadData = try? JSONEncoder().encode(startCharging) else {
+            callback(false)
+            return
+        }
+        
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+        components.queryItems = nil
+        
+        let headers = [
+            "Content-Type": "application/vnd.api+json",
+            "x-gigya-id_token": self.tokenInfo!.id_token,
+            "apikey":self.apiKeysAndUrls!.servers.wiredProd.apikey,
+            "x-kamereon-authorization": "Bearer " + self.kamereonTokenInfo!.accessToken
+        ]
+        // Fetch info using the retrieved access token
+        self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:StartCharging?) -> Void in
+            if result != nil {
+                print("Successfully sent request, got id: \(result!.data.id!)")
+                // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
+                DispatchQueue.main.async{
+                    callback(false)
+                }
+            } else {
+                DispatchQueue.main.async{
+                    callback(true)
+                }
+            }
+        }
+    }
     
     
     
@@ -402,7 +443,7 @@ class MyR {
            }
     }
     
-    func fetchJsonDataViaHttp<T> (usingMethod method:HttpMethod, withComponents components:URLComponents, withHeaders headers:[String:String]?, callback:@escaping(T?)->Void) where T:Decodable {
+    func fetchJsonDataViaHttp<T> (usingMethod method:HttpMethod, withComponents components:URLComponents, withHeaders headers:[String:String]?, withBody body: Data?=nil, callback:@escaping(T?)->Void) where T:Decodable {
     
         let query = components.url!.query
         var request = URLRequest(url: components.url!)
@@ -410,6 +451,11 @@ class MyR {
         if (query != nil) && (method == .POST) {
             request.httpBody = Data(query!.utf8) // must not be used for GET
         }
+        
+        if (body != nil) && (method == .POST) {
+            request.httpBody = body
+        }
+        
         request.allHTTPHeaderFields = headers
         // request.setValue("...", forHTTPHeaderField: "...")
 

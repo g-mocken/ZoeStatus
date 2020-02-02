@@ -692,13 +692,13 @@ public class ServiceConnection {
 #endif
 
         switch api {
-              case .ZE:
-                precondition_ZE(command: command, date: date, callback:callback)
-              case .MyRv1, .MyRv2:
-                precondition_MyR(command: command, date: date, callback:callback)
-              case .none:
-                  ()
-              }
+        case .ZE:
+            precondition_ZE(command: command, date: date, callback:callback)
+        case .MyRv1, .MyRv2:
+            precondition_MyR(command: command, date: date, callback:callback)
+        case .none:
+            ()
+        }
     }
     
     public func precondition_MyR(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
@@ -1123,6 +1123,24 @@ public class ServiceConnection {
             return
         }
         
+        switch api {
+        case .ZE:
+            chargeNowRequest_ZE(callback:callback)
+        case .MyRv1, .MyRv2:
+            chargeNowRequest_MyR(callback:callback)
+        case .none:
+            ()
+        }
+    }
+    
+    public func chargeNowRequest_MyR(callback:@escaping  (Bool) -> ()) {
+    
+        myR.chargeNowRequest(callback:callback)
+        
+    }
+    
+    public func chargeNowRequest_ZE(callback:@escaping  (Bool) -> ()) {
+
         let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/charge"
         
         let tString = ""
