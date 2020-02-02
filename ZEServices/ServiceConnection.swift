@@ -433,7 +433,18 @@ public class ServiceConnection {
     }
     func batteryState_MyR(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
         
-        myR.batteryState(callback: callback)
+        myR.batteryState(callback:
+            {error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time in
+                self.cache.charging=charging
+                self.cache.plugged=plugged
+                self.cache.charge_level=charge_level
+                self.cache.remaining_range=remaining_range
+                self.cache.last_update=last_update
+                self.cache.charging_point=charging_point
+                self.cache.remaining_time=remaining_time
+                callback(error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time)
+            }
+        )
 
     }
     func batteryState_ZE(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
