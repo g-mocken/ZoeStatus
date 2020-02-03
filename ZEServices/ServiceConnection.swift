@@ -943,12 +943,7 @@ public class ServiceConnection {
     }
     
     public func airConditioningLastState_MyR(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
-        DispatchQueue.main.async {
-            callback(false,
-                     1550874142000,
-                     "-",
-                     "SUCCESS")
-        }
+        myR.airConditioningLastState(callback: callback)
     }
 
     public func airConditioningLastState_ZE(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {

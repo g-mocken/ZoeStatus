@@ -590,11 +590,111 @@ class MyR {
                 }
             }
         }
-        
-        
-        
     }
     
+    
+    
+    
+    public func airConditioningLastState(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
+        
+        struct HvacSessions: Codable {
+            var data: Data
+            struct Data: Codable {
+                var type: String
+                var id: String
+                var attributes: Attributes
+                struct Attributes: Codable {
+                    var hvacSessions: [HvacSession]
+                    struct HvacSession: Codable {
+                        var hvacSessionRequestDate: String
+                        var hvacSessionStartDate: String
+                        var hvacSessionEndStatus: String
+                    }
+                }
+            }
+        }
+        /*
+         {"data":{"type":"Car","id":"...","attributes":{"hvacSessions":[{"hvacSessionRequestDate":"2020-02-03T17:20:05+01:00","hvacSessionStartDate":"2020-02-03T17:26:38+01:00","hvacSessionEndStatus":"ok"},{"hvacSessionRequestDate":"2020-02-03T00:30:48+01:00","hvacSessionStartDate":"2020-02-03T07:29:42+01:00","hvacSessionEndStatus":"error"},{"hvacSessionRequestDate":"2020-02-02T16:25:59+01:00","hvacSessionStartDate":"2020-02-02T16:32:32+01:00","hvacSessionEndStatus":"error"}]}}}
+         
+         */
+        
+        let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/hvac-sessions")!
+        
+        let dateFormatter = DateFormatter()
+        let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+        dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+        dateFormatter.locale = NSLocale.current
+        dateFormatter.dateFormat = "yyyyMMdd"
+        let startDate = dateFormatter.string(from: Date()-24*3600*7) // go back one week
+        let endDate = dateFormatter.string(from: Date()) // today
+        
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+        components.queryItems = [
+            URLQueryItem(name: "start", value: startDate),
+            URLQueryItem(name: "end", value: endDate)
+        ]
+        
+        let headers = [
+            "x-gigya-id_token": self.tokenInfo!.id_token,
+            "apikey":self.apiKeysAndUrls!.servers.wiredProd.apikey,
+            "x-kamereon-authorization": "Bearer " + self.kamereonTokenInfo!.accessToken
+        ]
+        // Fetch info using the retrieved access token
+        self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:HvacSessions?) -> Void in
+            if result != nil {
+                print("Successfully retrieved AC last state:")
+                //print("level: \(result!.data.attributes.hvacSessions[0])")
+                
+                if (result!.data.attributes.hvacSessions.count > 0) { // array not empty  - never happens, HTTP 500 instead!
+                    
+                    let dateString = result!.data.attributes.hvacSessions[0].hvacSessionStartDate
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.locale = NSLocale.current
+                    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                    let date = dateFormatter.date(from:dateString)!
+                    let unixMs = UInt64(date.timeIntervalSince1970) * 1000
+                    
+                    let status = result!.data.attributes.hvacSessions[0].hvacSessionEndStatus
+                    
+                    let rStatus:String?
+                    switch status {
+                    case "error":
+                        rStatus = "ERROR"
+                    case "ok":
+                        rStatus = "SUCCESS"
+                    default:
+                        rStatus = nil
+                    }
+                    
+                    print("A/C lst state: \(date), \(rStatus ?? "-")")
+                    
+                    DispatchQueue.main.async {
+                        callback(false,
+                                 unixMs,
+                                 "USER_REQUEST",
+                                 rStatus)
+                    }
+                    
+                } else { // array empty, no data
+                    DispatchQueue.main.async {
+                        callback(false, // no error, but no data
+                                 0,
+                                 nil,
+                                 nil)
+                    }
+                }
+                
+            
+            } else {
+                DispatchQueue.main.async {
+                    callback(false, // true = error getting data -> dialog
+                             0,
+                             nil,
+                             nil)
+                }
+            }
+        }
+    }
     
     enum HttpMethod {
         case GET
