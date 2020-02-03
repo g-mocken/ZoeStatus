@@ -483,12 +483,15 @@ class MyR {
         }
         
         struct Precondition: Codable {
-            var type: String
-            var attributes:Attributes
-            struct Attributes:Codable {
-                var action: String
-                var targetTemperature: Int?
-                var startDateTime: String?
+            var data: Data
+            struct Data:Codable {
+                var type: String
+                var attributes:Attributes
+                struct Attributes:Codable {
+                    var action: String
+                    var targetTemperature: Float?
+                    var startDateTime: String?
+                }
             }
         }
         
@@ -496,18 +499,31 @@ class MyR {
         
         switch command {
         case .now:
-            precondition = Precondition(type: "HvacStart", attributes: Precondition.Attributes(action: "start", targetTemperature: 21))
+            precondition = Precondition(data: Precondition.Data(type: "HvacStart", attributes: Precondition.Data.Attributes(action: "start", targetTemperature: 21.0)))
+
         case .later:
+            
+            // combine time received with today's date:
+            let today = Date()
+            let finalDate:Date
+            if (date!<today){
+                // if in the past, add one day
+                finalDate = date! + TimeInterval(24*3600)
+            } else {
+                finalDate = date!
+            }
+            // date now is the correct time and date.
+
             let dateFormatter = DateFormatter()
             let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
             dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
             dateFormatter.locale = NSLocale.current
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ" //Specify your format that you want
-            let strDate = dateFormatter.string(from: date!)
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+            let strDate = dateFormatter.string(from: finalDate)
             
-            precondition = Precondition(type: "HvacStart", attributes: Precondition.Attributes(action: "start", targetTemperature: 21, startDateTime: strDate))
+            precondition = Precondition(data: Precondition.Data(type: "HvacStart", attributes: Precondition.Data.Attributes(action: "start", targetTemperature: 21.0, startDateTime: strDate)))
         case .delete:
-            precondition = Precondition(type: "HvacStart", attributes: Precondition.Attributes(action: "cancel"))
+            precondition = Precondition(data: Precondition.Data(type: "HvacStart", attributes: Precondition.Data.Attributes(action: "cancel")))
         case .read:
             precondition = nil
         }
@@ -539,7 +555,7 @@ class MyR {
         if (command == .read) { // for .read GET status
             self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:PreconditionInfo?) -> Void in
                 if result != nil {
-                    print("Successfully sent request, got: \(result!)")
+                    print("Successfully sent GET request, got: \(result!)")
                     let date:Date?
                     if let dateString = result!.data.attributes.nextHvacStartDate {
                         // e.g. "2020-02-03T06:30:00Z"
@@ -562,7 +578,7 @@ class MyR {
         } else { // all other commands POST action
             self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:Precondition?) -> Void in
                 if result != nil {
-                    print("Successfully sent request, got: \(result!)")
+                    print("Successfully sent POST request, got: \(result!)")
                     // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
                     DispatchQueue.main.async{
                         callback(false, command, date)
