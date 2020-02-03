@@ -64,60 +64,7 @@ class MyR {
            }
        }
     
-    struct BatteryInfo: Codable {
-        var data: CarInfo
-        struct CarInfo: Codable {
-            var type: String
-            var id: String
-            var attributes: Attributes
-            struct Attributes: Codable {
-                var batteryLevel: Int
-                var batteryTemperature: Int
-                var chargePower: Int?
-                var rangeHvacOff: Float
-                var timeRequiredToFullSlow: Int?
-                var plugStatus: Int
-                var instantaneousPower: Int?
-                var lastUpdateTime: String
-                var chargeStatus: Int
-            }
-        }
-    }
-    /*
-     Sample Data while slow charging:
-     {
-         "data":{
-             "type":"Car",
-             "id":"...",
-             "attributes":{
-                 "batteryLevel":79,
-                 "batteryTemperature":11,
-                 "chargePower":1,
-                 "rangeHvacOff":98,
-                 "timeRequiredToFullSlow":175,
-                 "plugStatus":1,
-                 "instantaneousPower":2200,
-                 "lastUpdateTime":"2020-01-29T20:14:28+01:00",
-                 "chargeStatus":1
-             }
-         }
-     }
-     
-     Sample Data while NOT charging:
-
-     {"data":{"type":"Car","id":"...",
-     "attributes":{
-         "batteryTemperature":14,
-         "chargeStatus":-1,
-         "batteryLevel":59,
-         "rangeHvacOff":78,
-         "lastUpdateTime":"2020-01-31T17:39:52+01:00",
-         "plugStatus":0}}
-     }
-
-     
-
-     */
+  
     
     var username: String!
     var password: String!
@@ -305,6 +252,59 @@ class MyR {
     
     func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
         
+        struct BatteryInfo: Codable {
+              var data: CarInfo
+              struct CarInfo: Codable {
+                  var type: String
+                  var id: String
+                  var attributes: Attributes
+                  struct Attributes: Codable {
+                      var batteryLevel: Int
+                      var batteryTemperature: Int?
+                      var chargePower: Int?
+                      var rangeHvacOff: Float
+                      var timeRequiredToFullSlow: Int?
+                      var plugStatus: Int
+                      var instantaneousPower: Int?
+                      var lastUpdateTime: String
+                      var chargeStatus: Int
+                  }
+              }
+          }
+          /*
+           Sample Data while slow charging:
+           {
+               "data":{
+                   "type":"Car",
+                   "id":"...",
+                   "attributes":{
+                       "batteryLevel":79,
+                       "batteryTemperature":11,
+                       "chargePower":1,
+                       "rangeHvacOff":98,
+                       "timeRequiredToFullSlow":175,
+                       "plugStatus":1,
+                       "instantaneousPower":2200,
+                       "lastUpdateTime":"2020-01-29T20:14:28+01:00",
+                       "chargeStatus":1
+                   }
+               }
+           }
+           
+           Sample Data while NOT charging:
+
+           {"data":{"type":"Car","id":"...",
+           "attributes":{
+               "batteryTemperature":14,
+               "chargeStatus":-1,
+               "batteryLevel":59,
+               "rangeHvacOff":78,
+               "lastUpdateTime":"2020-01-31T17:39:52+01:00",
+               "plugStatus":0}}
+           }
+
+           */
+        
         let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
         
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
@@ -319,8 +319,9 @@ class MyR {
             if result != nil {
                 print("Successfully retrieved battery state:")
                 print("level: \(result!.data.attributes.batteryLevel)")
-                print("temperature: \(result!.data.attributes.batteryTemperature)")
-                
+                if (result!.data.attributes.batteryTemperature != nil){
+                    print("battery temperature: \(result!.data.attributes.batteryTemperature!)")
+                }
                 var charging_point: String?
                 if let power=result!.data.attributes.chargePower {
                     switch power {
