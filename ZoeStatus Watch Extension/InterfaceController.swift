@@ -138,7 +138,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         let dateString = timestampToDateOnlyString(timestamp: dateTime)
         let timeString = timestampToTimeOnlyString(timestamp: dateTime)
         let chargerString = chargingPointToChargerString(plugged ?? false, chargingPoint)
-        let remainingString = remainingTimeToRemainingShortString(charging ?? false, remainingTime)
+        let remainingString = remainingTimeToRemainingString(charging ?? false, remainingTime)
         let pluggedString = (plugged != nil ? (plugged! ? "🔌 ✅" : "🔌 ❌") : "🔌 …")
         let chargingString = (charging != nil ? (charging! ? "⚡️ ✅" : "⚡️ ❌") : "⚡️ …")
     
