@@ -13,6 +13,7 @@ import os
 
 class ViewController: UIViewController, MapViewControllerDelegate {
     
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         (segue.destination as? MapViewController)?.delegate = self
     }
@@ -125,6 +126,12 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             mapButton.isHidden = true
         }
 
+        refreshButton.gestureRecognizers?.removeAll()
+        if (ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference")) == .ZE){ // only supported for ZE api
+            // add guesture recognizer
+            let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
+            refreshButton.addGestureRecognizer(longPress)
+        }
         
         // load settings
         if (sc.tokenExpiry == nil && sc.simulation != true){
@@ -239,9 +246,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
         NotificationCenter.default.addObserver(forName: Notification.Name("applicationDidBecomeActive"), object: nil, queue: OperationQueue.main, using: {n in self.applicationDidBecomeActive(notification: n)})
         
-        // add guesture recognizer
-        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
-        refreshButton.addGestureRecognizer(longPress)
 
     }
 
@@ -544,9 +548,12 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             print("request state after long press of refresh!")
             confirmButtonPress(title:"Request battery state update?", body:"Will instruct the back-end to fetch a battery state update from the car.", cancelButton: "Cancel", cancelCallback: { }, confirmButton: "Update")
             {
-                // trailing confirmCallback-closure:
-                self.updateActivity(type:.start)
-                self.sc.batteryStateUpdateRequest(callback: self.batteryStateUpdateRequest(error:))
+                self.handleLogin(onError: {}){
+                    self.updateActivity(type:.start)
+                    self.sc.batteryStateUpdateRequest(callback: self.batteryStateUpdateRequest(error:))
+            }
+
+            
             }
         }
     }

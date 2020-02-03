@@ -164,7 +164,7 @@ public class ServiceConnection {
             DispatchQueue.main.async{callback(false)}
         }, onSuccess: {
             self.tokenExpiry = self.extractExpiryDate(ofToken: self.myR.tokenInfo!.id_token)
-
+            self.vehicleIdentification = self.myR.vehiclesInfo!.vehicleLinks[0].vin // to avoid crashes, when switching API versions
             DispatchQueue.main.async{callback(true)}
         }) // later change latter to true
     }

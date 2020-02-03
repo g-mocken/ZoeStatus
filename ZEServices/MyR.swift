@@ -303,6 +303,12 @@ class MyR {
                "plugStatus":0}}
            }
 
+         
+         
+         Sample data while plugged, but NOT charging:
+         {"data":{"type":"Car","id":"...", "attributes":{"chargeStatus":-1,"batteryTemperature":16,"lastUpdateTime":"2020-02-03T23:24:54+01:00","plugStatus":1,"rangeHvacOff":106,"batteryLevel":81}}}
+
+         
            */
         
         let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
