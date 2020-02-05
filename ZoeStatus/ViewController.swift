@@ -359,7 +359,14 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 if (result){
                     actionCode()
                 } else {
-                    self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
+                    switch self.sc.api {
+                    case .ZE:
+                        self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
+                    case .MyRv1, .MyRv2:
+                        self.displayMessage(title: "Error", body:"Failed to login to MY.R. services.")
+                    case .none:
+                        self.displayMessage(title: "Error", body:"Failed to login because API is not set.")
+                    }
                     errorCode()
                 }
                 self.updateActivity(type:.stop)

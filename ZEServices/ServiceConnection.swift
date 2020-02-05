@@ -159,8 +159,8 @@ public class ServiceConnection {
         myR = MyR(username: userName!, password: password!)
         myR.handleLoginProcess(onError: {
             print("debug tokens:")
-            self.myR.decodeToken(token: self.myR.kamereonTokenInfo!.idToken) // = idToken
-            self.myR.decodeToken(token:  self.myR.tokenInfo!.id_token) // = original gigya JWT
+            if (self.myR.kamereonTokenInfo != nil){ self.myR.decodeToken(token: self.myR.kamereonTokenInfo!.idToken) } // = idToken
+            if (self.myR.tokenInfo != nil) { self.myR.decodeToken(token:  self.myR.tokenInfo!.id_token) } // = original gigya JWT
             DispatchQueue.main.async{callback(false)}
         }, onSuccess: {
             self.tokenExpiry = self.extractExpiryDate(ofToken: self.myR.tokenInfo!.id_token)
