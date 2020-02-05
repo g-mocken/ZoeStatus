@@ -41,31 +41,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     
     fileprivate func performLogin() {
 
-        let userDefaults = UserDefaults.standard
-        
-        /*
-         { // PERSONAL VALUES MUST BE REMOVED BEFORE GOING PUBLIC! ALSO DO NOT COMMIT TO GIT!
-         let defaultUserName = "your@email.address"
-         let defaultPassword = "secret password"
-         
-         userDefaults.setValue(defaultUserName, forKey: "userName_preference")
-         userDefaults.setValue(defaultPassword, forKey: "password_preference")
-         
-         userDefaults.synchronize()
-         }
-         */
-        
-        sc.userName = userDefaults.string(forKey: "userName_preference")
-        sc.password = userDefaults.string(forKey: "password_preference")
-        sc.api = ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference"))
-        // share preferences with widget:
-        let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatus");
-        sharedDefaults?.set(sc.userName, forKey: "userName")
-        sharedDefaults?.set(sc.password, forKey: "password")
-        sharedDefaults?.set(sc.api!.rawValue, forKey: "api")
-        
-        sharedDefaults?.synchronize()
-        
+
         if ((sc.userName == nil) || (sc.password == nil)){
             print ("Enter user credentials in settings app!")
             UIApplication.shared.open(URL(string : UIApplication.openSettingsURLString)!)
@@ -96,6 +72,42 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     func applicationDidBecomeActive(notification: Notification) {
         print ("applicationDidBecomeActive notification received!")
        
+        let userDefaults = UserDefaults.standard
+        
+        /*
+         { // PERSONAL VALUES MUST BE REMOVED BEFORE GOING PUBLIC! ALSO DO NOT COMMIT TO GIT!
+         let defaultUserName = "your@email.address"
+         let defaultPassword = "secret password"
+         
+         userDefaults.setValue(defaultUserName, forKey: "userName_preference")
+         userDefaults.setValue(defaultPassword, forKey: "password_preference")
+         
+         userDefaults.synchronize()
+         }
+         */
+        
+        sc.userName = userDefaults.string(forKey: "userName_preference")
+        sc.password = userDefaults.string(forKey: "password_preference")
+        let new_api = ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference"))
+       
+        if (sc.api != new_api) { // if there is an API change, force new login
+            sc.api = new_api
+            print("API was switched, forcing new login")
+            sc.tokenExpiry = nil
+        }
+        
+        // share preferences with widget:
+        let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatus");
+        sharedDefaults?.set(sc.userName, forKey: "userName")
+        sharedDefaults?.set(sc.password, forKey: "password")
+        
+       
+        
+        sharedDefaults?.set(sc.api!.rawValue, forKey: "api")
+        
+        sharedDefaults?.synchronize()
+        
+        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if ( appDelegate.shortcutItemToProcess != nil){
             if preconditionTimer == nil { // avoid double start
@@ -114,7 +126,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         }
         
         
-        let userDefaults = UserDefaults.standard
         let experimentalFeatures = userDefaults.bool(forKey: "experimental_preference")
         print("experimental features = \(experimentalFeatures)")
 

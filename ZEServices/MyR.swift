@@ -96,6 +96,8 @@ class MyR {
         }
         // the third part is the signature of the JSON web token, and not decoded/validated here
     }
+    
+    
     func handleLoginProcess(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
         
         // Fetch URLs and API keys from a fixed URL
@@ -221,31 +223,31 @@ class MyR {
                                                             } else {
                                                                 errorCode()
                                                             }
-                                                        }
+                                                        } // end of closure
                                                     } else {
                                                         errorCode()
                                                     }
-                                                }
+                                                } // end of closure
                                             } else {
                                                 errorCode()
                                             }
-                                        }
+                                        } // end of closure
                                     } else {
                                         errorCode()
                                     }
-                                }
+                                } // end of closure
                             } else {
                                 errorCode()
                             }
-                        }
+                        } // end of closure
                     } else {
                         errorCode()
                     }
-                }
+                } // end of closure
             } else {
                 errorCode()
             }
-        }
+        } // end of closure
     }
     
     
@@ -482,7 +484,6 @@ class MyR {
                 struct Attributes: Codable {
                     var hvacStatus: String
                     var externalTemperature: Float
-                    var lastUpdateTime: String? // TODO: check what pops up in reply
                     var nextHvacStartDate: String?
                 }
             }
@@ -561,7 +562,7 @@ class MyR {
         if (command == .read) { // for .read GET status
             self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:PreconditionInfo?) -> Void in
                 if result != nil {
-                    print("Successfully sent GET request, got: \(result!)")
+                    print("Successfully sent GET request, got: \(result!.data.attributes)")
                     let date:Date?
                     if let dateString = result!.data.attributes.nextHvacStartDate {
                         // e.g. "2020-02-03T06:30:00Z"
@@ -648,11 +649,12 @@ class MyR {
         // Fetch info using the retrieved access token
         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:HvacSessions?) -> Void in
             if result != nil {
-                print("Successfully retrieved AC last state:")
+                print("Successfully retrieved AC sessions: \(result!.data.attributes.hvacSessions.count) sessions")
                 //print("level: \(result!.data.attributes.hvacSessions[0])")
                 
                 if (result!.data.attributes.hvacSessions.count > 0) { // array not empty  - never happens, HTTP 500 instead!
-                    
+                    print("AC last state: \(result!.data.attributes.hvacSessions[0])")
+
                     let dateString = result!.data.attributes.hvacSessions[0].hvacSessionStartDate
                     let dateFormatter = DateFormatter()
                     dateFormatter.locale = NSLocale.current
