@@ -82,7 +82,7 @@ class MyR {
     var kamereonTokenInfo: KamereonTokenInfo?
     var vehiclesInfo: VehiclesInfo?
     
-    let serviceLog = OSLog(subsystem: "com.grm.ZEServices", category: "ZOE")
+    let serviceLog = OSLog(subsystem: "com.grm.ZEServices", category: "ZOE-MYR")
 
     
     func decodeToken(token:String) {
@@ -309,6 +309,10 @@ class MyR {
          
          Sample data while plugged, but NOT charging:
          {"data":{"type":"Car","id":"...", "attributes":{"chargeStatus":-1,"batteryTemperature":16,"lastUpdateTime":"2020-02-03T23:24:54+01:00","plugStatus":1,"rangeHvacOff":106,"batteryLevel":81}}}
+
+         Sometimes some required fields are missing:
+         {"data":{"type":"Car","id":"...",
+         "attributes":{"batteryTemperature":16,"chargeStatus":-1,"lastUpdateTime":"2020-02-05T23:54:19+01:00","plugStatus":0}}}
 
          
            */
@@ -585,7 +589,7 @@ class MyR {
         } else { // all other commands POST action
             self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:Precondition?) -> Void in
                 if result != nil {
-                    print("Successfully sent POST request, got: \(result!)")
+                    print("Successfully sent POST request, got: \(result!.data)")
                     // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
                     DispatchQueue.main.async{
                         callback(false, command, date)
@@ -739,6 +743,9 @@ class MyR {
 
         let task = URLSession.shared.dataTask(with: request){ data, response, error in
             
+            os_log("Request: %{public}s", log: self.serviceLog, type: .debug, request.description)
+            if (request.httpBody != nil) {os_log("POST-Body: %{public}s", log: self.serviceLog, type: .debug, String(data: request.httpBody!, encoding: .utf8)!)
+            }
             if let error = error {
                 os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
                 callback(nil)
@@ -753,7 +760,8 @@ class MyR {
             }
             
             if let jsonData = data {
-                print ("raw JSON data: \(String(data: jsonData, encoding: .utf8)!)")
+                //print ("raw JSON data: \(String(data: jsonData, encoding: .utf8)!)")
+                os_log("raw JSON data: %{public}s", log: self.serviceLog, type: .debug, String(data: jsonData, encoding: .utf8)!)
 
                 let decoder = JSONDecoder()
                 let result = try? decoder.decode(T.self, from: jsonData)

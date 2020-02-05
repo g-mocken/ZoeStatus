@@ -101,7 +101,7 @@
 				<integer>1</integer>
 			</array>
 			<key>DefaultValue</key>
-			<integer>0</integer>
+			<integer>1</integer>
 			<key>Titles</key>
 			<array>
 				<string>Z.E.</string>

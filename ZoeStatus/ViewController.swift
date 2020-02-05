@@ -52,9 +52,16 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 self.updateActivity(type:.stop)
                 if result {
                     self.refreshButtonPressed(self.refreshButton) // auto-refresh after successful login
-                    print("Login to Z.E. services successful")
+                    print("Login to Z.E. / MY.R. services successful")
                 } else {
-                    self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
+                    switch self.sc.api {
+                    case .ZE:
+                        self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
+                    case .MyRv1, .MyRv2:
+                        self.displayMessage(title: "Error", body:"Failed to login to MY.R. services.")
+                    case .none:
+                        self.displayMessage(title: "Error", body:"Failed to login because API is not set.")
+                    }
                 }
             }
         }
