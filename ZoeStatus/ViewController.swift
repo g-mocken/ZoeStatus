@@ -441,9 +441,13 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             
         } else {
             level.text = String(format: "🔋%3d%%", charge_level)
+            if (remaining_range >= 0.0){
             range.text = String(format: "🛣️ %3.0f km", remaining_range.rounded()) // 📏
             rangeForMap = remaining_range * 1000.0
-            
+            } else {
+                range.text = String(format: "🛣️ …") // 📏
+                rangeForMap = nil
+            }
             update.text = timestampToDateString(timestamp: last_update)
            
             

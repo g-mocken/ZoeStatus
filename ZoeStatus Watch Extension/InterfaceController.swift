@@ -264,7 +264,11 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
             } else {
                         
                 level.setText(String(format: "🔋%3d %%", charge_level))
+                if (remaining_range >= 0.0){
                 range.setText(String(format: "🛣️ %3.0f km", remaining_range.rounded()))
+                } else {
+                    range.setText(String(format: "🛣️ …"))
+                }
                 date.setText(timestampToDateOnlyString(timestamp: last_update))
                 time.setText(timestampToTimeOnlyString(timestamp: last_update))
                 charger.setText(chargingPointToChargerString(plugged, charging_point))

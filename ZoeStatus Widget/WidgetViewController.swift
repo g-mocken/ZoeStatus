@@ -242,7 +242,11 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
                         
             self.level.text = String(format: "🔋%3d%%", charge_level)
             levelCache = charge_level
-            self.range.text = String(format: "🛣️ %3.0f km", remaining_range)
+            if (remaining_range >= 0.0){
+                self.range.text = String(format: "🛣️ %3.0f km", remaining_range.rounded())
+            } else {
+                self.range.text = String(format: "🛣️ …")
+            }
             remainingRangeCache = remaining_range
             
             self.update.text = timestampToDateString(timestamp: last_update)

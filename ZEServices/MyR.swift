@@ -264,7 +264,7 @@ class MyR {
                       var batteryLevel: Int
                       var batteryTemperature: Int?
                       var chargePower: Int?
-                      var rangeHvacOff: Float
+                      var rangeHvacOff: Float?
                       var timeRequiredToFullSlow: Int?
                       var plugStatus: Int
                       var instantaneousPower: Int?
@@ -365,7 +365,7 @@ class MyR {
                              result!.data.attributes.chargeStatus > 0,
                              result!.data.attributes.plugStatus > 0,
                              UInt8(result!.data.attributes.batteryLevel),
-                             result!.data.attributes.rangeHvacOff,
+                             result!.data.attributes.rangeHvacOff ?? -1.0,
                              unixMs,
                              charging_point,
                              result!.data.attributes.timeRequiredToFullSlow)
