@@ -65,13 +65,19 @@ class MyR {
        }
     
   
+    enum Version {
+        case v1
+        case v2
+    }
     
     var username: String!
     var password: String!
+    var version:Version
     
-    init(username u:String, password p:String) {
+    init(username u:String, password p:String, version v:Version) {
         username = u
         password = p
+        version = v
     }
     
     var apiKeysAndUrls: ApiKeyResult?
@@ -253,73 +259,107 @@ class MyR {
     
     
     func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+        struct BatteryInfoV2: Codable {
+            var data: Data
+            struct Data: Codable {
+                var type: String
+                var id: String
+                var attributes: Attributes
+                struct Attributes: Codable {
+                    var batteryLevel: Int
+                    var batteryTemperature: Int?
+                    var chargingInstantaneousPower: Float?
+                    var batteryAutonomy: Float?
+                    var chargingRemainingTime: Int?
+                    var plugStatus: Int
+                    var timestamp: String
+                    var chargingStatus: Float
+                    var batteryCapacity: Int?
+                    var batteryAvailableEnergy: Int?
+                }
+            }
+        }
+        
+        /*
+            not plugged, not charging:
+         {"data":{"type":"Car","id":"...","attributes":{"timestamp":"2020-02-07T19:06:03+01:00","batteryLevel":63,"batteryTemperature":9,"batteryAutonomy":71,"batteryCapacity":0,"batteryAvailableEnergy":0,"plugStatus":0,"chargingStatus":-1.0}}}
+         
+        
+        plugged and charging:
+         {"data":{"type":"Car","id":"...","attributes":{"timestamp":"2020-02-07T21:17:35+01:00","batteryLevel":62,"batteryTemperature":9,"batteryAutonomy":70,"batteryCapacity":0,"batteryAvailableEnergy":0,"plugStatus":1,"chargingStatus":1.0}}}
+         
+         2020-02-07 21:22:04.731187+0100 ZoeStatus[43997:3264106] [ZOE-MYR] raw JSON data: {"data":{"type":"Car","id":"...","attributes":{"timestamp":"2020-02-07T21:21:26+01:00","batteryLevel":63,"batteryTemperature":9,"batteryAutonomy":71,"batteryCapacity":0,"batteryAvailableEnergy":0,"plugStatus":1,"chargingStatus":1.0,"chargingRemainingTime":300,"chargingInstantaneousPower":2300.0}}}
+
+         
+         */
         
         struct BatteryInfo: Codable {
-              var data: CarInfo
-              struct CarInfo: Codable {
-                  var type: String
-                  var id: String
-                  var attributes: Attributes
-                  struct Attributes: Codable {
-                      var batteryLevel: Int
-                      var batteryTemperature: Int?
-                      var chargePower: Int?
-                      var rangeHvacOff: Float?
-                      var timeRequiredToFullSlow: Int?
-                      var plugStatus: Int
-                      var instantaneousPower: Int?
-                      var lastUpdateTime: String
-                      var chargeStatus: Int
-                  }
-              }
-          }
-          /*
-           Sample Data while slow charging:
-           {
-               "data":{
-                   "type":"Car",
-                   "id":"...",
-                   "attributes":{
-                       "batteryLevel":79,
-                       "batteryTemperature":11,
-                       "chargePower":1,
-                       "rangeHvacOff":98,
-                       "timeRequiredToFullSlow":175,
-                       "plugStatus":1,
-                       "instantaneousPower":2200,
-                       "lastUpdateTime":"2020-01-29T20:14:28+01:00",
-                       "chargeStatus":1
-                   }
-               }
-           }
-           
-           Sample Data while NOT charging:
-
-           {"data":{"type":"Car","id":"...",
-           "attributes":{
-               "batteryTemperature":14,
-               "chargeStatus":-1,
-               "batteryLevel":59,
-               "rangeHvacOff":78,
-               "lastUpdateTime":"2020-01-31T17:39:52+01:00",
-               "plugStatus":0}}
-           }
-
+            var data: Data
+            struct Data: Codable {
+                var type: String
+                var id: String
+                var attributes: Attributes
+                struct Attributes: Codable {
+                    var batteryLevel: Int
+                    var batteryTemperature: Int?
+                    var chargePower: Int?
+                    var rangeHvacOff: Float?
+                    var timeRequiredToFullSlow: Int?
+                    var plugStatus: Int
+                    var instantaneousPower: Int?
+                    var lastUpdateTime: String
+                    var chargeStatus: Int
+                }
+            }
+        }
+        /*
+         Sample Data while slow charging:
+         {
+         "data":{
+         "type":"Car",
+         "id":"...",
+         "attributes":{
+         "batteryLevel":79,
+         "batteryTemperature":11,
+         "chargePower":1,
+         "rangeHvacOff":98,
+         "timeRequiredToFullSlow":175,
+         "plugStatus":1,
+         "instantaneousPower":2200,
+         "lastUpdateTime":"2020-01-29T20:14:28+01:00",
+         "chargeStatus":1
+         }
+         }
+         }
+         
+         Sample Data while NOT charging:
+         
+         {"data":{"type":"Car","id":"...",
+         "attributes":{
+         "batteryTemperature":14,
+         "chargeStatus":-1,
+         "batteryLevel":59,
+         "rangeHvacOff":78,
+         "lastUpdateTime":"2020-01-31T17:39:52+01:00",
+         "plugStatus":0}}
+         }
+         
          
          
          Sample data while plugged, but NOT charging:
          {"data":{"type":"Car","id":"...", "attributes":{"chargeStatus":-1,"batteryTemperature":16,"lastUpdateTime":"2020-02-03T23:24:54+01:00","plugStatus":1,"rangeHvacOff":106,"batteryLevel":81}}}
-
+         
          Sometimes some required fields are missing:
          {"data":{"type":"Car","id":"...",
          "attributes":{"batteryTemperature":16,"chargeStatus":-1,"lastUpdateTime":"2020-02-05T23:54:19+01:00","plugStatus":0}}}
-
          
-           */
+         
+         */
         
-        let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
+        let endpointUrlV1 = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
+        let endpointUrlV2 = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v2/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
         
-        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+        var components = URLComponents(url: (self.version == .v2 ? endpointUrlV2 : endpointUrlV1), resolvingAgainstBaseURL: false)!
         components.queryItems = nil
         let headers = [
             "x-gigya-id_token": self.tokenInfo!.id_token,
@@ -327,60 +367,123 @@ class MyR {
             "x-kamereon-authorization": "Bearer " + self.kamereonTokenInfo!.accessToken
         ]
         // Fetch info using the retrieved access token
-        self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:BatteryInfo?) -> Void in
-            if result != nil {
-                print("Successfully retrieved battery state:")
-                print("level: \(result!.data.attributes.batteryLevel)")
-                if (result!.data.attributes.batteryTemperature != nil){
-                    print("battery temperature: \(result!.data.attributes.batteryTemperature!)")
-                }
-                var charging_point: String?
-                if let power=result!.data.attributes.chargePower {
-                    switch power {
-                    case 0:
-                        charging_point = "INVALID"
-                    case 1:
-                        charging_point = "SLOW"
-                    case 2:
-                        charging_point = "FAST"
-                    case 3:
-                        charging_point = "ACCELERATED"
-                    default:
-                        charging_point = "\(power)"
+        
+        switch version {
+        case .v1:
+            self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:BatteryInfo?) -> Void in
+                if result != nil {
+                    print("Successfully retrieved battery state V1:")
+                    print("level: \(result!.data.attributes.batteryLevel)")
+                    if (result!.data.attributes.batteryTemperature != nil){
+                        print("battery temperature: \(result!.data.attributes.batteryTemperature!)")
+                    }
+                    var charging_point: String?
+                    if let power=result!.data.attributes.chargePower {
+                        switch power {
+                        case 0:
+                            charging_point = "INVALID"
+                        case 1:
+                            charging_point = "SLOW"
+                        case 2:
+                            charging_point = "FAST"
+                        case 3:
+                            charging_point = "ACCELERATED"
+                        default:
+                            charging_point = "\(power)"
+                        }
+                    }
+                    
+                    let dateString = result!.data.attributes.lastUpdateTime // e.g. "2020-01-31T17:39:52+01:00"
+                    
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.locale = NSLocale.current
+                    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                    let date = dateFormatter.date(from:dateString)!
+                    let unixMs = UInt64(date.timeIntervalSince1970) * 1000
+                    print(date)
+                    
+                    // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
+                    DispatchQueue.main.async{
+                        callback(false,
+                                 result!.data.attributes.chargeStatus > 0,
+                                 result!.data.attributes.plugStatus > 0,
+                                 UInt8(result!.data.attributes.batteryLevel),
+                                 result!.data.attributes.rangeHvacOff ?? -1.0,
+                                 unixMs,
+                                 charging_point,
+                                 result!.data.attributes.timeRequiredToFullSlow)
+                        
+                    }
+                } else {
+                    DispatchQueue.main.async{
+                        callback(true,
+                                 false,
+                                 false,
+                                 0,
+                                 0.0,
+                                 0,
+                                 nil,
+                                 nil)
                     }
                 }
-                
-                let dateString = result!.data.attributes.lastUpdateTime // e.g. "2020-01-31T17:39:52+01:00"
-                
-                let dateFormatter = DateFormatter()
-                dateFormatter.locale = NSLocale.current
-                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-                let date = dateFormatter.date(from:dateString)!
-                let unixMs = UInt64(date.timeIntervalSince1970) * 1000
-                print(date)
-
-                // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
-                DispatchQueue.main.async{
-                    callback(false,
-                             result!.data.attributes.chargeStatus > 0,
-                             result!.data.attributes.plugStatus > 0,
-                             UInt8(result!.data.attributes.batteryLevel),
-                             result!.data.attributes.rangeHvacOff ?? -1.0,
-                             unixMs,
-                             charging_point,
-                             result!.data.attributes.timeRequiredToFullSlow)
+            }
+            
+        case .v2:
+            self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:BatteryInfoV2?) -> Void in
+                if result != nil {
+                    print("Successfully retrieved battery state V2:")
+                    print("level: \(result!.data.attributes.batteryLevel)")
+                    if (result!.data.attributes.batteryTemperature != nil){
+                        print("battery temperature: \(result!.data.attributes.batteryTemperature!)")
+                    }
+                    var charging_point: String?
+                    if let power=result!.data.attributes.chargingInstantaneousPower {
+                        switch power {
+                        case -10...0:
+                            charging_point = "INVALID"
+                        case 0.1..<11000.0:
+                            charging_point = "SLOW"
+                        case 11000.0..<22000.0:
+                            charging_point = "FAST"
+                        case 22000.0..<100000.0:
+                            charging_point = "ACCELERATED"
+                        default:
+                            charging_point = "\(power)"
+                        }
+                    }
                     
-                }
-            } else {
-                DispatchQueue.main.async{
-                    callback(true,
-                             false,
-                             false,
-                             0,
-                             0.0,
-                             0,
-                             nil,
-                             nil)
+                    let dateString = result!.data.attributes.timestamp // e.g. "2020-01-31T17:39:52+01:00"
+                    
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.locale = NSLocale.current
+                    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                    let date = dateFormatter.date(from:dateString)!
+                    let unixMs = UInt64(date.timeIntervalSince1970) * 1000
+                    print(date)
+                    
+                    // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
+                    DispatchQueue.main.async{
+                        callback(false,
+                                 result!.data.attributes.chargingStatus == 1.0,
+                                 result!.data.attributes.plugStatus > 0,
+                                 UInt8(result!.data.attributes.batteryLevel),
+                                 result!.data.attributes.batteryAutonomy ?? -1.0,
+                                 unixMs,
+                                 charging_point,
+                                 result!.data.attributes.chargingRemainingTime)
+                        
+                    }
+                } else {
+                    DispatchQueue.main.async{
+                        callback(true,
+                                 false,
+                                 false,
+                                 0,
+                                 0.0,
+                                 0,
+                                 nil,
+                                 nil)
+                    }
                 }
             }
         }

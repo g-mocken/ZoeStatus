@@ -147,16 +147,19 @@ public class ServiceConnection {
         switch api {
         case .ZE:
             login_ZE(callback:c)
-        case .MyRv1, .MyRv2:
-            login_MyR(callback:c)
+        case .MyRv1:
+            login_MyR(callback:c, version: .v1)
+        case .MyRv2:
+            login_MyR(callback:c, version: .v2)
         case .none:
             ()
         }
     }
     
-    func login_MyR (callback:@escaping(Bool)->Void) {
+    func login_MyR (callback:@escaping(Bool)->Void, version: MyR.Version) {
         print ("New API login")
-        myR = MyR(username: userName!, password: password!)
+        
+        myR = MyR(username: userName!, password: password!, version: version)
         myR.handleLoginProcess(onError: {
             print("debug tokens:")
             if (self.myR.kamereonTokenInfo != nil){ self.myR.decodeToken(token: self.myR.kamereonTokenInfo!.idToken) } // = idToken
