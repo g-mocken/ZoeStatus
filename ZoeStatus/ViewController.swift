@@ -51,8 +51,18 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             sc.login(){(result:Bool)->() in
                 self.updateActivity(type:.stop)
                 if result {
-                    self.refreshButtonPressed(self.refreshButton) // auto-refresh after successful login
                     print("Login to Z.E. / MY.R. services successful")
+
+                    // auto-refresh after successful login
+                    self.updateActivity(type:.start)
+                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+
+                    self.updateActivity(type:.start)
+                    self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
+                    
+                    self.updateActivity(type: .start)
+                    self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
+
                 } else {
                     switch self.sc.api {
                     case .ZE:
@@ -99,7 +109,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
        
         if (sc.api != new_api) { // if there is an API change, force new login
             sc.api = new_api
-            print("API was switched, forcing new login")
+            print("Never started before or API was switched, forcing new login")
             sc.tokenExpiry = nil
         }
         
@@ -114,9 +124,13 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         
         sharedDefaults?.synchronize()
         
+        // load settings
+        if (sc.tokenExpiry == nil && sc.simulation != true){
+            performLogin() // auto-login, if never logged in before
+        }
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if ( appDelegate.shortcutItemToProcess != nil){
+        if /*( true){*/ (appDelegate.shortcutItemToProcess != nil){
             if preconditionTimer == nil { // avoid double start
                 preconditionCar(command: .now, date: nil)
             }
@@ -151,10 +165,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             refreshButton.addGestureRecognizer(longPress)
         }
         
-        // load settings
-        if (sc.tokenExpiry == nil && sc.simulation != true){
-            performLogin() // auto-login, if never logged in before
-        }
+
     }
 
     var preconditionRemoteTimer: Date?

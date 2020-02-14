@@ -70,7 +70,7 @@ public class ServiceConnection {
     
     
     fileprivate func extractExpiryDate(ofToken:String?)->UInt64? { // token is usually valid for 15min after it was issued
-        print ("Analysing token:")
+        print ("Analysing token...")
         if let token = ofToken{
             let indexFirstPeriod = token.firstIndex(of: ".") ?? token.startIndex
 
@@ -81,7 +81,7 @@ public class ServiceConnection {
 
             if let payload = String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]).fromBase64()
             {
-                print("Payload: \(payload)")
+                print("Decoded Payload: \(payload)")
                 
                 struct payloadResult: Codable{
                     let sub: String?
@@ -161,13 +161,11 @@ public class ServiceConnection {
         
         myR = MyR(username: userName!, password: password!, version: version)
         myR.handleLoginProcess(onError: {
-            print("debug tokens:")
-            if (self.myR.kamereonTokenInfo != nil){ self.myR.decodeToken(token: self.myR.kamereonTokenInfo!.idToken) } // = idToken
-            if (self.myR.tokenInfo != nil) { self.myR.decodeToken(token:  self.myR.tokenInfo!.id_token) } // = original gigya JWT
             DispatchQueue.main.async{callback(false)}
-        }, onSuccess: {
-            self.tokenExpiry = self.extractExpiryDate(ofToken: self.myR.tokenInfo!.id_token)
-            self.vehicleIdentification = self.myR.vehiclesInfo!.vehicleLinks[0].vin // to avoid crashes, when switching API versions
+        }, onSuccess: { vin, token in
+            print("Login MyR successful.")
+            self.tokenExpiry = self.extractExpiryDate(ofToken: token)
+            self.vehicleIdentification = vin // to avoid crashes, when switching API versions
             DispatchQueue.main.async{callback(true)}
         }) // later change latter to true
     }

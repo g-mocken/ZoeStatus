@@ -104,7 +104,7 @@ class MyR {
     }
     
     
-    func handleLoginProcess(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
+    func handleLoginProcess(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping(_ vin:String?, _ token:String?)->Void) {
         
         // Fetch URLs and API keys from a fixed URL
         let endpointUrl = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_en_GB.json")!
@@ -201,10 +201,10 @@ class MyR {
                                                         self.kamereonTokenInfo = result // save for later use
                                                         self.decodeToken(token:result!.accessToken) // "expires_in":3600000 = 1h ?
                                                         // not used, just investigating:
-                                                        print("refreshToken:")
-                                                        self.decodeToken(token: result!.refreshToken)
-                                                        print("idToken:")
-                                                        self.decodeToken(token: result!.idToken)
+//                                                        print("refreshToken:")
+//                                                        self.decodeToken(token: result!.refreshToken)
+//                                                        print("idToken:")
+//                                                        self.decodeToken(token: result!.idToken)
 
                                                         let endpointUrl = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
                                                         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
@@ -219,12 +219,12 @@ class MyR {
                                                         // Fetch VIN using the retrieved access token
                                                         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
                                                             if result != nil {
-                                                                print("Successfully retrieved Vehicles:")
+                                                                print("Successfully retrieved Vehicles.")
                                                                 print("VIN: \(result!.vehicleLinks[0].vin)")
-                                                                
                                                                 self.vehiclesInfo = result // save for later use
                                                                 
-                                                                actionCode()
+                                                                // must explicitly pass results, because the actionCode closure would use older captured values otherwise
+                                                                actionCode(result!.vehicleLinks[0].vin, self.tokenInfo!.id_token)
                                                                 
                                                             } else {
                                                                 errorCode()
@@ -355,16 +355,17 @@ class MyR {
          
          
          */
+        print ("\(apiKeysAndUrls!)")
+        print ("\(vehiclesInfo!)")
+        let endpointUrlV1 = URL(string: apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
+        let endpointUrlV2 = URL(string: apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v2/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
         
-        let endpointUrlV1 = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
-        let endpointUrlV2 = URL(string: self.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v2/cars/" + vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
-        
-        var components = URLComponents(url: (self.version == .v2 ? endpointUrlV2 : endpointUrlV1), resolvingAgainstBaseURL: false)!
+        var components = URLComponents(url: (version == .v2 ? endpointUrlV2 : endpointUrlV1), resolvingAgainstBaseURL: false)!
         components.queryItems = nil
         let headers = [
-            "x-gigya-id_token": self.tokenInfo!.id_token,
-            "apikey":self.apiKeysAndUrls!.servers.wiredProd.apikey,
-            "x-kamereon-authorization": "Bearer " + self.kamereonTokenInfo!.accessToken
+            "x-gigya-id_token": tokenInfo!.id_token,
+            "apikey": apiKeysAndUrls!.servers.wiredProd.apikey,
+            "x-kamereon-authorization": "Bearer " + kamereonTokenInfo!.accessToken
         ]
         // Fetch info using the retrieved access token
         
