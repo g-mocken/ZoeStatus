@@ -66,7 +66,9 @@ public class ServiceConnection {
     var xsrfToken:String? // can be re-used indefinitely, cannot be decoded (?)
     // An additional "refreshToken" is received and sent back a Cookie whenever a "token" is received/sent - apparently this is handled transparently by the framework without any explicit code.
     
-   let baseURL = "https://www.services.renault-ze.com/api"
+    var myR_context: MyR.Context?
+    
+    let baseURL = "https://www.services.renault-ze.com/api"
     
     
     fileprivate func extractExpiryDate(ofToken:String?)->UInt64? { // token is usually valid for 15min after it was issued
@@ -156,18 +158,28 @@ public class ServiceConnection {
         }
     }
     
+    public func fixMyRContext(){
+        myR.context = myR_context!
+        print ("check: \(myR.context.vehiclesInfo!)")
+    }
+    
     func login_MyR (callback:@escaping(Bool)->Void, version: MyR.Version) {
         print ("New API login")
         
         myR = MyR(username: userName!, password: password!, version: version)
         myR.handleLoginProcess(onError: {
             DispatchQueue.main.async{callback(false)}
-        }, onSuccess: { vin, token in
+        }, onSuccess: { vin, token, context in
             print("Login MyR successful.")
             self.tokenExpiry = self.extractExpiryDate(ofToken: token)
             self.vehicleIdentification = vin // to avoid crashes, when switching API versions
-            DispatchQueue.main.async{callback(true)}
+            self.myR_context = context // store context from parameter at runtime, not at capture time
+            DispatchQueue.main.async{
+                // watch out: myR.context is captured before the login, so the callback executes with no context
+                callback(true)
+            }
         }) // later change latter to true
+        
     }
         
     func login_ZE (callback:@escaping(Bool)->Void) {
