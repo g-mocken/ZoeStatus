@@ -506,8 +506,8 @@ class MyR {
     
     public func chargeNowRequest(callback:@escaping  (Bool) -> ()) {
         
-        let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/actions/charging-start")!
-        
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/actions/charging-start")!
+
         
         struct StartCharging: Codable {
             var data: Data
@@ -529,8 +529,10 @@ class MyR {
         }
         
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-        components.queryItems = nil
-        
+        components.queryItems = [
+            URLQueryItem(name: "country", value: "DE")
+        ]
+
         let headers = [
             "Content-Type": "application/vnd.api+json",
             "x-gigya-id_token": self.context.tokenInfo!.id_token,
