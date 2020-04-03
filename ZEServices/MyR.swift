@@ -593,7 +593,7 @@ class MyR {
             endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/hvac-status")!
 
         case .now, .later, .delete:
-            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/hvac-start")!
+            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/actions/hvac-start")!
         }
         
         
