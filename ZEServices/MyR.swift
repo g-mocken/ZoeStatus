@@ -68,6 +68,15 @@ class MyR {
     enum Version {
         case v1
         case v2
+        
+        var string: String {
+            switch self{
+            case .v1:
+                return "v1"
+            case .v2:
+                return "v2"
+            }
+        }
     }
     
     var username: String!
@@ -360,11 +369,12 @@ class MyR {
          */
         print ("\(context.apiKeysAndUrls!)")
         print ("\(context.vehiclesInfo!)")
-        let endpointUrlV1 = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
-        let endpointUrlV2 = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v2/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
-        
-        var components = URLComponents(url: (version == .v2 ? endpointUrlV2 : endpointUrlV1), resolvingAgainstBaseURL: false)!
-        components.queryItems = nil
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
+                
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+        components.queryItems = [
+            URLQueryItem(name: "country", value: "DE")
+        ]
         let headers = [
             "x-gigya-id_token": context.tokenInfo!.id_token,
             "apikey": context.apiKeysAndUrls!.servers.wiredProd.apikey,
@@ -580,9 +590,10 @@ class MyR {
         
         switch command {
         case .read:
-            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/hvac-status")!
+            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/hvac-status")!
+
         case .now, .later, .delete:
-            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/actions/hvac-start")!
+            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/hvac-start")!
         }
         
         
@@ -661,7 +672,10 @@ class MyR {
         }
         
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-        components.queryItems = nil
+        components.queryItems = [
+            URLQueryItem(name: "country", value: "DE")
+        ]
+
         
         let headers = [
             "Content-Type": "application/vnd.api+json",
@@ -736,7 +750,7 @@ class MyR {
          
          */
         
-        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/kmr/remote-services/car-adapter/v1/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/hvac-sessions")!
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/hvac-sessions")!
         
         let dateFormatter = DateFormatter()
         let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
@@ -749,7 +763,8 @@ class MyR {
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         components.queryItems = [
             URLQueryItem(name: "start", value: startDate),
-            URLQueryItem(name: "end", value: endDate)
+            URLQueryItem(name: "end", value: endDate),
+            URLQueryItem(name: "country", value: "DE")
         ]
         
         let headers = [
