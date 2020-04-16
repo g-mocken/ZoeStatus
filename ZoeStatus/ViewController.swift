@@ -504,7 +504,12 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         print("Precondition returns \(error)")
         switch command {
         case .now:
-                preconditionButton.isEnabled=true
+            if (error){
+                displayMessage(title: "Error", body: "Could not request to turn on A/C.")
+            } else {
+                displayMessage(title: "Success", body: "Requested to turn on A/C.")
+            }
+            preconditionButton.isEnabled=true
             
         case .later, .read, .delete:
             preconditionRemoteTimer = date // save current value, so the text field can be quickly restored
