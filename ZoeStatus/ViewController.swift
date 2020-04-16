@@ -132,9 +132,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if (appDelegate.shortcutItemToProcess != nil){
-            if preconditionTimer == nil { // avoid double start
-                preconditionCar(command: .now, date: nil)
-            }
+            preconditionCar(command: .now, date: nil)
             appDelegate.shortcutItemToProcess = nil // prevent double processing
         }
         
@@ -258,7 +256,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
         preconditionLast.font = .systemFont(ofSize: preconditionLast.font.pointSize  * rescaleFactor)
         preconditionResult.font = .systemFont(ofSize: preconditionResult.font.pointSize * rescaleFactor)
-        preconditionTime.font = .systemFont(ofSize: preconditionTime.font.pointSize * rescaleFactor)
 
         datePickerButton.titleLabel?.font = .systemFont(ofSize: (datePickerButton.titleLabel?.font.pointSize)! * rescaleFactor)
         preconditionButton.titleLabel?.font = .systemFont(ofSize: (preconditionButton.titleLabel?.font.pointSize)! * rescaleFactor)
@@ -300,7 +297,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
     @IBOutlet var mapButton: UIButton!
     @IBOutlet var preconditionButton: UIButton!
-    @IBOutlet var preconditionTime: UILabel!
     @IBOutlet var preconditionLast: UILabel!
     @IBOutlet var preconditionResult: UILabel!
     
@@ -503,47 +499,12 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         updateActivity(type:.stop)
     }
         
-    var preconditionTimer: Timer?
     
     func preconditionState(error: Bool, command:PreconditionCommand, date: Date?)->(){
         print("Precondition returns \(error)")
         switch command {
         case .now:
-            if (!error){
-                // success, start countdown timer
-                let userDefaults = UserDefaults.standard
-                let preconditionTimerCountdown = userDefaults.integer(forKey: "countdown_preference")
-                print ("countdown in seconds = \(preconditionTimerCountdown)")
-                let timerStartDate = Date.init() // current date & time
-                
-                preconditionTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-                    // timer periodic action:
-                    let seconds = Int(round(Date.init().timeIntervalSince(timerStartDate)))
-                    print("passed seconds = \(seconds)")
-                    
-                    self.preconditionTime.text = String(format: "⏲ %.02d:%02d", (preconditionTimerCountdown - seconds)/60, (preconditionTimerCountdown - seconds)%60 )
-                    
-                    
-                    if ( seconds >= preconditionTimerCountdown ){
-                        // timer expired after 5min countdown
-                        timer.invalidate()
-                        self.preconditionTime.isHidden=true
-                        self.preconditionButton.isHidden=false
-                        self.preconditionButton.isEnabled=true
-                    }
-                }
-                // initial setup of timer display
-                preconditionTime.text = String(format: "⏲ %.02d:%02d", preconditionTimerCountdown/60, preconditionTimerCountdown%60 )
-                preconditionTime.isHidden=false
-                preconditionButton.isHidden=true
-                preconditionButton.isEnabled=false
-                
-            } else {
-                // on error
-                preconditionTime.isHidden=true
                 preconditionButton.isEnabled=true
-                preconditionButton.isHidden=false
-            }
             
         case .later, .read, .delete:
             preconditionRemoteTimer = date // save current value, so the text field can be quickly restored
@@ -574,11 +535,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         preconditionButton.isEnabled=false
         print("Precondition")
 
-        confirmButtonPress(title:"Turn on air-conditioning?", body:"The car will immediately turn on A/C and leave it running for a couple of minutes. A configurable countdown will be displayed in place of the trigger button.", cancelButton: "Cancel", cancelCallback: {self.preconditionButton.isEnabled=true}, confirmButton: "Turn on A/C"){
-            
-            if self.preconditionTimer == nil {
+        confirmButtonPress(title:"Turn on air-conditioning?", body:"The car will immediately turn on A/C and leave it running for a couple of minutes.", cancelButton: "Cancel", cancelCallback: {self.preconditionButton.isEnabled=true}, confirmButton: "Turn on A/C"){
                 self.preconditionCar(command: .now, date: nil)
-            }
         }
     }
     

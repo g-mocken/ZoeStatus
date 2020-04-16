@@ -159,8 +159,10 @@ public class ServiceConnection {
     }
     
     public func fixMyRContext(){
-        myR.context = myR_context!
-        print ("check: \(myR.context.vehiclesInfo!)")
+        if !simulation {
+            myR.context = myR_context!
+            print ("check: \(myR.context.vehiclesInfo!)")
+        }
     }
     
     func login_MyR (callback:@escaping(Bool)->Void, version: MyR.Version) {
@@ -174,6 +176,7 @@ public class ServiceConnection {
             self.tokenExpiry = self.extractExpiryDate(ofToken: token)
             self.vehicleIdentification = vin // to avoid crashes, when switching API versions
             self.myR_context = context // store context from parameter at runtime, not at capture time
+            // it will be restored from there when it's needed in the callback. It would be cleaner to pass the context back to the callback - however, the callback is passed through several times and accross API versions. TODO when obsolete ZE-API support is dropped anyway.
             DispatchQueue.main.async{
                 // watch out: myR.context is captured before the login, so the callback executes with no context
                 callback(true)

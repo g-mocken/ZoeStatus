@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_0" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -90,12 +90,6 @@
                                     <action selector="preconditionButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="wvL-ea-De0"/>
                                 </connections>
                             </button>
-                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="…" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="byL-uD-5mU">
-                                <rect key="frame" x="69" y="312.5" width="16" height="27"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="23"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cpG-sm-aV3">
                                 <rect key="frame" x="236" y="221.5" width="29" height="22"/>
                                 <constraints>
@@ -182,7 +176,6 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="w8h-1m-ygi" secondAttribute="bottom" constant="10" id="6ft-xV-zgM"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="EZB-Lz-7JF" secondAttribute="trailing" constant="16" id="9Cj-XK-Kor"/>
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="2" id="9Ug-51-niE"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="byL-uD-5mU" secondAttribute="trailing" constant="16" id="AmI-eK-dkE"/>
                             <constraint firstItem="awZ-qK-aid" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="LNW-0z-EOz" secondAttribute="trailing" constant="10" id="D7W-6n-QiS"/>
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="DPm-QT-LjO"/>
                             <constraint firstItem="EZB-Lz-7JF" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Dwo-kW-Vcx"/>
@@ -214,8 +207,6 @@
                             <constraint firstItem="emx-tM-G9P" firstAttribute="top" secondItem="gNe-Er-rSr" secondAttribute="bottom" constant="22" id="lsH-To-amV"/>
                             <constraint firstItem="BbT-SG-YgW" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="bottom" id="njn-4d-vfB"/>
                             <constraint firstItem="EZB-Lz-7JF" firstAttribute="top" secondItem="kyp-fD-Rii" secondAttribute="bottom" constant="5" id="oxq-Ew-5BO"/>
-                            <constraint firstItem="byL-uD-5mU" firstAttribute="firstBaseline" secondItem="zkf-p5-tWr" secondAttribute="firstBaseline" id="sk5-jT-QP2"/>
-                            <constraint firstItem="byL-uD-5mU" firstAttribute="leading" secondItem="zkf-p5-tWr" secondAttribute="leading" id="wIc-al-vL4"/>
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="bottom" secondItem="rbz-gd-6J5" secondAttribute="top" id="z2J-G8-inz"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="rbz-gd-6J5" secondAttribute="trailing" constant="16" id="zNX-bC-VG8"/>
                         </constraints>
@@ -244,7 +235,6 @@
                         <outlet property="preconditionButton" destination="zkf-p5-tWr" id="Mwv-35-ejh"/>
                         <outlet property="preconditionLast" destination="kyp-fD-Rii" id="ngk-i4-4Xf"/>
                         <outlet property="preconditionResult" destination="yBo-fs-MF9" id="LPk-EQ-pgb"/>
-                        <outlet property="preconditionTime" destination="byL-uD-5mU" id="wKo-pA-PMJ"/>
                         <outlet property="range" destination="rbz-gd-6J5" id="yKj-c2-0Rm"/>
                         <outlet property="refreshButton" destination="emx-tM-G9P" id="8qj-DN-Qa6"/>
                         <outlet property="remaining" destination="b4a-jL-5hN" id="VNO-tA-OUC"/>
