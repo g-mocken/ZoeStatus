@@ -66,9 +66,9 @@ See below for a detailed description of the user interface.
 On the Apple Watch, start ZoeStatus only after you have sucessfully configured and tested the iPhone counterpart app. The watchOS app will automatically fetch the credentials from your phone, then. Force press the watch to trigger this transfer again, or to refresh the currently displayed data.
 
 
-<img src="./watch_01.png" border="1" width="250"> 
-<img src="./watch_02.png" border="1" width="250"> 
-<img src="./watch_03.png" border="1" width="250"> 
+<img src="./watch_01.PNG" border="1" width="250"> 
+<img src="./watch_02.PNG" border="1" width="250"> 
+<img src="./watch_03.PNG" border="1" width="250"> 
 
 ## Data privacy:
 The login credentials are stored locally on the iOS/watchOS device as unencrypted user defaults (this may change in the future), which means that they are part of your ordinary device backup. Consequently, data security depends on your selected backup scheme (iCloud, local-unencrypted, local-encrypted).
