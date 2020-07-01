@@ -540,7 +540,7 @@ class MyR {
             "x-kamereon-authorization": "Bearer " + self.context.kamereonTokenInfo!.accessToken
         ]
         // Fetch info using the retrieved access token
-        self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:StartCharging?) -> Void in
+        self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:    StartCharging?) -> Void in
             if result != nil {
                 print("Successfully sent request, got id: \(result!.data.id!)")
                 // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)

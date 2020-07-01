@@ -409,7 +409,7 @@ public class ServiceConnection {
                 self.cache.charge_level! += 1
             }
 
-            self.cache.remaining_range=234.5
+            self.cache.remaining_range=123.4
 
             if (self.cache.remaining_time == nil ){
                 self.cache.last_update=1550874142000
