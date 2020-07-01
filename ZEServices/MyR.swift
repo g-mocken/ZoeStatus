@@ -243,7 +243,30 @@ class MyR {
                                                             }
                                                         } // end of closure
                                                     } else {
-                                                        errorCode()
+                                                        print("Could not retrieve Kamereon token - try without anyway")
+                                                        let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
+                                                        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+                                                        components.queryItems = [
+                                                            URLQueryItem(name: "country", value: "DE")
+                                                        ]
+                                                        let headers = [
+                                                            "x-gigya-id_token": self.context.tokenInfo!.id_token,
+                                                            "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey
+                                                        ]
+                                                        // Fetch VIN using the retrieved access token
+                                                        self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
+                                                            if result != nil {
+                                                                print("Successfully retrieved Vehicles.")
+                                                                print("VIN: \(result!.vehicleLinks[0].vin)")
+                                                                self.context.vehiclesInfo = result // save for later use
+                                                                
+                                                                // must explicitly pass results, because the actionCode closure would use older captured values otherwise
+                                                                actionCode(result!.vehicleLinks[0].vin, self.context.tokenInfo!.id_token, self.context)
+                                                                
+                                                            } else {
+                                                                errorCode()
+                                                            }
+                                                        } // end of closure
                                                     }
                                                 } // end of closure
                                             } else {
@@ -268,7 +291,21 @@ class MyR {
         } // end of closure
     }
     
-    
+    func getHeaders()->[String:String] {
+        if context.kamereonTokenInfo != nil {
+            return [
+                "x-gigya-id_token": context.tokenInfo!.id_token,
+                "apikey": context.apiKeysAndUrls!.servers.wiredProd.apikey,
+                "x-kamereon-authorization": "Bearer " + context.kamereonTokenInfo!.accessToken
+            ]
+        } else {
+            return [
+                "x-gigya-id_token": context.tokenInfo!.id_token,
+                "apikey": context.apiKeysAndUrls!.servers.wiredProd.apikey
+            ]
+        }
+ 
+    }
     
     func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
         struct BatteryInfoV2: Codable {
@@ -375,11 +412,8 @@ class MyR {
         components.queryItems = [
             URLQueryItem(name: "country", value: "DE")
         ]
-        let headers = [
-            "x-gigya-id_token": context.tokenInfo!.id_token,
-            "apikey": context.apiKeysAndUrls!.servers.wiredProd.apikey,
-            "x-kamereon-authorization": "Bearer " + context.kamereonTokenInfo!.accessToken
-        ]
+        let headers = getHeaders()
+        
         // Fetch info using the retrieved access token
         
         switch version {
@@ -533,12 +567,10 @@ class MyR {
             URLQueryItem(name: "country", value: "DE")
         ]
 
-        let headers = [
-            "Content-Type": "application/vnd.api+json",
-            "x-gigya-id_token": self.context.tokenInfo!.id_token,
-            "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey,
-            "x-kamereon-authorization": "Bearer " + self.context.kamereonTokenInfo!.accessToken
-        ]
+     
+        var headers = getHeaders()
+        headers["Content-Type"] = "application/vnd.api+json" // add this special key
+                 
         // Fetch info using the retrieved access token
         self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:    StartCharging?) -> Void in
             if result != nil {
@@ -679,12 +711,7 @@ class MyR {
         ]
 
         
-        let headers = [
-            "Content-Type": "application/vnd.api+json",
-            "x-gigya-id_token": context.tokenInfo!.id_token,
-            "apikey": context.apiKeysAndUrls!.servers.wiredProd.apikey,
-            "x-kamereon-authorization": "Bearer " + context.kamereonTokenInfo!.accessToken
-        ]
+        let headers = getHeaders()
         
         if (command == .read) { // for .read GET status
             self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:PreconditionInfo?) -> Void in
@@ -769,11 +796,8 @@ class MyR {
             URLQueryItem(name: "country", value: "DE")
         ]
         
-        let headers = [
-            "x-gigya-id_token": context.tokenInfo!.id_token,
-            "apikey": context.apiKeysAndUrls!.servers.wiredProd.apikey,
-            "x-kamereon-authorization": "Bearer " + context.kamereonTokenInfo!.accessToken
-        ]
+        let headers = getHeaders()
+        
         // Fetch info using the retrieved access token
         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:HvacSessions?) -> Void in
             if result != nil {
