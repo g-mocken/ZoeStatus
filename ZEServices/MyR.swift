@@ -296,12 +296,14 @@ class MyR {
             return [
                 "x-gigya-id_token": context.tokenInfo!.id_token,
                 "apikey": context.apiKeysAndUrls!.servers.wiredProd.apikey,
-                "x-kamereon-authorization": "Bearer " + context.kamereonTokenInfo!.accessToken
+                "x-kamereon-authorization": "Bearer " + context.kamereonTokenInfo!.accessToken,
+                "Content-Type": "application/vnd.api+json"
             ]
         } else {
             return [
                 "x-gigya-id_token": context.tokenInfo!.id_token,
-                "apikey": context.apiKeysAndUrls!.servers.wiredProd.apikey
+                "apikey": context.apiKeysAndUrls!.servers.wiredProd.apikey,
+                "Content-Type": "application/vnd.api+json"
             ]
         }
  
@@ -413,7 +415,7 @@ class MyR {
             URLQueryItem(name: "country", value: "DE")
         ]
         let headers = getHeaders()
-        
+
         // Fetch info using the retrieved access token
         
         switch version {
@@ -566,15 +568,12 @@ class MyR {
         components.queryItems = [
             URLQueryItem(name: "country", value: "DE")
         ]
-
-     
-        var headers = getHeaders()
-        headers["Content-Type"] = "application/vnd.api+json" // add this special key
+        let headers = getHeaders()
                  
         // Fetch info using the retrieved access token
         self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:    StartCharging?) -> Void in
             if result != nil {
-                print("Successfully sent request, got id: \(result!.data.id!)")
+                print("Successfully sent request, got: \(result!.data)")
                 // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
                 DispatchQueue.main.async{
                     callback(false)
@@ -649,6 +648,7 @@ class MyR {
             var data: Data
             struct Data:Codable {
                 var type: String
+                var id: String?
                 var attributes:Attributes
                 struct Attributes:Codable {
                     var action: String
@@ -709,14 +709,12 @@ class MyR {
         components.queryItems = [
             URLQueryItem(name: "country", value: "DE")
         ]
-
-        
         let headers = getHeaders()
-        
+
         if (command == .read) { // for .read GET status
             self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:PreconditionInfo?) -> Void in
                 if result != nil {
-                    print("Successfully sent GET request, got: \(result!.data.attributes)")
+                    print("Successfully sent GET request, got: \(result!.data)")
                     let date:Date?
                     if let dateString = result!.data.attributes.nextHvacStartDate {
                         // e.g. "2020-02-03T06:30:00Z"
@@ -795,9 +793,8 @@ class MyR {
             URLQueryItem(name: "end", value: endDate),
             URLQueryItem(name: "country", value: "DE")
         ]
-        
         let headers = getHeaders()
-        
+
         // Fetch info using the retrieved access token
         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:HvacSessions?) -> Void in
             if result != nil {
