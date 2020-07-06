@@ -41,10 +41,25 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     
     fileprivate func performLogin() {
 
-
+        
         if ((sc.userName == nil) || (sc.password == nil)){
             print ("Enter user credentials in settings app!")
-            UIApplication.shared.open(URL(string : UIApplication.openSettingsURLString)!)
+            
+            let cancelCallback = {
+                UIApplication.shared.open(URL(string : UIApplication.openSettingsURLString)!)
+            }
+            
+            confirmButtonPress(title:"User credentials missing", body:"Press \"Settings\" to be taken directly to the settings app, where you should enter your \"MY Renault\" credentials. Press \"Simulation\" to automatically have special credentials entered for you, that allow using the app in simulation mode.", cancelButton: "Settings", cancelCallback: cancelCallback, confirmButton: "Simulation")
+            {
+                let userDefaults = UserDefaults.standard
+                userDefaults.setValue("simulation", forKey: "userName_preference")
+                userDefaults.setValue("simulation", forKey: "password_preference")
+                userDefaults.synchronize()
+                self.displayMessage(title: "Simulation mode activated", body: "In simulation mode, arbitrary data is displayed and commands are not sent to any real vehicle. To switch to normal mode, go to the settings app and enter your credentials there.")
+                NotificationCenter.default.post(name: Notification.Name("applicationDidBecomeActive"), object: nil)
+            }
+            
+            
         } else {
             
             updateActivity(type:.start)
@@ -555,9 +570,9 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 self.handleLogin(onError: {}){
                     self.updateActivity(type:.start)
                     self.sc.batteryStateUpdateRequest(callback: self.batteryStateUpdateRequest(error:))
-            }
-
-            
+                }
+                
+                
             }
         }
     }
