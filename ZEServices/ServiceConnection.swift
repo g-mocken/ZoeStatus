@@ -60,14 +60,10 @@ public class ServiceConnection {
     
     var vehicleIdentification:String?
     var activationCode: String?
-    var token:String? // valid for a certain time, then needs to be renewed. Can be decoded.
     public var tokenExpiry:UInt64?
-    var xsrfToken:String? // can be re-used indefinitely, cannot be decoded (?)
-    // An additional "refreshToken" is received and sent back a Cookie whenever a "token" is received/sent - apparently this is handled transparently by the framework without any explicit code.
     
     var myR_context: MyR.Context?
     
-    let baseURL = "https://www.services.renault-ze.com/api"
     
     
     fileprivate func extractExpiryDate(ofToken:String?)->UInt64? { // token is usually valid for 15min after it was issued
@@ -351,55 +347,6 @@ public class ServiceConnection {
     }
 
 
-    
-    
-    
-    
-    public func batteryStateUpdateRequest(callback:@escaping  (Bool) -> ()) {
-        if simulation {
-            print ("batteryStateUpdateRequest: simulated")
-            DispatchQueue.main.async {
-                callback(false)
-            }
-            return
-        }
-        
-        let batteryURL = baseURL + "/vehicle/" + vehicleIdentification! + "/battery"
-        
-        let tString = ""
-        let uploadData = tString.data(using: String.Encoding.utf8)
-        
-        let url = URL(string: batteryURL)!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(token!)", forHTTPHeaderField: "Authorization")
-        request.setValue("\(xsrfToken!)", forHTTPHeaderField: "X-XSRF-TOKEN")
-        
-        let task = URLSession.shared.uploadTask(with: request, from: uploadData) { data, response, error in
-            if let error = error {
-                //print ("error: \(error)")
-                os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
-                DispatchQueue.main.async {
-                    callback(true)
-                }
-                return
-            }
-            guard let response2 = response as? HTTPURLResponse,
-                (200...299).contains(response2.statusCode) else {
-                    print ("server error")
-                    print ((response as! HTTPURLResponse).description)
-                    DispatchQueue.main.async {
-                        callback(true)
-                    }
-                    return
-            }
-            // there is no reply to analyze, so just proceed with the callback
-            DispatchQueue.main.async {
-                callback(false)
-            }
-        }
-        task.resume()
-    }
     
     
     

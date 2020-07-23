@@ -549,32 +549,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     }
     
 
-    @objc func longPress(_ guesture: UILongPressGestureRecognizer) {
-        if guesture.state == UIGestureRecognizer.State.began {
-            
-            print("request state after long press of refresh!")
-            confirmButtonPress(title:"Request battery state update?", body:"Will instruct the back-end to fetch a battery state update from the car.", cancelButton: "Cancel", cancelCallback: { }, confirmButton: "Update")
-            {
-                self.handleLogin(onError: {}){
-                    self.updateActivity(type:.start)
-                    self.sc.batteryStateUpdateRequest(callback: self.batteryStateUpdateRequest(error:))
-                }
-                
-                
-            }
-        }
-    }
-    
-    func batteryStateUpdateRequest(error: Bool)->(){
-        
-        if (error){
-            displayMessage(title: "Error", body: "Could not request battery state, probably because of rate limiting by the back-end.")
-            
-        } else {
-            displayMessage(title: "Successfully requested battery state update.", body: "The request may take several minutes to complete or fail entirely. Depending on configuration, a text message or email may be triggered. To fetch the updated state from the back-end, use the refresh button.")
-        }
-        updateActivity(type:.stop)
-    }
     
     @IBOutlet var chargeNowButton: UIButton!
     @IBAction func chargeNowButtonPressed(_ sender: Any) {
