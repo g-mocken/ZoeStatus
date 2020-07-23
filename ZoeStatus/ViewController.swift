@@ -81,8 +81,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
                 } else {
                     switch self.sc.api {
-                    case .ZE:
-                        self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
                     case .MyRv1, .MyRv2:
                         self.displayMessage(title: "Error", body:"Failed to login to MY.R. services.")
                     case .none:
@@ -171,14 +169,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         } else {
             mapButton.isHidden = true
         }
-
-        refreshButton.gestureRecognizers?.removeAll()
-        if (ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference")) == .ZE){ // only supported for ZE api
-            // add guesture recognizer
-            let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
-            refreshButton.addGestureRecognizer(longPress)
-        }
-        
 
     }
 
@@ -390,8 +380,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                     actionCode()
                 } else {
                     switch self.sc.api {
-                    case .ZE:
-                        self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
                     case .MyRv1, .MyRv2:
                         self.displayMessage(title: "Error", body:"Failed to login to MY.R. services.")
                     case .none:
