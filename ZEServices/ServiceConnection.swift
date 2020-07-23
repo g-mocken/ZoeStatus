@@ -62,7 +62,6 @@ public class ServiceConnection {
     var activationCode: String?
     public var tokenExpiry:UInt64?
     
-    var myR_context: MyR.Context?
     
     
     
@@ -119,7 +118,7 @@ public class ServiceConnection {
         return nil
     }
     
-    public func login (callback c:@escaping(Bool)->Void) {
+    public func login (callback:@escaping(Bool)->Void) {
     
         os_log("login", log: serviceLog, type: .default)
         
@@ -131,51 +130,49 @@ public class ServiceConnection {
         }
         if simulation {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                c(true)
+                callback(true)
             }
             return
         }
         
         guard (userName != nil && password != nil) else{
-            c(false)
+            callback(false)
             return
         }
 
+        let storeContextThenRunCallback = { (success:Bool, context:MyR.Context?)->() in
+            if (success) {
+                self.myR.context = context!
+            }
+            print ("check: \(self.myR.context.vehiclesInfo!)")
+            callback(success)
+        }
+        
         switch api {
         case .MyRv1:
-            login_MyR(callback:c, version: .v1)
+            login_MyR(callback:storeContextThenRunCallback, version: .v1)
         case .MyRv2:
-            login_MyR(callback:c, version: .v2)
+            login_MyR(callback:storeContextThenRunCallback, version: .v2)
         case .none:
             ()
         }
     }
     
-    public func fixMyRContext(){
-        if !simulation {
-            myR.context = myR_context!
-            print ("check: \(myR.context.vehiclesInfo!)")
-        }
-    }
     
-    func login_MyR (callback:@escaping(Bool)->Void, version: MyR.Version) {
+    func login_MyR (callback:@escaping(Bool, MyR.Context?)->Void, version: MyR.Version) {
         print ("New API login")
         
         myR = MyR(username: userName!, password: password!, version: version)
         myR.handleLoginProcess(onError: {
-            DispatchQueue.main.async{callback(false)}
+            DispatchQueue.main.async{callback(false, nil)}
         }, onSuccess: { vin, token, context in
             print("Login MyR successful.")
             self.tokenExpiry = self.extractExpiryDate(ofToken: token)
             self.vehicleIdentification = vin // to avoid crashes, when switching API versions
-            self.myR_context = context // store context from parameter at runtime, not at capture time
-            // it will be restored from there when it's needed in the callback. It would be cleaner to pass the context back to the callback - however, the callback is passed through several times and accross API versions. TODO when obsolete ZE-API support is dropped anyway.
             DispatchQueue.main.async{
-                // watch out: myR.context is captured before the login, so the callback executes with no context
-                callback(true)
+                callback(true, context)
             }
         }) // later change latter to true
-        
     }
         
 

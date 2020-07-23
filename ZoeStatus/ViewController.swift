@@ -67,7 +67,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 self.updateActivity(type:.stop)
                 if result {
                     print("Login to Z.E. / MY.R. services successful")
-                    self.sc.fixMyRContext() // restore login context at runtime, so no previously captured nil-context is used for the following
 
                     // auto-refresh after successful login
                     self.updateActivity(type:.start)
