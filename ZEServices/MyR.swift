@@ -119,7 +119,7 @@ class MyR {
     func handleLoginProcess(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping(_ vin:String?, _ token:String?, _ context:Context)->Void) {
         
         // Fetch URLs and API keys from a fixed URL
-        let endpointUrl = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_en_GB.json")!
+        let endpointUrl = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_de_DE.json")!
         let components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: nil) { (result:ApiKeyResult?) -> Void in
             if result != nil {
@@ -151,7 +151,8 @@ class MyR {
                         let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getAccountInfo")!
                         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                         components.queryItems = [
-                            URLQueryItem(name: "oauth_token", value: self.context.sessionInfo!.sessionInfo.cookieValue)
+                            URLQueryItem(name: "login_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
+                            URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey),
                         ]
                         
                         // Fetch person ID from the same URL using the retrieved session key
@@ -165,7 +166,8 @@ class MyR {
                                 let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getJWT")!
                                 var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                                 components.queryItems = [
-                                    URLQueryItem(name: "oauth_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
+                                    URLQueryItem(name: "login_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
+                                    URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey),
                                     URLQueryItem(name: "fields", value: "data.personId,data.gigyaDataCenter"),
                                     URLQueryItem(name: "expiration", value: "900")
                                 ]

@@ -143,8 +143,8 @@ public class ServiceConnection {
         let storeContextThenRunCallback = { (success:Bool, context:MyR.Context?)->() in
             if (success) {
                 self.myR.context = context!
+                print ("check: \(self.myR.context.vehiclesInfo!)")
             }
-            print ("check: \(self.myR.context.vehiclesInfo!)")
             callback(success)
         }
         
