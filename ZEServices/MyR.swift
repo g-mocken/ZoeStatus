@@ -314,7 +314,7 @@ class MyR {
  
     }
     
-    func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+    func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?) -> ()) {
         struct BatteryInfoV2: Codable {
             var data: Data
             struct Data: Codable {
@@ -466,7 +466,8 @@ class MyR {
                                  result!.data.attributes.rangeHvacOff ?? -1.0,
                                  unixMs,
                                  charging_point,
-                                 result!.data.attributes.timeRequiredToFullSlow)
+                                 result!.data.attributes.timeRequiredToFullSlow,
+                                 result!.data.attributes.batteryTemperature)
                         
                     }
                 } else {
@@ -477,6 +478,7 @@ class MyR {
                                  0,
                                  0.0,
                                  0,
+                                 nil,
                                  nil,
                                  nil)
                     }
@@ -527,7 +529,8 @@ class MyR {
                                  result!.data.attributes.batteryAutonomy ?? -1.0,
                                  unixMs,
                                  charging_point,
-                                 result!.data.attributes.chargingRemainingTime)
+                                 result!.data.attributes.chargingRemainingTime,
+                                 result!.data.attributes.batteryTemperature)
                         
                     }
                 } else {
@@ -538,6 +541,7 @@ class MyR {
                                  0,
                                  0.0,
                                  0,
+                                 nil,
                                  nil,
                                  nil)
                     }

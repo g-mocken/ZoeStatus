@@ -256,7 +256,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     
     
     
-       func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->(){
+    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?,battery_temperature:Int?)->(){
             
             if (error){
                 displayMessage(title: "Error", body: "Could not obtain battery state.")
@@ -295,7 +295,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         } else {
             handleLogin(onError: {}){
                 self.updateActivity(type:.start)
-                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
             }
         }
     }

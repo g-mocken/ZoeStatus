@@ -166,7 +166,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
             sc.login(){(result:Bool)->() in
                 if (result){
                     self.updateActivity(type:.start)
-                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
 
                 } else {
                     self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
@@ -181,7 +181,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
                     if result {
                         print("renewed expired token!")
                         self.updateActivity(type:.start)
-                        self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                        self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
                         
                     } else {
                         self.displayMessage(title: "Error", body:"Failed to renew expired token.")
@@ -192,7 +192,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
                         self.sc.login(){(result:Bool)->() in
                             if (result){
                                 self.updateActivity(type:.start)
-                                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
 
                             } else {
                                 self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
@@ -206,7 +206,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
                 print("token still valid!")
             
                 updateActivity(type:.start)
-                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
             }
         }
     }
@@ -233,7 +233,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
     }
     
     
-    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->(){
+    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?, battery_temperature:Int?)->(){
         
         if (error){
             displayMessage(title: "Error", body: "Could not obtain battery state.")

@@ -70,7 +70,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
                     // auto-refresh after successful login
                     self.updateActivity(type:.start)
-                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
 
                     self.updateActivity(type:.start)
                     self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
@@ -290,6 +290,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
      */
     
     @IBOutlet var level: UILabel!
+    @IBOutlet var temperature: UILabel!
     @IBOutlet var range: UILabel!
     @IBOutlet var update: UILabel!
     @IBOutlet var charger: UILabel!
@@ -430,7 +431,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 
         handleLogin(onError: {}){
             self.updateActivity(type:.start)
-            self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+            self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
 
             self.updateActivity(type:.start)
             self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
@@ -445,13 +446,14 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     
     
     
-    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->(){
+    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?, battery_temperature:Int?)->(){
         
         if (error){
             displayMessage(title: "Error", body: "Could not obtain battery state.")
             
         } else {
             level.text = String(format: "🔋%3d%%", charge_level)
+            temperature.text = battery_temperature != nil ? String(format: "%2d°", battery_temperature!) : "…"
             if (remaining_range >= 0.0){
             range.text = String(format: "🛣️ %3.0f km", remaining_range.rounded()) // 📏
             rangeForMap = remaining_range * 1000.0

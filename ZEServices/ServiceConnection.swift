@@ -33,6 +33,7 @@ public class ServiceConnection {
         public var last_update: UInt64? //TimeInterval
         public var charging_point: String?
         public var remaining_time: Int?
+        public var battery_temperature: Int?
     }
     var cache = Cache()
     
@@ -197,7 +198,7 @@ public class ServiceConnection {
 
 
     
-    public func batteryState(callback c:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+    public func batteryState(callback c:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?) -> ()) {
         os_log("batteryState", log: serviceLog, type: .default)
 
         cache.timestamp = Date()
@@ -234,7 +235,8 @@ public class ServiceConnection {
                   self.cache.remaining_range!,
                   self.cache.last_update!,
                   self.cache.charging_point!,
-                  self.cache.remaining_time!)
+                  self.cache.remaining_time!,
+                  self.cache.battery_temperature!)
             }
             return
         }
@@ -247,10 +249,10 @@ public class ServiceConnection {
             ()
         }
     }
-    func batteryState_MyR(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?) -> ()) {
+    func batteryState_MyR(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?) -> ()) {
         
         myR.batteryState(callback:
-            {error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time in
+            {error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time, battery_temperature in
                 self.cache.charging=charging
                 self.cache.plugged=plugged
                 self.cache.charge_level=charge_level
@@ -258,7 +260,8 @@ public class ServiceConnection {
                 self.cache.last_update=last_update
                 self.cache.charging_point=charging_point
                 self.cache.remaining_time=remaining_time
-                callback(error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time)
+                self.cache.battery_temperature=battery_temperature
+                callback(error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time,battery_temperature)
             }
         )
 
