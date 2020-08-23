@@ -317,4 +317,26 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
        
 
     }
+    @IBAction func triggerAirConditioning() {
+        
+        print("A/C trigger!")
+        if ((sc.userName == nil) || (sc.password == nil)){
+            
+            let dismiss = WKAlertAction(title: "Dismiss", style: WKAlertActionStyle.cancel, handler: {
+                self.requestNewCredentialsButtonPressed()
+            })
+            
+            presentAlert(withTitle:"Error", message:"No user credentials present.", preferredStyle: WKAlertControllerStyle.alert, actions:[dismiss])
+            
+            
+        } else {
+            handleLogin(onError: {}){
+                self.updateActivity(type:.start)
+                
+                self.sc.precondition(command: .now, date: nil, callback: {_,_,_ in          self.updateActivity(type: .stop)})
+            }
+        }
+        
+        
+    }
 }
