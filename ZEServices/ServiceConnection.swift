@@ -279,14 +279,14 @@ public class ServiceConnection {
     }
     
 
-    public func precondition(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
+    public func precondition(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?, Float?) -> ()) {
         
         os_log("precondition", log: serviceLog, type: .default)
 
         if simulation {
             print ("precondition: simulated")
             DispatchQueue.main.async {
-                callback(false, command, date)
+                callback(false, command, date, 12.3)
             }
             return
         }
@@ -306,7 +306,7 @@ public class ServiceConnection {
         }
     }
     
-    public func precondition_MyR(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
+    public func precondition_MyR(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?, Float?) -> ()) {
         myR.precondition(command: command, date: date, callback: callback)
     }
     
@@ -317,26 +317,26 @@ public class ServiceConnection {
     
     
     public func airConditioningLastState(callback c:@escaping  (Bool, UInt64, String?, String?) -> ()) {
-
+        
         os_log("airConditioningLastState", log: serviceLog, type: .default)
-
+        
         if simulation {
             print ("airConditioningLastState: simulated")
             DispatchQueue.main.async {
                 c(false,
-                         1550874142000,
-                         "-",
-                         "SUCCESS")
+                  1550874142000,
+                  "-",
+                  "SUCCESS")
             }
             return
         }
         
         switch api {
-               case .MyRv1, .MyRv2:
-                airConditioningLastState_MyR(callback:c)
-               case .none:
-                   ()
-               }
+        case .MyRv1, .MyRv2:
+            airConditioningLastState_MyR(callback:c)
+        case .none:
+            ()
+        }
     }
     
     public func airConditioningLastState_MyR(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {

@@ -333,7 +333,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
             handleLogin(onError: {}){
                 self.updateActivity(type:.start)
                 
-                self.sc.precondition(command: .now, date: nil, callback: {_,_,_ in          self.updateActivity(type: .stop)})
+                self.sc.precondition(command: .now, date: nil, callback: {_,_,_,_ in          self.updateActivity(type: .stop)})
             }
         }
         

@@ -303,6 +303,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     @IBOutlet var preconditionButton: UIButton!
     @IBOutlet var preconditionLast: UILabel!
     @IBOutlet var preconditionResult: UILabel!
+    @IBOutlet var temperatureResult: UILabel!
     
     fileprivate func displayMessage(title: String, body: String) {
         let defaultAction = UIAlertAction(title: "Dismiss",
@@ -486,23 +487,23 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 preconditionLast.text = timestampToDateString(timestamp: date)
                 switch (result!) {
                 case "ERROR":
-                    preconditionResult.text = "🌡 ❌"
+                    preconditionResult.text = "🌬 ❌"
                     break
                 case "SUCCESS":
-                    preconditionResult.text = "🌡 ✅"
+                    preconditionResult.text = "🌬 ✅"
                     break
                 default:
-                    preconditionResult.text = "🌡 …"
+                    preconditionResult.text = "🌬 …"
                 }
             } else {
-                preconditionResult.text = "🌡 …"
+                preconditionResult.text = "🌬 …"
             }
         }
         updateActivity(type:.stop)
     }
         
     
-    func preconditionState(error: Bool, command:PreconditionCommand, date: Date?)->(){
+    func preconditionState(error: Bool, command:PreconditionCommand, date: Date?, externalTemperature: Float? )->(){
         print("Precondition returns \(error)")
         switch command {
         case .now:
@@ -524,6 +525,9 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 }
             } else {
                 datePickerButton.setTitle("⏰ error", for: .normal)
+            }
+            if command == .read && externalTemperature != nil {
+                temperatureResult.text = "🌡 \(externalTemperature!)°"
             }
         }
         

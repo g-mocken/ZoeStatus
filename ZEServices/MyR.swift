@@ -58,11 +58,12 @@ class MyR {
     }
 
     struct VehiclesInfo: Codable {
-           var vehicleLinks:[vehicles]
-           struct vehicles: Codable {
-               var vin: String
-           }
-       }
+        var vehicleLinks:[vehicles]
+        struct vehicles: Codable {
+            var vin: String
+            var mileage: Int
+        }
+    }
     
   
     enum Version {
@@ -235,6 +236,7 @@ class MyR {
                                                             if result != nil {
                                                                 print("Successfully retrieved Vehicles.")
                                                                 print("VIN: \(result!.vehicleLinks[0].vin)")
+                                                                print("Mileage: \(result!.vehicleLinks[0].mileage)")
                                                                 self.context.vehiclesInfo = result // save for later use
                                                                 
                                                                 // must explicitly pass results, because the actionCode closure would use older captured values otherwise
@@ -260,6 +262,7 @@ class MyR {
                                                             if result != nil {
                                                                 print("Successfully retrieved Vehicles.")
                                                                 print("VIN: \(result!.vehicleLinks[0].vin)")
+                                                                print("Mileage: \(result!.vehicleLinks[0].mileage)")
                                                                 self.context.vehiclesInfo = result // save for later use
                                                                 
                                                                 // must explicitly pass results, because the actionCode closure would use older captured values otherwise
@@ -493,14 +496,16 @@ class MyR {
                         switch power {
                         case -10...0:
                             charging_point = "INVALID"
+/*
                         case 0.1..<11000.0:
                             charging_point = "SLOW"
                         case 11000.0..<22000.0:
                             charging_point = "FAST"
                         case 22000.0..<100000.0:
                             charging_point = "ACCELERATED"
+*/
                         default:
-                            charging_point = "\(power)"
+                            charging_point = "\(power/1000.0) kW"
                         }
                     }
                     
@@ -619,7 +624,7 @@ class MyR {
 
 
      */
-    public func precondition(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?) -> ()) {
+    public func precondition(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?, Float?) -> ()) {
         
         let endpointUrl:URL
         
@@ -700,7 +705,7 @@ class MyR {
         } else {
             uploadData = try? JSONEncoder().encode(precondition)
             if (uploadData == nil) {
-                callback(false, command, date)
+                callback(false, command, date, nil)
                 return
             } else {
                 print(String(data: uploadData!, encoding: .utf8)!)
@@ -717,6 +722,7 @@ class MyR {
             self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:PreconditionInfo?) -> Void in
                 if result != nil {
                     print("Successfully sent GET request, got: \(result!.data)")
+                    print("External temperature: \(result!.data.attributes.externalTemperature)")
                     let date:Date?
                     if let dateString = result!.data.attributes.nextHvacStartDate {
                         // e.g. "2020-02-03T06:30:00Z"
@@ -728,11 +734,11 @@ class MyR {
                         date = nil
                     }
                     DispatchQueue.main.async{
-                        callback(false, command, date)
+                        callback(false, command, date, result!.data.attributes.externalTemperature)
                     }
                 } else {
                     DispatchQueue.main.async{
-                        callback(true, command, date)
+                        callback(true, command, date, nil)
                     }
                 }
             }
@@ -742,11 +748,11 @@ class MyR {
                     print("Successfully sent POST request, got: \(result!.data)")
                     // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
                     DispatchQueue.main.async{
-                        callback(false, command, date)
+                        callback(false, command, date, nil)
                     }
                 } else {
                     DispatchQueue.main.async{
-                        callback(true, command, date)
+                        callback(true, command, date, nil)
                     }
                 }
             }
