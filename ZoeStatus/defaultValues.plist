@@ -6,5 +6,7 @@
 	<false/>
 	<key>api_preference</key>
 	<integer>1</integer>
+	<key>units_preference</key>
+	<integer>1</integer>
 </dict>
 </plist>
