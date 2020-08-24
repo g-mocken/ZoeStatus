@@ -82,6 +82,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         let userName = sharedDefaults?.string(forKey:"userName")
         let password = sharedDefaults?.string(forKey:"password")
         let api = sharedDefaults?.integer(forKey: "api")
+        let units = sharedDefaults?.integer(forKey: "units")
        //print("\(userName) \(password)")
         
         // launch app on tap in widget
@@ -96,7 +97,8 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         sc.userName = userName
         sc.password = password
         sc.api = ServiceConnection.ApiVersion(rawValue: api!)
-
+        sc.units = ServiceConnection.Units(rawValue: units!)
+        
         if sc.userName == "simulation", sc.password == "simulation"
         {
             sc.simulation = true
@@ -223,7 +225,12 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
             self.level.text = String(format: "🔋%3d%%", levelCache!)
         }
         if remainingRangeCache != nil {
-            self.range.text = String(format: "🛣️ %3.0f km", remainingRangeCache!)
+            if (sc.units == .Metric){
+                self.range.text = String(format: "🛣️ %3.0f km", remainingRangeCache!)
+            } else {
+                self.range.text = String(format: "🛣️ %3.0f mi", remainingRangeCache!/sc.kmPerMile)
+            }
+            
         }
         if last_update_cache != nil {
             self.update.text = timestampToDateString(timestamp: last_update_cache!)
@@ -243,7 +250,14 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
             self.level.text = String(format: "🔋%3d%%", charge_level)
             levelCache = charge_level
             if (remaining_range >= 0.0){
-                self.range.text = String(format: "🛣️ %3.0f km", remaining_range.rounded())
+                
+                if (sc.units == .Metric){
+                    self.range.text = String(format: "🛣️ %3.0f km", remaining_range.rounded())
+                } else {
+                    self.range.text = String(format: "🛣️ %3.0f mi", (remaining_range/sc.kmPerMile).rounded())
+                }
+
+                
             } else {
                 self.range.text = String(format: "🛣️ …")
             }

@@ -122,6 +122,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         
         sc.userName = userDefaults.string(forKey: "userName_preference")
         sc.password = userDefaults.string(forKey: "password_preference")
+        sc.units = ServiceConnection.Units(rawValue: userDefaults.integer(forKey: "units_preference"))
+
         let new_api = ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference"))
        
         if (sc.api != new_api) { // if there is an API change, force new login
@@ -138,7 +140,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
        
         
         sharedDefaults?.set(sc.api!.rawValue, forKey: "api")
-        
+        sharedDefaults?.set(sc.units!.rawValue, forKey: "units")
+
         sharedDefaults?.synchronize()
         
         // load settings
@@ -261,6 +264,9 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         remaining.font = .systemFont(ofSize: remaining.font.pointSize * rescaleFactor)
         charging.font = .systemFont(ofSize: charging.font.pointSize * rescaleFactor)
         plugged.font = .systemFont(ofSize: plugged.font.pointSize * rescaleFactor)
+        temperature.font = .systemFont(ofSize: temperature.font.pointSize * rescaleFactor)
+        temperatureResult.font = .systemFont(ofSize: temperatureResult.font.pointSize * rescaleFactor)
+        totalMileage.font = .systemFont(ofSize: totalMileage.font.pointSize * rescaleFactor)
 
         preconditionLast.font = .systemFont(ofSize: preconditionLast.font.pointSize  * rescaleFactor)
         preconditionResult.font = .systemFont(ofSize: preconditionResult.font.pointSize * rescaleFactor)
@@ -464,8 +470,12 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             level.text = String(format: "🔋%3d%%", charge_level)
             temperature.text = battery_temperature != nil ? String(format: "%2d°", battery_temperature!) : "…"
             if (remaining_range >= 0.0){
-            range.text = String(format: "🛣️ %3.0f km", remaining_range.rounded()) // 📏
-            rangeForMap = remaining_range * 1000.0
+                if sc.units == .Metric {
+                    range.text = String(format: "🛣️ %3.0f km", remaining_range.rounded()) // 📏
+                } else {
+                    range.text = String(format: "🛣️ %3.0f mi", (remaining_range / sc.kmPerMile).rounded()) // 📏
+                }
+                rangeForMap = remaining_range * 1000.0
             } else {
                 range.text = String(format: "🛣️ …") // 📏
                 rangeForMap = nil
@@ -489,7 +499,11 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
     func cockpitState(error:Bool, total_mileage:Float?){
         if total_mileage != nil {
+            if (sc.units == .Metric){
                 totalMileage.text =  String(format: "%.2f0 km", total_mileage!)
+            } else {
+                totalMileage.text =  String(format: "%.2f0 mi", total_mileage!/sc.kmPerMile)
+            }
         } else {
             totalMileage.text = "…"
         }

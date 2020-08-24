@@ -55,10 +55,18 @@ public class ServiceConnection {
         case MyRv2
     }
     
+    public enum Units: Int {
+        case Metric = 1
+        case Imperial
+    }
+    
+    public let kmPerMile = Float(1.609344)
+
     public var simulation: Bool = false
     public var userName:String?
     public var password:String?
     public var api:ApiVersion?
+    public var units:Units?
     
     var vehicleIdentification:String?
     var activationCode: String?

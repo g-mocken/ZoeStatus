@@ -39,15 +39,17 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     fileprivate func extractCredentialsFromContext(_ context: [String:Any]) {
         print("Extracting credentials from: \(context.description)")
         
-        if let userName = context["userName"], let password = context["password"], let api = context["api"] {
+        if let userName = context["userName"], let password = context["password"], let api = context["api"], let units = context["units"] {
             sc.userName =  userName as? String
             sc.password = password as? String
             sc.api = ServiceConnection.ApiVersion(rawValue: (api as? Int) ?? 0)
+            sc.units = ServiceConnection.Units(rawValue: (units as? Int) ?? 0)
             // store preferences
             let userDefaults = UserDefaults.standard
             userDefaults.set(sc.userName, forKey: "userName_preference")
             userDefaults.set(sc.password, forKey: "password_preference")
             userDefaults.set(sc.api?.rawValue, forKey: "api_preference")
+            userDefaults.set(sc.units?.rawValue, forKey: "units_preference")
             userDefaults.synchronize()
         }
     }
@@ -265,7 +267,13 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
                         
                 level.setText(String(format: "🔋%3d %%", charge_level))
                 if (remaining_range >= 0.0){
-                range.setText(String(format: "🛣️ %3.0f km", remaining_range.rounded()))
+                    if (sc.units == .Metric){
+                        range.setText(String(format: "🛣️ %3.0f km", remaining_range.rounded()))
+                    } else {
+                        range.setText(String(format: "🛣️ %3.0f mi", (remaining_range/sc.kmPerMile).rounded()))
+                    }
+
+                    
                 } else {
                     range.setText(String(format: "🛣️ …"))
                 }

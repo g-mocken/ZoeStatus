@@ -101,6 +101,9 @@ class MyR {
     }
     var context = Context()
     
+    let country = "DE" // GB"
+    let language = "de_DE" //en_GB"
+    
     let serviceLog = OSLog(subsystem: "com.grm.ZEServices", category: "ZOE-MYR")
 
     
@@ -120,7 +123,7 @@ class MyR {
     func handleLoginProcess(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping(_ vin:String?, _ token:String?, _ context:Context)->Void) {
         
         // Fetch URLs and API keys from a fixed URL
-        let endpointUrl = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_de_DE.json")!
+        let endpointUrl = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_" + language + ".json")!
         let components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: nil) { (result:ApiKeyResult?) -> Void in
             if result != nil {
@@ -184,7 +187,7 @@ class MyR {
                                         let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/persons/"+self.context.accountInfo!.data.personId)!
                                         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                                         components.queryItems = [
-                                            URLQueryItem(name: "country", value: "DE")
+                                            URLQueryItem(name: "country", value: self.country)
                                         ]
                                         let headers = [
                                             "x-gigya-id_token":self.context.tokenInfo!.id_token,
@@ -202,7 +205,7 @@ class MyR {
                                                 let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/token")!
                                                 var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                                                 components.queryItems = [
-                                                    URLQueryItem(name: "country", value: "DE")
+                                                    URLQueryItem(name: "country", value: self.country)
                                                 ]
                                                 let headers = [
                                                     "x-gigya-id_token":self.context.tokenInfo!.id_token,
@@ -224,7 +227,7 @@ class MyR {
                                                         let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
                                                         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                                                         components.queryItems = [
-                                                            URLQueryItem(name: "country", value: "DE")
+                                                            URLQueryItem(name: "country", value: self.country)
                                                         ]
                                                         let headers = [
                                                             "x-gigya-id_token": self.context.tokenInfo!.id_token,
@@ -251,7 +254,7 @@ class MyR {
                                                         let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
                                                         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                                                         components.queryItems = [
-                                                            URLQueryItem(name: "country", value: "DE")
+                                                            URLQueryItem(name: "country", value: self.country)
                                                         ]
                                                         let headers = [
                                                             "x-gigya-id_token": self.context.tokenInfo!.id_token,
@@ -417,7 +420,7 @@ class MyR {
                 
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         components.queryItems = [
-            URLQueryItem(name: "country", value: "DE")
+            URLQueryItem(name: "country", value: self.country)
         ]
         let headers = getHeaders()
 
@@ -595,7 +598,7 @@ class MyR {
                     
             var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
             components.queryItems = [
-                URLQueryItem(name: "country", value: "DE")
+                URLQueryItem(name: "country", value: self.country)
             ]
             let headers = getHeaders()
 
@@ -665,7 +668,7 @@ class MyR {
         
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         components.queryItems = [
-            URLQueryItem(name: "country", value: "DE")
+            URLQueryItem(name: "country", value: self.country)
         ]
         let headers = getHeaders()
                  
@@ -806,7 +809,7 @@ class MyR {
         
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         components.queryItems = [
-            URLQueryItem(name: "country", value: "DE")
+            URLQueryItem(name: "country", value: self.country)
         ]
         let headers = getHeaders()
 
@@ -891,7 +894,7 @@ class MyR {
         components.queryItems = [
             URLQueryItem(name: "start", value: startDate),
             URLQueryItem(name: "end", value: endDate),
-            URLQueryItem(name: "country", value: "DE")
+            URLQueryItem(name: "country", value: self.country)
         ]
         let headers = getHeaders()
 
