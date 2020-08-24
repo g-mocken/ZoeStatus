@@ -26,6 +26,12 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="…" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Eum-pQ-EyL" userLabel="TotalMileage">
+                                <rect key="frame" x="19" y="113.5" width="10" height="14.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🛣️ …" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rbz-gd-6J5">
                                 <rect key="frame" x="16" y="101.5" width="124" height="75.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="63"/>
@@ -187,6 +193,7 @@
                             <constraint firstItem="kyp-fD-Rii" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="5np-fS-WGP"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="w8h-1m-ygi" secondAttribute="bottom" constant="10" id="6ft-xV-zgM"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="EZB-Lz-7JF" secondAttribute="trailing" constant="16" id="9Cj-XK-Kor"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Eum-pQ-EyL" secondAttribute="trailing" constant="16" id="9MD-JN-W5i"/>
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="2" id="9Ug-51-niE"/>
                             <constraint firstItem="awZ-qK-aid" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="LNW-0z-EOz" secondAttribute="trailing" constant="10" id="D7W-6n-QiS"/>
                             <constraint firstItem="AhF-MA-RmR" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="DPm-QT-LjO"/>
@@ -194,10 +201,11 @@
                             <constraint firstItem="icM-2f-gRD" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="183" id="E09-PQ-u1t"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="cpG-sm-aV3" secondAttribute="trailing" constant="16" id="FXi-O0-wLm"/>
                             <constraint firstItem="yBo-fs-MF9" firstAttribute="firstBaseline" secondItem="b4a-jL-5hN" secondAttribute="baseline" constant="60" id="Fc5-P7-Xto"/>
+                            <constraint firstItem="Eum-pQ-EyL" firstAttribute="leading" secondItem="rbz-gd-6J5" secondAttribute="leading" constant="3" id="G2L-YX-bgU"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="awZ-qK-aid" secondAttribute="trailing" constant="16" id="H3o-CN-cYN"/>
                             <constraint firstItem="rbz-gd-6J5" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="HtT-Oy-YXE"/>
                             <constraint firstItem="LNW-0z-EOz" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="IzJ-gj-143"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="svd-Ib-tDc" secondAttribute="trailing" symbolic="YES" id="Jh0-Tk-9Dx"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="svd-Ib-tDc" secondAttribute="trailing" constant="16" id="Jh0-Tk-9Dx"/>
                             <constraint firstItem="19f-Aq-YyL" firstAttribute="bottom" secondItem="LNW-0z-EOz" secondAttribute="top" constant="-5" id="KV5-it-XL1"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="58S-DC-J8K" secondAttribute="trailing" constant="16" id="Kx0-lc-91j"/>
                             <constraint firstItem="LNW-0z-EOz" firstAttribute="bottom" secondItem="b4a-jL-5hN" secondAttribute="top" constant="-5" id="LHT-kI-RBY"/>
@@ -207,6 +215,7 @@
                             <constraint firstItem="yBo-fs-MF9" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="SRj-xO-8I6"/>
                             <constraint firstItem="58S-DC-J8K" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="yBo-fs-MF9" secondAttribute="trailing" constant="16" id="TFi-YC-FJf"/>
                             <constraint firstItem="icM-2f-gRD" firstAttribute="firstBaseline" secondItem="b4a-jL-5hN" secondAttribute="firstBaseline" id="TTR-KJ-8P9"/>
+                            <constraint firstItem="Eum-pQ-EyL" firstAttribute="top" secondItem="rbz-gd-6J5" secondAttribute="top" constant="12" id="Ubt-KG-h0c"/>
                             <constraint firstItem="awZ-qK-aid" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="183" id="Vvb-kK-pah"/>
                             <constraint firstItem="icM-2f-gRD" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="b4a-jL-5hN" secondAttribute="trailing" constant="10" id="XcW-CW-b1X"/>
                             <constraint firstItem="emx-tM-G9P" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="YUd-eY-rdI"/>
@@ -258,6 +267,7 @@
                         <outlet property="remaining" destination="b4a-jL-5hN" id="VNO-tA-OUC"/>
                         <outlet property="temperature" destination="svd-Ib-tDc" id="4dz-8F-Z2D"/>
                         <outlet property="temperatureResult" destination="58S-DC-J8K" id="YW5-GB-lyb"/>
+                        <outlet property="totalMileage" destination="Eum-pQ-EyL" id="ewC-np-Mp1"/>
                         <outlet property="update" destination="19f-Aq-YyL" id="3u1-Jg-M6m"/>
                     </connections>
                 </viewController>

@@ -34,6 +34,7 @@ public class ServiceConnection {
         public var charging_point: String?
         public var remaining_time: Int?
         public var battery_temperature: Int?
+        public var totalMileage: Float?
     }
     var cache = Cache()
     
@@ -227,6 +228,10 @@ public class ServiceConnection {
                 self.cache.remaining_time! -= 1
             }
 
+            if (self.cache.battery_temperature == nil){
+                self.cache.battery_temperature = 30
+            }
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 c(false,
                   self.cache.charging!,
@@ -264,7 +269,42 @@ public class ServiceConnection {
                 callback(error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time,battery_temperature)
             }
         )
+    }
+    
+    
+    
+    
+    public func cockpitState(callback c:@escaping  (Bool, Float?) -> ()) {
+        os_log("cockpitState", log: serviceLog, type: .default)
 
+        if simulation {
+            print ("cockpitState: simulated")
+            if (self.cache.totalMileage == nil) {
+                self.cache.totalMileage = 10000.0
+            } else {
+                self.cache.totalMileage! += 1.23
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                c(false,
+                  self.cache.totalMileage!)
+            }
+            return
+        }
+        
+        
+        switch api {
+        case .MyRv1, .MyRv2:
+            cockpitState_MyR(callback:c)
+        case .none:
+            ()
+        }
+    }
+
+    func cockpitState_MyR(callback:@escaping  (Bool, Float?) -> ()) {
+        myR.cockpitState(callback: {error, total_mileage in
+            self.cache.totalMileage = total_mileage
+            callback(error,total_mileage)
+        })
     }
 
     

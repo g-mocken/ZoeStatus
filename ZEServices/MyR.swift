@@ -550,6 +550,94 @@ class MyR {
         }
     }
     
+        
+    func cockpitState(callback:@escaping  (Bool, Float?) -> ()) {
+        
+        
+        /*
+         
+        v1:
+        Request: https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/xxxx/kamereon/kca/car-adapter/v1/cars/V.../cockpit?country=DE
+        {"data":{"type":"Car","id":"V...","attributes":{"totalMileage":55842}}}
+
+         
+        v2:
+        Request: https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/xxxx/kamereon/kca/car-adapter/v2/cars/V.../cockpit?country=DE
+        {"data":{"type":"Car","id":"V...","attributes":{"totalMileage":55842.21}}}
+
+         */
+        
+        struct cockpitInfoV1: Codable {
+                    var data: Data
+                    struct Data: Codable {
+                        var type: String
+                        var id: String
+                        var attributes: Attributes
+                        struct Attributes: Codable {
+                            var totalMileage: Int
+                        }
+                    }
+                }
+        
+        struct cockpitInfoV2: Codable {
+                var data: Data
+                struct Data: Codable {
+                    var type: String
+                    var id: String
+                    var attributes: Attributes
+                    struct Attributes: Codable {
+                        var totalMileage: Float
+                    }
+                }
+            }
+        
+            let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/cockpit")!
+                    
+            var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+            components.queryItems = [
+                URLQueryItem(name: "country", value: "DE")
+            ]
+            let headers = getHeaders()
+
+            // Fetch info using the retrieved access token
+            
+            switch version {
+            case .v1:
+                self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:cockpitInfoV1?) -> Void in
+                    if result != nil {
+                        print("Successfully retrieved cockpit state V1:")
+                        print("total mileage: \(result!.data.attributes.totalMileage) km")
+                        DispatchQueue.main.async{
+                            callback(false, Float(result!.data.attributes.totalMileage))
+                        }
+                    } else {
+                        DispatchQueue.main.async{
+                            callback(true, nil)
+                        }
+                    }
+                }
+                
+            case .v2:
+                self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:cockpitInfoV2?) -> Void in
+                    if result != nil {
+                        print("Successfully retrieved cockpit state V2:")
+                        print("total mileage: \(result!.data.attributes.totalMileage) km")
+
+                        DispatchQueue.main.async{
+                            callback(false, result!.data.attributes.totalMileage)
+                            
+                        }
+                    } else {
+                        DispatchQueue.main.async{
+                            callback(true, nil)
+                        }
+                    }
+                }
+            }
+        }
+    
+    
+    
     
     public func chargeNowRequest(callback:@escaping  (Bool) -> ()) {
         

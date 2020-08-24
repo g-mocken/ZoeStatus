@@ -78,6 +78,10 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                     self.updateActivity(type: .start)
                     self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
 
+                    self.updateActivity(type: .start)
+                    self.sc.cockpitState(callback: self.cockpitState(error:total_mileage:))
+
+                    
                 } else {
                     switch self.sc.api {
                     case .MyRv1, .MyRv2:
@@ -305,6 +309,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     @IBOutlet var preconditionLast: UILabel!
     @IBOutlet var preconditionResult: UILabel!
     @IBOutlet var temperatureResult: UILabel!
+    @IBOutlet var totalMileage: UILabel!
     
     fileprivate func displayMessage(title: String, body: String) {
         let defaultAction = UIAlertAction(title: "Dismiss",
@@ -438,6 +443,10 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             
             self.updateActivity(type: .start)
             self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
+            
+            self.updateActivity(type: .start)
+            self.sc.cockpitState(callback: self.cockpitState(error:total_mileage:))
+            
         }
     }
     
@@ -478,6 +487,15 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         updateActivity(type:.stop)
     }
 
+    func cockpitState(error:Bool, total_mileage:Float?){
+        if total_mileage != nil {
+                totalMileage.text =  String(format: "%.2f0 km", total_mileage!)
+        } else {
+            totalMileage.text = "…"
+        }
+        
+        updateActivity(type:.stop)
+    }
     
     func acLastState(error: Bool, date:UInt64, type:String?, result:String?)->(){
         
