@@ -265,8 +265,14 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         charging.font = .systemFont(ofSize: charging.font.pointSize * rescaleFactor)
         plugged.font = .systemFont(ofSize: plugged.font.pointSize * rescaleFactor)
         temperature.font = .systemFont(ofSize: temperature.font.pointSize * rescaleFactor)
+        temperatureVertical.constant *= rescaleFactor
+        temperatureHorizontal.constant *= rescaleFactor
+
         temperatureResult.font = .systemFont(ofSize: temperatureResult.font.pointSize * rescaleFactor)
+
         totalMileage.font = .systemFont(ofSize: totalMileage.font.pointSize * rescaleFactor)
+        totalMileageVertical.constant *= rescaleFactor
+        totalMileageHorizontal.constant *= rescaleFactor
 
         preconditionLast.font = .systemFont(ofSize: preconditionLast.font.pointSize  * rescaleFactor)
         preconditionResult.font = .systemFont(ofSize: preconditionResult.font.pointSize * rescaleFactor)
@@ -301,6 +307,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     
     @IBOutlet var level: UILabel!
     @IBOutlet var temperature: UILabel!
+    @IBOutlet var temperatureVertical: NSLayoutConstraint!
+    @IBOutlet var temperatureHorizontal: NSLayoutConstraint!
     @IBOutlet var range: UILabel!
     @IBOutlet var update: UILabel!
     @IBOutlet var charger: UILabel!
@@ -316,6 +324,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     @IBOutlet var preconditionResult: UILabel!
     @IBOutlet var temperatureResult: UILabel!
     @IBOutlet var totalMileage: UILabel!
+    @IBOutlet var totalMileageVertical: NSLayoutConstraint!
+    @IBOutlet var totalMileageHorizontal: NSLayoutConstraint!
     
     fileprivate func displayMessage(title: String, body: String) {
         let defaultAction = UIAlertAction(title: "Dismiss",

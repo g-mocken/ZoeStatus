@@ -266,8 +266,12 @@
                         <outlet property="refreshButton" destination="emx-tM-G9P" id="8qj-DN-Qa6"/>
                         <outlet property="remaining" destination="b4a-jL-5hN" id="VNO-tA-OUC"/>
                         <outlet property="temperature" destination="svd-Ib-tDc" id="4dz-8F-Z2D"/>
+                        <outlet property="temperatureHorizontal" destination="emy-7c-GPf" id="1ir-rg-koe"/>
                         <outlet property="temperatureResult" destination="58S-DC-J8K" id="YW5-GB-lyb"/>
+                        <outlet property="temperatureVertical" destination="kLY-uT-mud" id="C10-uE-AFV"/>
                         <outlet property="totalMileage" destination="Eum-pQ-EyL" id="ewC-np-Mp1"/>
+                        <outlet property="totalMileageHorizontal" destination="G2L-YX-bgU" id="ft7-E1-s49"/>
+                        <outlet property="totalMileageVertical" destination="Ubt-KG-h0c" id="2qL-sB-dO3"/>
                         <outlet property="update" destination="19f-Aq-YyL" id="3u1-Jg-M6m"/>
                     </connections>
                 </viewController>
