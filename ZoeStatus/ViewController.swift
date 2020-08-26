@@ -510,9 +510,9 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     func cockpitState(error:Bool, total_mileage:Float?){
         if total_mileage != nil {
             if (sc.units == .Metric){
-                totalMileage.text =  String(format: "%.2f0 km", total_mileage!)
+                totalMileage.text =  String(format: "%.1f km", total_mileage!)
             } else {
-                totalMileage.text =  String(format: "%.2f0 mi", total_mileage!/sc.kmPerMile)
+                totalMileage.text =  String(format: "%.1f mi", total_mileage!/sc.kmPerMile)
             }
         } else {
             totalMileage.text = "…"

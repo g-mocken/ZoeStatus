@@ -288,7 +288,7 @@ public class ServiceConnection {
         if simulation {
             print ("cockpitState: simulated")
             if (self.cache.totalMileage == nil) {
-                self.cache.totalMileage = 10000.0
+                self.cache.totalMileage = 123000.0
             } else {
                 self.cache.totalMileage! += 1.23
             }
