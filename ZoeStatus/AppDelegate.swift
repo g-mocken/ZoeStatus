@@ -34,9 +34,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
             if message["password"] != nil {
                 reply["password"] = password
             }
-            reply["api"] = userDefaults.integer(forKey: "api_preference") // cannot be nil
-            reply["units"] = userDefaults.integer(forKey: "units_preference") // cannot be nil
-
+            
+            if message["api"] != nil {
+                reply["api"] = userDefaults.integer(forKey: "api_preference") // cannot be nil
+            }
+            if message["units"] != nil {
+                reply["units"] = userDefaults.integer(forKey: "units_preference") // cannot be nil
+            }
         } else {
                 print ("no credentials to transfer present in iPhone") // should never happen, because user is forced to store some credentials
                 

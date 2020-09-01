@@ -72,7 +72,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     func requestCredentials(_ session: WCSession){
         if (session.activationState == .activated) {
             if session.isReachable{
-                let msg = ["userName":"", "password":""]
+                let msg = ["userName":"", "password":"", "api":"", "units":""]
                 session.sendMessage(msg, replyHandler: replyHandler, errorHandler: errorHandler)
             }
         }
@@ -291,7 +291,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     
     @IBAction func refreshStatus() {
         print("Refresh!")
-        if ((sc.userName == nil) || (sc.password == nil)){
+        if ((sc.userName == nil) || (sc.password == nil) || (sc.units == nil) ||  (sc.api == nil) ){
 
             let dismiss = WKAlertAction(title: "Dismiss", style: WKAlertActionStyle.cancel, handler: {
                 self.requestNewCredentialsButtonPressed()
@@ -313,7 +313,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         let dismiss = WKAlertAction(title: "Go", style: WKAlertActionStyle.default, handler: {
             if (self.session.activationState == .activated) {
                 if self.session.isReachable{
-                    let msg = ["userName":"", "password":""]
+                    let msg = ["userName":"", "password":"", "api":"", "units":""]
                     self.session.sendMessage(msg, replyHandler: self.replyHandler, errorHandler: self.errorHandler)
                 } else {
                     self.displayMessage(title: "Error", body: "iPhone is not reachable.")

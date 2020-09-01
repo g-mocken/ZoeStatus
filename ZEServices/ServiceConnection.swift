@@ -63,6 +63,7 @@ public class ServiceConnection {
     public let kmPerMile = Float(1.609344)
 
     public var simulation: Bool = false
+    
     public var userName:String?
     public var password:String?
     public var api:ApiVersion?
