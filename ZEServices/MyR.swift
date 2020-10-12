@@ -450,6 +450,12 @@ class MyR {
                             charging_point = "\(power)"
                         }
                     }
+
+                    // overwrite the above with power in kW if it is present
+                    if let power=result!.data.attributes.instantaneousPower {
+                        charging_point = "\(Float(power)/1000.0) kW"
+                    }
+                    
                     
                     let dateString = result!.data.attributes.lastUpdateTime // e.g. "2020-01-31T17:39:52+01:00"
                     
