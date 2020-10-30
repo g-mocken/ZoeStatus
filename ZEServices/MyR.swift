@@ -155,10 +155,13 @@ class MyR {
                         let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getAccountInfo")!
                         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                         components.queryItems = [
+                            /* old style */
+                            URLQueryItem(name: "oauth_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
+                            /* new style */
                             URLQueryItem(name: "login_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
-                            URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey),
+                            URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey)
                         ]
-                        
+                                        
                         // Fetch person ID from the same URL using the retrieved session key
                         self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:AccountInfo?) -> Void in
                             if result != nil {
@@ -170,8 +173,12 @@ class MyR {
                                 let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getJWT")!
                                 var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                                 components.queryItems = [
+                                    /* old style */
+                                    URLQueryItem(name: "oauth_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
+                                    /* new style */
                                     URLQueryItem(name: "login_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
                                     URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey),
+                                    /* other fields */
                                     URLQueryItem(name: "fields", value: "data.personId,data.gigyaDataCenter"),
                                     URLQueryItem(name: "expiration", value: "900")
                                 ]
