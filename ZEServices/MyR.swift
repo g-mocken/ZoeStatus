@@ -61,7 +61,6 @@ class MyR {
         var vehicleLinks:[vehicles]
         struct vehicles: Codable {
             var vin: String
-            var mileage: Int
         }
     }
     
@@ -246,7 +245,6 @@ class MyR {
                                                             if result != nil {
                                                                 print("Successfully retrieved vehicles with Kamereon token")
                                                                 print("VIN: \(result!.vehicleLinks[0].vin)")
-                                                                print("Mileage: \(result!.vehicleLinks[0].mileage)")
                                                                 self.context.vehiclesInfo = result // save for later use
                                                                 
                                                                 // must explicitly pass results, because the actionCode closure would use older captured values otherwise
@@ -272,7 +270,6 @@ class MyR {
                                                             if result != nil {
                                                                 print("Successfully retrieved vehicles without Kamereon token")
                                                                 print("VIN: \(result!.vehicleLinks[0].vin)")
-                                                                print("Mileage: \(result!.vehicleLinks[0].mileage)")
                                                                 self.context.vehiclesInfo = result // save for later use
                                                                 
                                                                 // must explicitly pass results, because the actionCode closure would use older captured values otherwise
