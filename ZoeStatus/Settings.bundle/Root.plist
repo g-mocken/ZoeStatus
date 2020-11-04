@@ -63,7 +63,7 @@
 				<integer>2</integer>
 			</array>
 			<key>DefaultValue</key>
-			<integer>1</integer>
+			<integer>2</integer>
 			<key>Titles</key>
 			<array>
 				<string>MY.R. v1</string>
@@ -118,7 +118,7 @@
 
 I may not be held responsible for any damage to your car or any inconveniences that you may run into as a result of using this app.
 
-The app may stop working at any time (e.g. when there is a change of the Renault Z.E. or MY Renault API).
+The app may stop working at any time (e.g. when there is a change of the MY Renault API).
 
 Use at your own risk!</string>
 		</dict>
