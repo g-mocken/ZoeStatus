@@ -108,13 +108,13 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
 
         if (sc.tokenExpiry == nil){
             
-            sc.login(){(result:Bool)->() in
+            sc.login(){(result:Bool, errorMessage:String?)->() in
                 self.updateActivity(type:.stop)
                 if result {
                     self.refreshButtonPressed(self.refreshButton) // auto-refresh after successful login
-                    print("Login to Z.E. services successful")
+                    print("Login to MY.R. services successful")
                 } else {
-                    self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
+                    self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(errorMessage!))")
                 }
             }
         }
@@ -165,13 +165,13 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         if (sc.tokenExpiry == nil){ // never logged in successfully
         
             updateActivity(type:.start)
-            sc.login(){(result:Bool)->() in
+            sc.login(){(result:Bool, errorMessage:String?)->() in
                 if (result){
                     self.updateActivity(type:.start)
                     self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
 
                 } else {
-                    self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
+                    self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(errorMessage!))")
                 }
                 self.updateActivity(type:.stop)
             }
@@ -191,13 +191,13 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
                         print("expired token NOT renewed!")
                         // instead of error, attempt new login right now:
                         self.updateActivity(type:.start)
-                        self.sc.login(){(result:Bool)->() in
+                        self.sc.login(){(result:Bool,errorMessage:String?)->() in
                             if (result){
                                 self.updateActivity(type:.start)
                                 self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
 
                             } else {
-                                self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
+                                self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(errorMessage!))")
                             }
                             self.updateActivity(type:.stop)
                         }

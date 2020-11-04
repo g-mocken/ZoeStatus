@@ -63,7 +63,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         } else {
             
             updateActivity(type:.start)
-            sc.login(){(result:Bool)->() in
+            sc.login(){(result:Bool, errorMessage:String?)->() in
                 self.updateActivity(type:.stop)
                 if result {
                     print("Login to Z.E. / MY.R. services successful")
@@ -85,7 +85,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 } else {
                     switch self.sc.api {
                     case .MyRv1, .MyRv2:
-                        self.displayMessage(title: "Error", body:"Failed to login to MY.R. services.")
+                        self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(errorMessage!))")
                     case .none:
                         self.displayMessage(title: "Error", body:"Failed to login because API is not set.")
                     }
@@ -397,13 +397,13 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         if (sc.tokenExpiry == nil){ // never logged in successfully
         
             updateActivity(type:.start)
-            sc.login(){(result:Bool)->() in
+            sc.login(){(result:Bool, errorMessage:String?)->() in
                 if (result){
                     actionCode()
                 } else {
                     switch self.sc.api {
                     case .MyRv1, .MyRv2:
-                        self.displayMessage(title: "Error", body:"Failed to login to MY.R. services.")
+                        self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(errorMessage!))")
                     case .none:
                         self.displayMessage(title: "Error", body:"Failed to login because API is not set.")
                     }
@@ -424,11 +424,11 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                         self.sc.tokenExpiry = nil // force new login next time
                         // instead of error, attempt new login right now:
                         self.updateActivity(type:.start)
-                        self.sc.login(){(result:Bool)->() in
+                        self.sc.login(){(result:Bool, errorMessage:String?)->() in
                             if (result){
                                 actionCode()
                             } else {
-                                self.displayMessage(title: "Error", body:"Failed to renew expired token and to login to Z.E. services.")
+                                self.displayMessage(title: "Error", body:"Failed to renew expired token and to login to MY.R. services." + " (\(errorMessage!))")
                                 errorCode()
                             }
                             self.updateActivity(type:.stop)

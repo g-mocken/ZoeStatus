@@ -215,11 +215,11 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         if (sc.tokenExpiry == nil){ // never logged in successfully
         
             updateActivity(type:.start)
-            sc.login(){(result:Bool)->() in
+            sc.login(){(result:Bool, errorMessage:String?)->() in
                 if (result){
                     actionCode()
                 } else {
-                    self.displayMessage(title: "Error", body:"Failed to login to Z.E. services.")
+                    self.displayMessage(title: "Error", body:"Failed to login to MY.R. services."  + " (\(errorMessage!))")
                     errorCode()
                 }
                 self.updateActivity(type:.stop)
@@ -237,11 +237,11 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
                         self.sc.tokenExpiry = nil // force new login next time
                         print("expired token NOT renewed!")
                         self.updateActivity(type:.start)
-                        self.sc.login(){(result:Bool)->() in
+                        self.sc.login(){(result:Bool, errorMessage:String?)->() in
                             if (result){
                                 actionCode()
                             } else {
-                                self.displayMessage(title: "Error", body:"Failed to renew expired token and to login to Z.E. services.")
+                                self.displayMessage(title: "Error", body:"Failed to renew expired token and to login to MY.R. services." + " (\(errorMessage!))")
                                 errorCode()
                             }
                             self.updateActivity(type:.stop)

@@ -129,7 +129,7 @@ public class ServiceConnection {
         return nil
     }
     
-    public func login (callback:@escaping(Bool)->Void) {
+    public func login (callback:@escaping(Bool, String?)->Void) {
     
         os_log("login", log: serviceLog, type: .default)
         
@@ -141,22 +141,22 @@ public class ServiceConnection {
         }
         if simulation {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                callback(true)
+                callback(true, nil)
             }
             return
         }
         
         guard (userName != nil && password != nil) else{
-            callback(false)
+            callback(false, "username/password missing")
             return
         }
 
-        let storeContextThenRunCallback = { (success:Bool, context:MyR.Context?)->() in
+        let storeContextThenRunCallback = { (success:Bool, context:MyR.Context?, errorMessage:String?)->() in
             if (success) {
                 self.myR.context = context!
                 print ("check: \(self.myR.context.vehiclesInfo!)")
             }
-            callback(success)
+            callback(success, errorMessage)
         }
         
         switch api {
@@ -170,18 +170,18 @@ public class ServiceConnection {
     }
     
     
-    func login_MyR (callback:@escaping(Bool, MyR.Context?)->Void, version: MyR.Version) {
+    func login_MyR (callback:@escaping(Bool, MyR.Context?, String?)->Void, version: MyR.Version) {
         print ("New API login")
         
         myR = MyR(username: userName!, password: password!, version: version)
-        myR.handleLoginProcess(onError: {
-            DispatchQueue.main.async{callback(false, nil)}
+        myR.handleLoginProcess(onError: { errorMessage in
+            DispatchQueue.main.async{callback(false, nil, errorMessage)}
         }, onSuccess: { vin, token, context in
             print("Login MyR successful.")
             self.tokenExpiry = self.extractExpiryDate(ofToken: token)
             self.vehicleIdentification = vin // to avoid crashes, when switching API versions
             DispatchQueue.main.async{
-                callback(true, context)
+                callback(true, context, nil)
             }
         }) // later change latter to true
     }

@@ -102,7 +102,7 @@ class MyR {
     var context = Context()
     
     let country = "DE" // GB"
-    let language = "de_DE" //en_GB"
+    let language = "de_DE" //"en_GB" // note that API and Kamereon key differ for GB and DE! But both work.
     
     let serviceLog = OSLog(subsystem: "com.grm.ZEServices", category: "ZOE-MYR")
 
@@ -120,7 +120,7 @@ class MyR {
     }
     
     
-    func handleLoginProcess(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping(_ vin:String?, _ token:String?, _ context:Context)->Void) {
+    func handleLoginProcess(onError errorCode:@escaping(_ errorMessage:String)->Void, onSuccess actionCode:@escaping(_ vin:String?, _ token:String?, _ context:Context)->Void) {
         
         // Fetch URLs and API keys from a fixed URL
         let endpointUrl = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_" + language + ".json")!
@@ -244,7 +244,7 @@ class MyR {
                                                         // Fetch VIN using the retrieved access token
                                                         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
                                                             if result != nil {
-                                                                print("Successfully retrieved Vehicles.")
+                                                                print("Successfully retrieved vehicles with Kamereon token")
                                                                 print("VIN: \(result!.vehicleLinks[0].vin)")
                                                                 print("Mileage: \(result!.vehicleLinks[0].mileage)")
                                                                 self.context.vehiclesInfo = result // save for later use
@@ -253,7 +253,7 @@ class MyR {
                                                                 actionCode(result!.vehicleLinks[0].vin, self.context.tokenInfo!.id_token, self.context)
                                                                 
                                                             } else {
-                                                                errorCode()
+                                                                errorCode("Error retrieving vehicles with Kamereon token")
                                                             }
                                                         } // end of closure
                                                     } else {
@@ -270,7 +270,7 @@ class MyR {
                                                         // Fetch VIN using the retrieved access token
                                                         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
                                                             if result != nil {
-                                                                print("Successfully retrieved Vehicles.")
+                                                                print("Successfully retrieved vehicles without Kamereon token")
                                                                 print("VIN: \(result!.vehicleLinks[0].vin)")
                                                                 print("Mileage: \(result!.vehicleLinks[0].mileage)")
                                                                 self.context.vehiclesInfo = result // save for later use
@@ -279,29 +279,29 @@ class MyR {
                                                                 actionCode(result!.vehicleLinks[0].vin, self.context.tokenInfo!.id_token, self.context)
                                                                 
                                                             } else {
-                                                                errorCode()
+                                                                errorCode("Error retrieving vehicles without Kamereon token")
                                                             }
                                                         } // end of closure
                                                     }
                                                 } // end of closure
                                             } else {
-                                                errorCode()
+                                                errorCode("Error retrieving Kamereon accounts")
                                             }
                                         } // end of closure
                                     } else {
-                                        errorCode()
+                                        errorCode("Error retrieving Gigya JWT token")
                                     }
                                 } // end of closure
                             } else {
-                                errorCode()
+                                errorCode("Error retrieving account info")
                             }
                         } // end of closure
                     } else {
-                        errorCode()
+                        errorCode("Error retrieving session key")
                     }
                 } // end of closure
             } else {
-                errorCode()
+                errorCode("Error retrieving targets and api keys")
             }
         } // end of closure
     }

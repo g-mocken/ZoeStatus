@@ -19,11 +19,11 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                
         if (sc.tokenExpiry == nil){ // never logged in successfully
         
-            sc.login(){(result:Bool)->() in
+            sc.login(){(result:Bool, errorMessage:String?)->() in
                 if (result){
                     actionCode()
                 } else {
-                    print("Failed to login to Z.E. services.")
+                    print("Failed to login to MY.R. services." + " (\(errorMessage!))")
                     errorCode()
                 }
             }
