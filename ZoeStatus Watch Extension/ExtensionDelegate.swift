@@ -9,6 +9,7 @@
 import WatchKit
 import WatchConnectivity
 import ZEServices_Watchos
+import ClockKit
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
     let sc=ServiceConnection.shared

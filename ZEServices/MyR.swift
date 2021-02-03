@@ -82,11 +82,13 @@ class MyR {
     var username: String!
     var password: String!
     var version:Version
+    var kamereon: String?
     
-    init(username u:String, password p:String, version v:Version) {
+    init(username u:String, password p:String, version v:Version, kamereon k:String) {
         username = u
         password = p
         version = v
+        kamereon = k
     }
     
     struct Context{
@@ -132,6 +134,12 @@ class MyR {
                 print("Gigya: \(result!.servers.gigyaProd.target), key=\(result!.servers.gigyaProd.apikey)")
                 
                 self.context.apiKeysAndUrls = result // save for later use
+                
+                // override Kamereon if a key is specified in user preferences:
+                if self.kamereon! != "" {
+                    print("Override Kamereon Key: " + self.kamereon!)
+                    self.context.apiKeysAndUrls!.servers.wiredProd.apikey = self.kamereon!
+                }
                 
                 // Fetch session key from the previously learned URL using the retreived API key
                 let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.login")!

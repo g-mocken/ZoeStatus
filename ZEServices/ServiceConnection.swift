@@ -66,6 +66,8 @@ public class ServiceConnection {
     
     public var userName:String?
     public var password:String?
+    public var kamereon:String?
+    
     public var api:ApiVersion?
     public var units:Units?
     
@@ -173,7 +175,7 @@ public class ServiceConnection {
     func login_MyR (callback:@escaping(Bool, MyR.Context?, String?)->Void, version: MyR.Version) {
         print ("New API login")
         
-        myR = MyR(username: userName!, password: password!, version: version)
+        myR = MyR(username: userName!, password: password!, version: version, kamereon: kamereon!)
         myR.handleLoginProcess(onError: { errorMessage in
             DispatchQueue.main.async{callback(false, nil, errorMessage)}
         }, onSuccess: { vin, token, context in

@@ -119,10 +119,33 @@ class ViewController: UIViewController, MapViewControllerDelegate {
          userDefaults.synchronize()
          }
          */
+
+        let newUserName = userDefaults.string(forKey: "userName_preference")
+        if ( sc.userName != newUserName )
+        {
+            sc.userName = newUserName
+            print("Never started before or Username was switched, forcing new login")
+            sc.tokenExpiry = nil
+        }
         
-        sc.userName = userDefaults.string(forKey: "userName_preference")
-        sc.password = userDefaults.string(forKey: "password_preference")
+        let newPassword = userDefaults.string(forKey: "password_preference")
+        if ( sc.password != newPassword )
+        {
+            sc.password = newPassword
+            print("Never started before or Password was switched, forcing new login")
+            sc.tokenExpiry = nil
+        }
+        
         sc.units = ServiceConnection.Units(rawValue: userDefaults.integer(forKey: "units_preference"))
+        
+        let newKamereon = userDefaults.string(forKey: "kamereon_preference")
+        if ( sc.kamereon != newKamereon )
+        {
+            sc.kamereon = newKamereon
+            print("Never started before or Kamereon was switched, forcing new login")
+            sc.tokenExpiry = nil
+        }
+        userDefaults.setValue(sc.kamereon, forKey: "kamereon_preference") // preset this field in current release
 
         let new_api = ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference"))
        
@@ -132,11 +155,13 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             sc.tokenExpiry = nil
         }
         
+
         // share preferences with widget:
         let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatus");
         sharedDefaults?.set(sc.userName, forKey: "userName")
         sharedDefaults?.set(sc.password, forKey: "password")
-        
+        sharedDefaults?.set(sc.kamereon, forKey: "kamereon")
+
        
         
         sharedDefaults?.set(sc.api!.rawValue, forKey: "api")

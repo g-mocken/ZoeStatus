@@ -83,6 +83,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         let password = sharedDefaults?.string(forKey:"password")
         let api = sharedDefaults?.integer(forKey: "api")
         let units = sharedDefaults?.integer(forKey: "units")
+        let kamereon = sharedDefaults?.string(forKey: "kamereon")
        //print("\(userName) \(password)")
         
         // launch app on tap in widget
@@ -98,6 +99,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         sc.password = password
         sc.api = ServiceConnection.ApiVersion(rawValue: api!)
         sc.units = ServiceConnection.Units(rawValue: units!)
+        sc.kamereon = kamereon
         
         if sc.userName == "simulation", sc.password == "simulation"
         {

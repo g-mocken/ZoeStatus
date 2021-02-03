@@ -39,17 +39,19 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     fileprivate func extractCredentialsFromContext(_ context: [String:Any]) {
         print("Extracting credentials from: \(context.description)")
         
-        if let userName = context["userName"], let password = context["password"], let api = context["api"], let units = context["units"] {
+        if let userName = context["userName"], let password = context["password"], let api = context["api"], let units = context["units"], let kamereon = context["kamereon"]{
             sc.userName =  userName as? String
             sc.password = password as? String
             sc.api = ServiceConnection.ApiVersion(rawValue: (api as? Int) ?? 0)
             sc.units = ServiceConnection.Units(rawValue: (units as? Int) ?? 0)
+            sc.kamereon = kamereon as? String
             // store preferences
             let userDefaults = UserDefaults.standard
             userDefaults.set(sc.userName, forKey: "userName_preference")
             userDefaults.set(sc.password, forKey: "password_preference")
             userDefaults.set(sc.api?.rawValue, forKey: "api_preference")
             userDefaults.set(sc.units?.rawValue, forKey: "units_preference")
+            userDefaults.set(sc.kamereon, forKey: "kamereon_preference")
             userDefaults.synchronize()
         }
     }
@@ -72,7 +74,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     func requestCredentials(_ session: WCSession){
         if (session.activationState == .activated) {
             if session.isReachable{
-                let msg = ["userName":"", "password":"", "api":"", "units":""]
+                let msg = ["userName":"", "password":"", "api":"", "units":"", "kamereon":""]
                 session.sendMessage(msg, replyHandler: replyHandler, errorHandler: errorHandler)
             }
         }
@@ -109,6 +111,8 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         sc.userName = userDefaults.string(forKey: "userName_preference")
         sc.password = userDefaults.string(forKey: "password_preference")
         sc.api = ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference"))
+        sc.kamereon = userDefaults.string(forKey: "kamereon_preference")
+
     }
     
     override func willActivate() {
@@ -313,7 +317,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         let dismiss = WKAlertAction(title: "Go", style: WKAlertActionStyle.default, handler: {
             if (self.session.activationState == .activated) {
                 if self.session.isReachable{
-                    let msg = ["userName":"", "password":"", "api":"", "units":""]
+                    let msg = ["userName":"", "password":"", "api":"", "units":"", "kamereon":""]
                     self.session.sendMessage(msg, replyHandler: self.replyHandler, errorHandler: self.errorHandler)
                 } else {
                     self.displayMessage(title: "Error", body: "iPhone is not reachable.")
