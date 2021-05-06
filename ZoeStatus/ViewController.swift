@@ -70,7 +70,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
                     // auto-refresh after successful login
                     self.updateActivity(type:.start)
-                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
+                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
 
                     self.updateActivity(type:.start)
                     self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
@@ -137,6 +137,13 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         }
         
         sc.units = ServiceConnection.Units(rawValue: userDefaults.integer(forKey: "units_preference"))
+
+        let newVehicle = userDefaults.integer(forKey: "vehicle_preference")
+        if (sc.vehicle != newVehicle){
+            sc.vehicle = newVehicle
+            print("Never started before or vehicle was switched, forcing new login")
+            sc.tokenExpiry = nil
+        }
         
         let newKamereon = userDefaults.string(forKey: "kamereon_preference")
         if ( sc.kamereon != newKamereon )
@@ -161,6 +168,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         sharedDefaults?.set(sc.userName, forKey: "userName")
         sharedDefaults?.set(sc.password, forKey: "password")
         sharedDefaults?.set(sc.kamereon, forKey: "kamereon")
+        sharedDefaults?.set(sc.vehicle, forKey: "vehicle")
 
        
         
@@ -348,6 +356,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     @IBOutlet var preconditionLast: UILabel!
     @IBOutlet var preconditionResult: UILabel!
     @IBOutlet var temperatureResult: UILabel!
+    @IBOutlet var vehicleResult: UILabel!
     @IBOutlet var totalMileage: UILabel!
     @IBOutlet var totalMileageVertical: NSLayoutConstraint!
     @IBOutlet var totalMileageHorizontal: NSLayoutConstraint!
@@ -477,7 +486,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 
         handleLogin(onError: {}){
             self.updateActivity(type:.start)
-            self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
+            self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
 
             self.updateActivity(type:.start)
             self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
@@ -496,7 +505,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     
     
     
-    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?, battery_temperature:Int?)->(){
+    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?, battery_temperature:Int?, vehicle_id:String?)->(){
         
         if (error){
             displayMessage(title: "Error", body: "Could not obtain battery state.")
@@ -527,6 +536,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             }
             self.plugged.text = plugged ? "🔌 ✅" : "🔌 ❌"
             self.charging.text = charging ? "⚡️ ✅" : "⚡️ ❌"
+            
+            self.vehicleResult.text = "🆔 \(vehicle_id ?? "…")"
         }
 
         updateActivity(type:.stop)

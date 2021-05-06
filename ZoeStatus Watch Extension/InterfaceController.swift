@@ -35,16 +35,18 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     // MARK: - Watch Connectivity
 
     var session: WCSession!
-    
+    let msg = ["userName":"", "password":"", "api":"", "units":"", "kamereon":"", "vehicle":""]
+
     fileprivate func extractCredentialsFromContext(_ context: [String:Any]) {
         print("Extracting credentials from: \(context.description)")
         
-        if let userName = context["userName"], let password = context["password"], let api = context["api"], let units = context["units"], let kamereon = context["kamereon"]{
+        if let userName = context["userName"], let password = context["password"], let api = context["api"], let units = context["units"], let kamereon = context["kamereon"], let vehicle = context["vehicle"]{
             sc.userName =  userName as? String
             sc.password = password as? String
             sc.api = ServiceConnection.ApiVersion(rawValue: (api as? Int) ?? 0)
             sc.units = ServiceConnection.Units(rawValue: (units as? Int) ?? 0)
             sc.kamereon = kamereon as? String
+            sc.vehicle = vehicle as? Int
             // store preferences
             let userDefaults = UserDefaults.standard
             userDefaults.set(sc.userName, forKey: "userName_preference")
@@ -52,6 +54,8 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
             userDefaults.set(sc.api?.rawValue, forKey: "api_preference")
             userDefaults.set(sc.units?.rawValue, forKey: "units_preference")
             userDefaults.set(sc.kamereon, forKey: "kamereon_preference")
+            userDefaults.set(sc.vehicle, forKey: "vehicle_preference")
+
             userDefaults.synchronize()
         }
     }
@@ -74,7 +78,6 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     func requestCredentials(_ session: WCSession){
         if (session.activationState == .activated) {
             if session.isReachable{
-                let msg = ["userName":"", "password":"", "api":"", "units":"", "kamereon":""]
                 session.sendMessage(msg, replyHandler: replyHandler, errorHandler: errorHandler)
             }
         }
@@ -111,7 +114,9 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         sc.userName = userDefaults.string(forKey: "userName_preference")
         sc.password = userDefaults.string(forKey: "password_preference")
         sc.api = ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference"))
+        sc.units = ServiceConnection.Units(rawValue: userDefaults.integer(forKey: "units_preference"))
         sc.kamereon = userDefaults.string(forKey: "kamereon_preference")
+        sc.vehicle = userDefaults.integer(forKey: "vehicle_preference")
 
     }
     
@@ -262,7 +267,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     
     
     
-    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?,battery_temperature:Int?)->(){
+    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?,battery_temperature:Int?,vehicle_id:String?)->(){
             
             if (error){
                 displayMessage(title: "Error", body: "Could not obtain battery state.")
@@ -307,7 +312,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         } else {
             handleLogin(onError: {}){
                 self.updateActivity(type:.start)
-                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
+                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
             }
         }
     }
@@ -317,8 +322,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         let dismiss = WKAlertAction(title: "Go", style: WKAlertActionStyle.default, handler: {
             if (self.session.activationState == .activated) {
                 if self.session.isReachable{
-                    let msg = ["userName":"", "password":"", "api":"", "units":"", "kamereon":""]
-                    self.session.sendMessage(msg, replyHandler: self.replyHandler, errorHandler: self.errorHandler)
+                    self.session.sendMessage(self.msg, replyHandler: self.replyHandler, errorHandler: self.errorHandler)
                 } else {
                     self.displayMessage(title: "Error", body: "iPhone is not reachable.")
                 }

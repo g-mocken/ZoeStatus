@@ -10,5 +10,7 @@
 	<integer>1</integer>
 	<key>kamereon_preference</key>
 	<string>Ae9FDWugRxZQAGm3Sxgk7uJn6Q4CGEA2</string>
+	<key>vehicle_preference</key>
+	<integer>0</integer>
 </dict>
 </plist>

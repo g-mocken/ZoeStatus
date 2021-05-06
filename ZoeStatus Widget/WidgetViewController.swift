@@ -84,6 +84,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         let api = sharedDefaults?.integer(forKey: "api")
         let units = sharedDefaults?.integer(forKey: "units")
         let kamereon = sharedDefaults?.string(forKey: "kamereon")
+        let vehicle = sharedDefaults?.integer(forKey: "vehicle")
        //print("\(userName) \(password)")
         
         // launch app on tap in widget
@@ -100,6 +101,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         sc.api = ServiceConnection.ApiVersion(rawValue: api!)
         sc.units = ServiceConnection.Units(rawValue: units!)
         sc.kamereon = kamereon
+        sc.vehicle = vehicle
         
         if sc.userName == "simulation", sc.password == "simulation"
         {
@@ -164,16 +166,29 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
     @IBOutlet var refreshButton: UIButton!
     @IBAction func refreshButtonPressed(_ sender: UIButton) {
         
+        let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatus");
+        sharedDefaults?.synchronize()
+        let newVehicle = sharedDefaults?.integer(forKey: "vehicle")
+        if (sc.vehicle != newVehicle){
+            sc.vehicle = newVehicle
+            print("Never started before or vehicle was switched, forcing new login")
+            sc.tokenExpiry = nil
+        }
+
         if (sc.tokenExpiry == nil){ // never logged in successfully
         
             updateActivity(type:.start)
             sc.login(){(result:Bool, errorMessage:String?)->() in
                 if (result){
                     self.updateActivity(type:.start)
-                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
+                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
 
                 } else {
                     self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(errorMessage!))")
+                    self.level.text = "🔋…"
+                    self.range.text = "🛣️ …"
+                    self.update.text = timestampToDateString(timestamp: nil)
+
                 }
                 self.updateActivity(type:.stop)
             }
@@ -185,7 +200,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
                     if result {
                         print("renewed expired token!")
                         self.updateActivity(type:.start)
-                        self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
+                        self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
                         
                     } else {
                         self.displayMessage(title: "Error", body:"Failed to renew expired token.")
@@ -196,7 +211,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
                         self.sc.login(){(result:Bool,errorMessage:String?)->() in
                             if (result){
                                 self.updateActivity(type:.start)
-                                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
+                                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
 
                             } else {
                                 self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(errorMessage!))")
@@ -210,7 +225,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
                 print("token still valid!")
             
                 updateActivity(type:.start)
-                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:))
+                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
             }
         }
     }
@@ -242,7 +257,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
     }
     
     
-    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?, battery_temperature:Int?)->(){
+    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?, battery_temperature:Int?, vehicle_id:String?)->(){
         
         if (error){
             displayMessage(title: "Error", body: "Could not obtain battery state.")

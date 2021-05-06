@@ -35,6 +35,7 @@ public class ServiceConnection {
         public var remaining_time: Int?
         public var battery_temperature: Int?
         public var totalMileage: Float?
+        public var vehicleId: String?
     }
     var cache = Cache()
     
@@ -70,6 +71,7 @@ public class ServiceConnection {
     
     public var api:ApiVersion?
     public var units:Units?
+    public var vehicle:Int?
     
     var vehicleIdentification:String?
     var activationCode: String?
@@ -175,7 +177,7 @@ public class ServiceConnection {
     func login_MyR (callback:@escaping(Bool, MyR.Context?, String?)->Void, version: MyR.Version) {
         print ("New API login")
         
-        myR = MyR(username: userName!, password: password!, version: version, kamereon: kamereon!)
+        myR = MyR(username: userName!, password: password!, version: version, kamereon: kamereon!, vehicle: vehicle!)
         myR.handleLoginProcess(onError: { errorMessage in
             DispatchQueue.main.async{callback(false, nil, errorMessage)}
         }, onSuccess: { vin, token, context in
@@ -210,7 +212,7 @@ public class ServiceConnection {
 
 
     
-    public func batteryState(callback c:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?) -> ()) {
+    public func batteryState(callback c:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?, String?) -> ()) {
         os_log("batteryState", log: serviceLog, type: .default)
 
         cache.timestamp = Date()
@@ -242,7 +244,9 @@ public class ServiceConnection {
             if (self.cache.battery_temperature == nil){
                 self.cache.battery_temperature = 30
             }
-            
+            if (self.cache.vehicleId == nil){
+                self.cache.vehicleId = "Simulated Vehicle"
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 c(false,
                   self.cache.charging!,
@@ -252,7 +256,8 @@ public class ServiceConnection {
                   self.cache.last_update!,
                   self.cache.charging_point!,
                   self.cache.remaining_time!,
-                  self.cache.battery_temperature!)
+                  self.cache.battery_temperature!,
+                  self.cache.vehicleId!)
             }
             return
         }
@@ -265,10 +270,10 @@ public class ServiceConnection {
             ()
         }
     }
-    func batteryState_MyR(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?) -> ()) {
+    func batteryState_MyR(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?, String?) -> ()) {
         
         myR.batteryState(callback:
-            {error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time, battery_temperature in
+            {error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time, battery_temperature, vehicle_id in
                 self.cache.charging=charging
                 self.cache.plugged=plugged
                 self.cache.charge_level=charge_level
@@ -277,7 +282,8 @@ public class ServiceConnection {
                 self.cache.charging_point=charging_point
                 self.cache.remaining_time=remaining_time
                 self.cache.battery_temperature=battery_temperature
-                callback(error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time,battery_temperature)
+                self.cache.vehicleId=vehicle_id
+                callback(error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time,battery_temperature,vehicle_id)
             }
         )
     }

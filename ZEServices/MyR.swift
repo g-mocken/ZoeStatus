@@ -81,14 +81,16 @@ class MyR {
     
     var username: String!
     var password: String!
-    var version:Version
+    var version: Version
     var kamereon: String?
+    var vehicle: Int
     
-    init(username u:String, password p:String, version v:Version, kamereon k:String) {
+    init(username u:String, password p:String, version v:Version, kamereon k:String, vehicle vid:Int) {
         username = u
         password = p
         version = v
         kamereon = k
+        vehicle = vid // index 0...4 for 1st...5th in GUI
     }
     
     struct Context{
@@ -252,12 +254,16 @@ class MyR {
                                                         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
                                                             if result != nil {
                                                                 print("Successfully retrieved vehicles with Kamereon token")
-                                                                print("VIN: \(result!.vehicleLinks[0].vin)")
-                                                                self.context.vehiclesInfo = result // save for later use
-                                                                
-                                                                // must explicitly pass results, because the actionCode closure would use older captured values otherwise
-                                                                actionCode(result!.vehicleLinks[0].vin, self.context.tokenInfo!.id_token, self.context)
-                                                                
+                                                                print("Number of vehicles in account = \(result!.vehicleLinks.count)")
+                                                                if self.vehicle >= result!.vehicleLinks.count {
+                                                                    errorCode("VIN index not found.")
+                                                                } else {
+                                                                    print("VIN[\(self.vehicle)]: \(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)")
+                                                                    self.context.vehiclesInfo = result // save for later use
+                                                                    
+                                                                    // must explicitly pass results, because the actionCode closure would use older captured values otherwise
+                                                                    actionCode(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
+                                                                }
                                                             } else {
                                                                 errorCode("Error retrieving vehicles with Kamereon token")
                                                             }
@@ -277,12 +283,16 @@ class MyR {
                                                         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
                                                             if result != nil {
                                                                 print("Successfully retrieved vehicles without Kamereon token")
-                                                                print("VIN: \(result!.vehicleLinks[0].vin)")
-                                                                self.context.vehiclesInfo = result // save for later use
-                                                                
-                                                                // must explicitly pass results, because the actionCode closure would use older captured values otherwise
-                                                                actionCode(result!.vehicleLinks[0].vin, self.context.tokenInfo!.id_token, self.context)
-                                                                
+                                                                print("Number of vehicles in account = \(result!.vehicleLinks.count)")
+                                                                if self.vehicle >= result!.vehicleLinks.count {
+                                                                    errorCode("VIN index not found.")
+                                                                } else {
+                                                                    print("VIN[\(self.vehicle)]: \(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)")
+                                                                    self.context.vehiclesInfo = result // save for later use
+                                                                    
+                                                                    // must explicitly pass results, because the actionCode closure would use older captured values otherwise
+                                                                    actionCode(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
+                                                                }
                                                             } else {
                                                                 errorCode("Error retrieving vehicles without Kamereon token")
                                                             }
@@ -329,7 +339,7 @@ class MyR {
  
     }
     
-    func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?) -> ()) {
+    func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?, String?) -> ()) {
         struct BatteryInfoV2: Codable {
             var data: Data
             struct Data: Codable {
@@ -428,7 +438,7 @@ class MyR {
          */
         print ("\(context.apiKeysAndUrls!)")
         print ("\(context.vehiclesInfo!)")
-        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/battery-status")!
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/battery-status")!
                 
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         components.queryItems = [
@@ -488,7 +498,8 @@ class MyR {
                                  unixMs,
                                  charging_point,
                                  result!.data.attributes.timeRequiredToFullSlow,
-                                 result!.data.attributes.batteryTemperature)
+                                 result!.data.attributes.batteryTemperature,
+                                 result!.data.id)
                         
                     }
                 } else {
@@ -499,6 +510,7 @@ class MyR {
                                  0,
                                  0.0,
                                  0,
+                                 nil,
                                  nil,
                                  nil,
                                  nil)
@@ -551,7 +563,8 @@ class MyR {
                                  unixMs,
                                  charging_point,
                                  result!.data.attributes.chargingRemainingTime,
-                                 result!.data.attributes.batteryTemperature)
+                                 result!.data.attributes.batteryTemperature,
+                                 result!.data.id)
                         
                     }
                 } else {
@@ -562,6 +575,7 @@ class MyR {
                                  0,
                                  0.0,
                                  0,
+                                 nil,
                                  nil,
                                  nil,
                                  nil)
@@ -612,7 +626,7 @@ class MyR {
                 }
             }
         
-            let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/cockpit")!
+            let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/cockpit")!
                     
             var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
             components.queryItems = [
@@ -662,7 +676,7 @@ class MyR {
     
     public func chargeNowRequest(callback:@escaping  (Bool) -> ()) {
         
-        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/actions/charging-start")!
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/actions/charging-start")!
 
         
         struct StartCharging: Codable {
@@ -743,10 +757,10 @@ class MyR {
         
         switch command {
         case .read:
-            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/hvac-status")!
+            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/hvac-status")!
 
         case .now, .later, .delete:
-            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/actions/hvac-start")!
+            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/actions/hvac-start")!
         }
         
         
@@ -898,7 +912,7 @@ class MyR {
          
          */
         
-        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks[0].vin + "/hvac-sessions")!
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/hvac-sessions")!
         
         let dateFormatter = DateFormatter()
         let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
