@@ -25,6 +25,8 @@ class MapViewController: UIViewController, MKMapViewDelegate {
 
     @IBOutlet var doneButton: UIButton!
     
+    @IBOutlet var doneButtonWidthConstraint: NSLayoutConstraint!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         locationManager.requestWhenInUseAuthorization()
@@ -35,10 +37,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         }
         print("viewDidLoad: rescaleFactor = \(rescaleFactor)")
 
-
-        let doneButtonWidthConstraint = NSLayoutConstraint(item: doneButton!, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1.0, constant: rescaleFactor * doneButton.bounds.width)
-        view.addConstraints([doneButtonWidthConstraint])
-
+        doneButtonWidthConstraint = NSLayoutConstraint(item: doneButton!, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1.0, constant: rescaleFactor * doneButton.bounds.width)
         
         rangeMap.userTrackingMode = .none
    

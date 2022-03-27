@@ -333,6 +333,7 @@
                     </view>
                     <connections>
                         <outlet property="doneButton" destination="x1z-i1-xWw" id="HJc-vb-p7h"/>
+                        <outlet property="doneButtonWidthConstraint" destination="gTZ-Em-j1D" id="KB7-8h-iSq"/>
                         <outlet property="rangeMap" destination="bfK-14-djc" id="5Rn-aU-MLD"/>
                     </connections>
                 </viewController>
