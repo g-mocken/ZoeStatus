@@ -483,7 +483,14 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     var count = 0
 
     @IBAction func refreshButtonPressed(_ sender: UIButton) {
-                
+              
+#if targetEnvironment(macCatalyst)
+    // UIKit running on macOS requires an explicit refresh of the preferences, because the notification is never triggered
+    self.applicationDidBecomeActive(notification: Notification(name: Notification.Name("applicationDidBecomeActive"), object: nil))
+#else
+
+#endif
+        
         handleLogin(onError: {}){
             self.updateActivity(type:.start)
             self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
