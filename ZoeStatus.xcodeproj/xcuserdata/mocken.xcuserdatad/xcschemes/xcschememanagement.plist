@@ -7,12 +7,17 @@
 		<key>ZEServices Watchos.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>5</integer>
+			<integer>6</integer>
 		</dict>
 		<key>ZEServices.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>2</integer>
+		</dict>
+		<key>ZoeStatus Intents Extension.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>5</integer>
 		</dict>
 		<key>ZoeStatus Watch (Complication).xcscheme_^#shared#^_</key>
 		<dict>
@@ -38,6 +43,11 @@
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>9A244443239473990001AF9B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9A2ABA5A28ED988800CFB487</key>
 		<dict>
 			<key>primary</key>
 			<true/>

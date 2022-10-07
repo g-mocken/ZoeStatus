@@ -9,6 +9,7 @@
 import UIKit
 import WatchConnectivity
 import os // for os_log
+import Intents
 
 let customLog = OSLog(subsystem: "com.grm.ZoeStatus", category: "ZOE")
 
@@ -107,7 +108,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
         // Override point for customization after application launch.
         print("didFinishLaunchingWithOptions")
         
-        
+        INPreferences.requestSiriAuthorization({ status in
+            if status == .authorized {
+                print("Ok - authorized")
+            }
+        })
+
         
         if let path = Bundle.main.path(forResource: "defaultValues", ofType: "plist") {
             let dictionary = NSDictionary(contentsOfFile: path) as! [String : Any]

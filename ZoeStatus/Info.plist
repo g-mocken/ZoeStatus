@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>$(PRODUCT_NAME)</string>
+	<string>ZOE Status</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -25,7 +25,7 @@
 			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>ZoeStatus</string>
+				<string>$(PRODUCT_NAME)</string>
 			</array>
 		</dict>
 	</array>
@@ -42,6 +42,8 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>The current position will be used only in order to display it on a map.</string>
+	<key>NSSiriUsageDescription</key>
+	<string>When asked, Siri can report on the charge state, capacity and range of your car.</string>
 	<key>UIApplicationShortcutItems</key>
 	<array>
 		<dict>

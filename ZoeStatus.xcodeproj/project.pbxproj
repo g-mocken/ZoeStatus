@@ -15,7 +15,7 @@
 		9A244456239556B60001AF9B /* ZEServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A244444239473990001AF9B /* ZEServices.framework */; };
 		9A368F1023E3415800DE95BF /* MyR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A368F0F23E3415800DE95BF /* MyR.swift */; };
 		9A368F1123E34A4000DE95BF /* MyR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A368F0F23E3415800DE95BF /* MyR.swift */; };
-		9A47C940237F5E00006A5FDB /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */; };
+		9A47C940237F5E00006A5FDB /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */; platformFilter = ios; };
 		9A47C943237F5E00006A5FDB /* WidgetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A47C942237F5E00006A5FDB /* WidgetViewController.swift */; };
 		9A47C946237F5E00006A5FDB /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A47C944237F5E00006A5FDB /* MainInterface.storyboard */; };
 		9A47C94A237F5E00006A5FDB /* Zoe.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9A47C93E237F5E00006A5FDB /* Zoe.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -41,6 +41,9 @@
 		9AA73CF523A154B2001A6234 /* ZEServices_Watchos.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA73CED23A154B2001A6234 /* ZEServices_Watchos.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9AA73CFB23A15638001A6234 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A57C96323800D2B00A01C61 /* Utilities.swift */; };
 		9AA73CFC23A1563B001A6234 /* ServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */; };
+		9AC2BE9E28F0D5D500AACA6A /* Intents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC2BE8C28F0D56100AACA6A /* Intents.framework */; };
+		9AC2BEA128F0D5D500AACA6A /* IntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC2BEA028F0D5D500AACA6A /* IntentHandler.swift */; };
+		9AC2BEA528F0D5D500AACA6A /* ZoeStatus Intents Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9AC2BE9D28F0D5D500AACA6A /* ZoeStatus Intents Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +82,13 @@
 			remoteGlobalIDString = 9AA73CEC23A154B2001A6234;
 			remoteInfo = "ZEServices Watchos";
 		};
+		9AC2BEA328F0D5D500AACA6A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9A512F9921B2DDCB007EFAAB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9AC2BE9C28F0D5D500AACA6A;
+			remoteInfo = "ZoeStatus Intents Extension";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -100,6 +110,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				9A47C94A237F5E00006A5FDB /* Zoe.appex in Embed App Extensions */,
+				9AC2BEA528F0D5D500AACA6A /* ZoeStatus Intents Extension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,6 +187,11 @@
 		9AA73CEF23A154B2001A6234 /* ZEServices_Watchos.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZEServices_Watchos.h; sourceTree = "<group>"; };
 		9AA73CF023A154B2001A6234 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9AA98C44220F913D00A9F8ED /* ZoeStatus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZoeStatus.entitlements; sourceTree = "<group>"; };
+		9AC2BE8C28F0D56100AACA6A /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
+		9AC2BE9D28F0D5D500AACA6A /* ZoeStatus Intents Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ZoeStatus Intents Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AC2BEA028F0D5D500AACA6A /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
+		9AC2BEA228F0D5D500AACA6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9AC2BEA628F0D5D500AACA6A /* ZoeStatus Intents Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ZoeStatus Intents Extension.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -218,6 +234,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9AC2BE9A28F0D5D500AACA6A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9AC2BE9E28F0D5D500AACA6A /* Intents.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -249,6 +273,7 @@
 				9AA73CFA23A15526001A6234 /* ZEServices */,
 				9AA73CBE23A020CE001A6234 /* ZoeStatus Watch */,
 				9AA73CCD23A020CE001A6234 /* ZoeStatus Watch Extension */,
+				9AC2BE9F28F0D5D500AACA6A /* ZoeStatus Intents Extension */,
 				9A512FA221B2DDCB007EFAAB /* Products */,
 				9AA98C41220F912C00A9F8ED /* Frameworks */,
 			);
@@ -263,6 +288,7 @@
 				9AA73CBD23A020CE001A6234 /* ZoeStatus Watch.app */,
 				9AA73CC923A020CE001A6234 /* ZoeStatus Extension.appex */,
 				9AA73CED23A154B2001A6234 /* ZEServices_Watchos.framework */,
+				9AC2BE9D28F0D5D500AACA6A /* ZoeStatus Intents Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -331,8 +357,19 @@
 			isa = PBXGroup;
 			children = (
 				9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */,
+				9AC2BE8C28F0D56100AACA6A /* Intents.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9AC2BE9F28F0D5D500AACA6A /* ZoeStatus Intents Extension */ = {
+			isa = PBXGroup;
+			children = (
+				9AC2BEA628F0D5D500AACA6A /* ZoeStatus Intents Extension.entitlements */,
+				9AC2BEA028F0D5D500AACA6A /* IntentHandler.swift */,
+				9AC2BEA228F0D5D500AACA6A /* Info.plist */,
+			);
+			path = "ZoeStatus Intents Extension";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -409,6 +446,7 @@
 				9A47C949237F5E00006A5FDB /* PBXTargetDependency */,
 				9A24444A239473990001AF9B /* PBXTargetDependency */,
 				9AA73CDB23A020CF001A6234 /* PBXTargetDependency */,
+				9AC2BEA428F0D5D500AACA6A /* PBXTargetDependency */,
 			);
 			name = ZoeStatus;
 			productName = ZoeStatus;
@@ -469,13 +507,30 @@
 			productReference = 9AA73CED23A154B2001A6234 /* ZEServices_Watchos.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		9AC2BE9C28F0D5D500AACA6A /* ZoeStatus Intents Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9AC2BEA728F0D5D500AACA6A /* Build configuration list for PBXNativeTarget "ZoeStatus Intents Extension" */;
+			buildPhases = (
+				9AC2BE9928F0D5D500AACA6A /* Sources */,
+				9AC2BE9A28F0D5D500AACA6A /* Frameworks */,
+				9AC2BE9B28F0D5D500AACA6A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ZoeStatus Intents Extension";
+			productName = "ZoeStatus Intents Extension";
+			productReference = 9AC2BE9D28F0D5D500AACA6A /* ZoeStatus Intents Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		9A512F9921B2DDCB007EFAAB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1120;
+				LastSwiftUpdateCheck = 1320;
 				LastUpgradeCheck = 1320;
 				ORGANIZATIONNAME = "Dr. Guido Mocken";
 				TargetAttributes = {
@@ -506,6 +561,9 @@
 					9AA73CEC23A154B2001A6234 = {
 						CreatedOnToolsVersion = 11.2.1;
 					};
+					9AC2BE9C28F0D5D500AACA6A = {
+						CreatedOnToolsVersion = 13.2.1;
+					};
 				};
 			};
 			buildConfigurationList = 9A512F9C21B2DDCB007EFAAB /* Build configuration list for PBXProject "ZoeStatus" */;
@@ -527,6 +585,7 @@
 				9AA73CBC23A020CE001A6234 /* ZoeStatus Watch */,
 				9AA73CC823A020CE001A6234 /* ZoeStatus Watch Extension */,
 				9AA73CEC23A154B2001A6234 /* ZEServices Watchos */,
+				9AC2BE9C28F0D5D500AACA6A /* ZoeStatus Intents Extension */,
 			);
 		};
 /* End PBXProject section */
@@ -584,6 +643,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9AC2BE9B28F0D5D500AACA6A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -635,6 +701,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9AC2BE9928F0D5D500AACA6A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9AC2BEA128F0D5D500AACA6A /* IntentHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -664,6 +738,11 @@
 			isa = PBXTargetDependency;
 			target = 9AA73CEC23A154B2001A6234 /* ZEServices Watchos */;
 			targetProxy = 9AA73CF223A154B2001A6234 /* PBXContainerItemProxy */;
+		};
+		9AC2BEA428F0D5D500AACA6A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9AC2BE9C28F0D5D500AACA6A /* ZoeStatus Intents Extension */;
+			targetProxy = 9AC2BEA328F0D5D500AACA6A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -709,7 +788,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.0.0;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -723,7 +802,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZEServices;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -740,7 +819,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.0.0;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -754,7 +833,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZEServices;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -780,7 +859,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.Widget;
 				PRODUCT_NAME = Zoe;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -797,7 +876,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Widget/ZoeStatusWidget.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.0.0;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = "ZoeStatus Widget/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -806,7 +885,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.Widget;
 				PRODUCT_NAME = Zoe;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -943,7 +1022,7 @@
 				CODE_SIGN_ENTITLEMENTS = ZoeStatus/ZoeStatus.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.0.0;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = ZoeStatus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -952,7 +1031,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus;
 				PRODUCT_NAME = ZoeStatus;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -971,7 +1050,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.0.0;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = ZoeStatus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -980,7 +1059,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus;
 				PRODUCT_NAME = ZoeStatus;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -998,11 +1077,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconWatch;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.0.0;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				IBSC_MODULE = Watch_Extension;
 				INFOPLIST_FILE = "ZoeStatus Watch/Info.plist";
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1021,11 +1100,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconWatch;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.0.0;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				IBSC_MODULE = Watch_Extension;
 				INFOPLIST_FILE = "ZoeStatus Watch/Info.plist";
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1043,7 +1122,7 @@
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.0.0;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = "ZoeStatus Watch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1051,7 +1130,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "ZoeStatus Extension";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1069,7 +1148,7 @@
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.0.0;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = "ZoeStatus Watch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1077,7 +1156,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "ZoeStatus Extension";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1095,7 +1174,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.0.0;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1108,7 +1187,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.grm.ZEServices-Watchos";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = watchos;
@@ -1127,7 +1206,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.0.0;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1140,7 +1219,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.grm.ZEServices-Watchos";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1151,6 +1230,67 @@
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 				WATCHOS_DEPLOYMENT_TARGET = 6.1;
+			};
+			name = Release;
+		};
+		9AC2BEA828F0D5D500AACA6A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Intents Extension/ZoeStatus Intents Extension.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
+				DEVELOPMENT_TEAM = J6G8439DVH;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "ZoeStatus Intents Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "ZOE Status Intents Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Dr. Guido Mocken. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.grm.ZoeStatus.ZoeStatus-Intents-Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9AC2BEA928F0D5D500AACA6A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Intents Extension/ZoeStatus Intents Extension.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
+				DEVELOPMENT_TEAM = J6G8439DVH;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "ZoeStatus Intents Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "ZOE Status Intents Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Dr. Guido Mocken. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.grm.ZoeStatus.ZoeStatus-Intents-Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1216,6 +1356,15 @@
 			buildConfigurations = (
 				9AA73CF723A154B2001A6234 /* Debug */,
 				9AA73CF823A154B2001A6234 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9AC2BEA728F0D5D500AACA6A /* Build configuration list for PBXNativeTarget "ZoeStatus Intents Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9AC2BEA828F0D5D500AACA6A /* Debug */,
+				9AC2BEA928F0D5D500AACA6A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
