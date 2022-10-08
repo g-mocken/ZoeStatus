@@ -330,7 +330,7 @@ public class ServiceConnection {
         let date = Date()
         let now = UInt64(date.timeIntervalSince1970)
         if (  tokenExpiry != nil && tokenExpiry! > now + 60) { // must be valid for at least one more minute
-            print("isTokenExpired: Token still valid")
+            print("isTokenExpired: Token still valid for \(tokenExpiry! - now) seconds")
             return false
         } else {
             print("isTokenExpired: Token expired or will expire too soon (or expiry date is nil), must renew")

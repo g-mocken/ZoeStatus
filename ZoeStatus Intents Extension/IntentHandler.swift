@@ -11,6 +11,9 @@ import ZEServices
 
 class IntentHandler: INExtension, INGetCarPowerLevelStatusIntentHandling {
     
+    let sc=ServiceConnection.shared
+
+    
     
     func resolveCarName(for intent: INGetCarPowerLevelStatusIntent, with completion: @escaping (INSpeakableStringResolutionResult) -> Void) {
         print("resolving... \(intent)")
@@ -19,13 +22,29 @@ class IntentHandler: INExtension, INGetCarPowerLevelStatusIntentHandling {
         
         let result: INSpeakableStringResolutionResult
 
-//          if let carName = intent.carName {
-//              result = INSpeakableStringResolutionResult.success(with: carName)
-//          }
-//          else {
-//              result = INSpeakableStringResolutionResult.needsValue()
-//          }
-        result = INSpeakableStringResolutionResult.success(with: INSpeakableString(spokenPhrase: "Renault Zoë"))
+        
+        if let carName = intent.carName {
+
+            result = INSpeakableStringResolutionResult.success(with: carName)
+
+//            if (
+//                ( carName == INSpeakableString(spokenPhrase: "Renault Zoe") ) ||
+//                ( carName == INSpeakableString(spokenPhrase: "Renault") ) ||
+//                ( carName == INSpeakableString(spokenPhrase: "Zoe") )
+//            ){
+//                result = INSpeakableStringResolutionResult.confirmationRequired(with: carName)
+//                
+//            } else {
+//                result = INSpeakableStringResolutionResult.unsupported()
+//            }
+        }
+        else {
+            // result = INSpeakableStringResolutionResult.needsValue()
+            result = INSpeakableStringResolutionResult.success(with: INSpeakableString(spokenPhrase: "Renault Zoë"))
+
+        }
+        
+  
         completion(result)
 
 
@@ -40,7 +59,6 @@ class IntentHandler: INExtension, INGetCarPowerLevelStatusIntentHandling {
         completion(response)
     }
 
-    let sc=ServiceConnection.shared
 
     func handle(intent: INGetCarPowerLevelStatusIntent, completion: @escaping (INGetCarPowerLevelStatusIntentResponse) -> Void) {
         
@@ -49,25 +67,16 @@ class IntentHandler: INExtension, INGetCarPowerLevelStatusIntentHandling {
         print("Car name: \(String(describing: intent.carName)) ")
         
         
-        let response = INGetCarPowerLevelStatusIntentResponse(code: INGetCarPowerLevelStatusIntentResponseCode.success, userActivity: nil)
-        
-        
+                
         
         let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatus");
         sharedDefaults?.synchronize()
-        let userName = sharedDefaults?.string(forKey:"userName")
-        let password = sharedDefaults?.string(forKey:"password")
-        let api = sharedDefaults?.integer(forKey: "api")
-        let units = sharedDefaults?.integer(forKey: "units")
-        let kamereon = sharedDefaults?.string(forKey: "kamereon")
-        let vehicle = sharedDefaults?.integer(forKey: "vehicle")
-
-        sc.userName = userName
-        sc.password = password
-        sc.api = ServiceConnection.ApiVersion(rawValue: api!)
-        sc.units = ServiceConnection.Units(rawValue: units!)
-        sc.kamereon = kamereon
-        sc.vehicle = vehicle
+        sc.userName = sharedDefaults?.string(forKey:"userName")
+        sc.password = sharedDefaults?.string(forKey:"password")
+        sc.api = ServiceConnection.ApiVersion(rawValue: (sharedDefaults?.integer(forKey: "api"))!)
+        sc.units = ServiceConnection.Units(rawValue: (sharedDefaults?.integer(forKey: "units"))!)
+        sc.kamereon = sharedDefaults?.string(forKey: "kamereon")
+        sc.vehicle = sharedDefaults?.integer(forKey: "vehicle")
         
         if sc.userName == "simulation", sc.password == "simulation"
         {
@@ -76,15 +85,16 @@ class IntentHandler: INExtension, INGetCarPowerLevelStatusIntentHandling {
             sc.simulation = false
         }
 
-        sc.login(){(result:Bool, errorMessage:String?)->() in
-            if result {
-                print("Login to Z.E. / MY.R. services successful")
+        
+        
+        let actionCode = {
                 
                 self.sc.batteryState(){
                 error, charging, plugged, charge_level, remaining_range, last_update, charging_point, remaining_time, battery_temperature, vehicle_id in
                     
+                    let response = INGetCarPowerLevelStatusIntentResponse(code: INGetCarPowerLevelStatusIntentResponseCode.success, userActivity: nil)
                     
-                    
+
                     response.charging = charging
                     response.chargePercentRemaining = Float(charge_level)/100.0 // 0.12 = 12%
                     response.distanceRemaining = Measurement(value: Double(remaining_range), unit: UnitLength.kilometers)
@@ -96,7 +106,42 @@ class IntentHandler: INExtension, INGetCarPowerLevelStatusIntentHandling {
                     completion(response)
                 }
             }
+        let errorCode = {
+            print("Error")
+            let response = INGetCarPowerLevelStatusIntentResponse(code: INGetCarPowerLevelStatusIntentResponseCode.failure, userActivity: nil)
+            completion(response)
         }
+        
+        if (sc.tokenExpiry == nil){
+            print("Never logged in before")
+            sc.login(){(result:Bool, errorMessage:String?)->() in
+                if result {
+                    print("Login successful")
+                    actionCode()
+                } else {
+                    print("Login NOT successful")
+                    errorCode()
+                }
+            }
+        } else {
+            print("Did log in before, checking token")
+            if sc.isTokenExpired() { // token expired
+                sc.renewToken(){(result:Bool)->() in
+                    if result {
+                        print("renewed expired token!")
+                        actionCode()
+                    } else {
+                        print("expired token NOT renewed!")
+                        errorCode()
+                    }
+                }
+            } else { // token valid
+                actionCode()
+            }
+        }
+        
+      
+        
                 
        
 
