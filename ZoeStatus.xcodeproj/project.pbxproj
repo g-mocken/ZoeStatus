@@ -850,7 +850,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Widget/ZoeStatusWidget.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.0.0;
+				CURRENT_PROJECT_VERSION = 1.3.0.0;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = "ZoeStatus Widget/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
