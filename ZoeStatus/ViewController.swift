@@ -13,6 +13,8 @@ import os
 
 class ViewController: UIViewController, MapViewControllerDelegate {
     
+    let serviceLog = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "VIEW")
+
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         (segue.destination as? MapViewController)?.delegate = self
@@ -33,7 +35,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        print("Width = \(self.view.bounds.width), font = \(level.font.pointSize)")
+        //print("Width = \(self.view.bounds.width), font = \(level.font.pointSize)")
     }
 
 
@@ -43,7 +45,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
         
         if ((sc.userName == nil) || (sc.password == nil)){
-            print ("Enter user credentials in settings app!")
+            //print ("Enter user credentials in settings app!")
             
             let cancelCallback = {
                 UIApplication.shared.open(URL(string : UIApplication.openSettingsURLString)!)
@@ -66,8 +68,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             sc.login(){(result:Bool, errorMessage:String?)->() in
                 self.updateActivity(type:.stop)
                 if result {
-                    print("Login to Z.E. / MY.R. services successful")
-
+                    os_log("Login to Z.E. / MY.R. services successful", log: self.serviceLog, type: .default)
+                    
                     // auto-refresh after successful login
                     self.updateActivity(type:.start)
                     self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
@@ -313,7 +315,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         datePickerButton.titleLabel?.font = .systemFont(ofSize: (datePickerButton.titleLabel?.font.pointSize)! * rescaleFactor)
         preconditionButton.titleLabel?.font = .systemFont(ofSize: (preconditionButton.titleLabel?.font.pointSize)! * rescaleFactor)
         refreshButton.titleLabel?.font = .systemFont(ofSize: (refreshButton.titleLabel?.font.pointSize)! * rescaleFactor)
-        print("viewDidLoad: width = \(view.bounds.width), font = \(level.font.pointSize)")
+        //print("viewDidLoad: width = \(view.bounds.width), font = \(level.font.pointSize)")
 
         
         let toolbarlabel =  UILabel(frame: UIScreen.main.bounds)
@@ -408,11 +410,13 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             refreshButton.isHidden=true
             activityIndicator.startAnimating()
             activityCount+=1
-            os_log("Activity start, count = %{public}d", log: customLog, type: .default, activityCount)
+      //      customLog.notice("Activity start, count = \(self.activityCount, privacy: .public)");
+//            os_log("Activity start, count = %{public}d", log: customLog, type: .default, activityCount)
             break
         case .stop:
             activityCount-=1
-            os_log("Activity stop, count = %{public}d", log: customLog, type: .default, activityCount)
+        //    customLog.notice("Activity stop, count = \(self.activityCount, privacy: .public)");
+//            os_log("Activity stop, count = %{public}d", log: customLog, type: .default, activityCount)
             if activityCount<=0 {
                 if activityCount<0 {
                     activityCount = 0

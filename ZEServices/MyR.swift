@@ -107,17 +107,20 @@ class MyR {
     let country = "DE" // GB"
     let language = "de_DE" //"en_GB" // note that API and Kamereon key differ for GB and DE! But both work.
     
-    let serviceLog = OSLog(subsystem: "com.grm.ZEServices", category: "ZOE-MYR")
+    let serviceLog = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "MYR")
 
     
     func decodeToken(token:String) {
-        print("Decoding token:")
+        os_log("Decoding token:", log: self.serviceLog, type: .debug)
+
         let indexFirstPeriod = token.firstIndex(of: ".") ?? token.startIndex
         let header = String(token[..<indexFirstPeriod]).fromBase64()
-        print("Header: \(header!)") // first part
+        // first part
+        os_log("Header:  %{public}s:", log: self.serviceLog, type: .debug, header!)
+
         let indexSecondPeriod = token[token.index(after:indexFirstPeriod)...].firstIndex(of: ".") ?? token.endIndex
         if let payload = String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]).fromBase64(){ // second part
-            print ("Payload: \(payload)")
+            os_log("Payload:  %{public}s:", log: self.serviceLog, type: .debug, payload)
         }
         // the third part is the signature of the JSON web token, and not decoded/validated here
     }
@@ -131,15 +134,13 @@ class MyR {
         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: nil) { (result:ApiKeyResult?) -> Void in
             if result != nil {
                 
-                print("Successfully retrieved targets and api keys:")
-                print("Kamereon: \(result!.servers.wiredProd.target), key=\(result!.servers.wiredProd.apikey)")
-                print("Gigya: \(result!.servers.gigyaProd.target), key=\(result!.servers.gigyaProd.apikey)")
+                os_log("Successfully retrieved targets and api keys:\nKamereon: %{public}s, key=%{public}s\nGigya: %{public}s, key=%{public}s", log: self.serviceLog, type: .debug, result!.servers.wiredProd.target, result!.servers.wiredProd.apikey, result!.servers.gigyaProd.target, result!.servers.gigyaProd.apikey)
                 
                 self.context.apiKeysAndUrls = result // save for later use
                 
                 // override Kamereon if a key is specified in user preferences:
                 if self.kamereon! != "" {
-                    print("Override Kamereon Key: " + self.kamereon!)
+                    os_log("Override Kamereon Key: %{public}s", log: self.serviceLog, type: .debug, self.kamereon!)
                     self.context.apiKeysAndUrls!.servers.wiredProd.apikey = self.kamereon!
                 }
                 
@@ -155,8 +156,7 @@ class MyR {
                 ]
                 self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:SessionInfo?) -> Void in
                     if result != nil {
-                        print("Successfully retrieved session key:")
-                        print("Cookie value: \(result!.sessionInfo.cookieValue)")
+                        os_log("Successfully retrieved session key, Cookie value: %{public}s", log: self.serviceLog, type: .debug,result!.sessionInfo.cookieValue)
                         
                         self.context.sessionInfo = result // save for later use.
                         // do not know how to decode the cookie.
@@ -174,8 +174,7 @@ class MyR {
                         // Fetch person ID from the same URL using the retrieved session key
                         self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:AccountInfo?) -> Void in
                             if result != nil {
-                                print("Successfully retrieved account info:")
-                                print("person ID: \(result!.data.personId)")
+                                os_log("Successfully retrieved account info, person ID: %{public}s", log: self.serviceLog, type: .debug, result!.data.personId)
                                 
                                 self.context.accountInfo = result // save for later use
                                 
@@ -195,8 +194,7 @@ class MyR {
                                 // Fetch Gigya JWT token from the same URL using the retrieved session key
                                 self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:TokenInfo?) -> Void in
                                     if result != nil {
-                                        print("Successfully retrieved Gigya JWT token:")
-                                        print("Gigya JWT token:")
+                                        os_log("Successfully retrieved Gigya JWT token", log: self.serviceLog, type: .debug)
                                         self.context.tokenInfo = result // save for later use
                                         self.decodeToken(token:result!.id_token) // "exp" fields contains timestamp 900s in the future
                                         
@@ -212,8 +210,7 @@ class MyR {
                                         // Fetch Kamereon account ID from the person-id dependent URL using the retrieved Gigya JWT token
                                         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:KamereonAccountInfo?) -> Void in
                                             if result != nil {
-                                                print("Successfully retrieved Kamereon accounts:")
-                                                print("Account id 0: \(result!.accounts[0].accountId)")
+                                                os_log("Successfully retrieved Kamereon accounts, Account id 0: %{public}s", log: self.serviceLog, type: .debug, result!.accounts[0].accountId)
                                                 
                                                 self.context.kamereonAccountInfo = result // save for later use
                                                 
@@ -230,8 +227,7 @@ class MyR {
                                                 // Fetch Kamereon accessToken from the account dependent URL using the retrieved Gigya JWT token
                                                 self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:KamereonTokenInfo?) -> Void in
                                                     if result != nil {
-                                                        print("Successfully retrieved Kamereon token:")
-                                                        print("accessToken:")
+                                                        os_log("Successfully retrieved Kamereon accessToken", log: self.serviceLog, type: .debug)
                                                         self.context.kamereonTokenInfo = result // save for later use
                                                         self.decodeToken(token:result!.accessToken) // "expires_in":3600000 = 1h ?
                                                         // not used, just investigating:
@@ -253,12 +249,13 @@ class MyR {
                                                         // Fetch VIN using the retrieved access token
                                                         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
                                                             if result != nil {
-                                                                print("Successfully retrieved vehicles with Kamereon token")
-                                                                print("Number of vehicles in account = \(result!.vehicleLinks.count)")
+                                                                os_log("Successfully retrieved vehicles with Kamereon token, Number of vehicles in account: %{public}d", log: self.serviceLog, type: .debug, result!.vehicleLinks.count)
+
                                                                 if self.vehicle >= result!.vehicleLinks.count {
                                                                     errorCode("VIN index not found.")
                                                                 } else {
-                                                                    print("VIN[\(self.vehicle)]: \(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)")
+                                                                    os_log("VIN[%{public}d]: %{public}s", log: self.serviceLog, type: .debug, self.vehicle, result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)
+
                                                                     self.context.vehiclesInfo = result // save for later use
                                                                     
                                                                     // must explicitly pass results, because the actionCode closure would use older captured values otherwise
@@ -269,7 +266,8 @@ class MyR {
                                                             }
                                                         } // end of closure
                                                     } else {
-                                                        print("Could not retrieve Kamereon token - try without anyway")
+                                                        os_log("Could not retrieve Kamereon token - trying without anyway", log: self.serviceLog, type: .debug)
+
                                                         let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
                                                         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                                                         components.queryItems = [
@@ -282,12 +280,13 @@ class MyR {
                                                         // Fetch VIN using the retrieved access token
                                                         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
                                                             if result != nil {
-                                                                print("Successfully retrieved vehicles without Kamereon token")
-                                                                print("Number of vehicles in account = \(result!.vehicleLinks.count)")
+                                                                os_log("Successfully retrieved vehicles without Kamereon token, Number of vehicles in account: %{public}d", log: self.serviceLog, type: .debug, result!.vehicleLinks.count)
+
                                                                 if self.vehicle >= result!.vehicleLinks.count {
                                                                     errorCode("VIN index not found.")
                                                                 } else {
-                                                                    print("VIN[\(self.vehicle)]: \(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)")
+                                                                    os_log("VIN[%{public}d]: %{public}s", log: self.serviceLog, type: .debug, self.vehicle, result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)
+
                                                                     self.context.vehiclesInfo = result // save for later use
                                                                     
                                                                     // must explicitly pass results, because the actionCode closure would use older captured values otherwise
@@ -436,8 +435,8 @@ class MyR {
          
          
          */
-        print ("\(context.apiKeysAndUrls!)")
-        print ("\(context.vehiclesInfo!)")
+        // print ("\(context.apiKeysAndUrls!)")
+        // print ("\(context.vehiclesInfo!)")
         let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/battery-status")!
                 
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
@@ -452,11 +451,8 @@ class MyR {
         case .v1:
             self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:BatteryInfo?) -> Void in
                 if result != nil {
-                    print("Successfully retrieved battery state V1:")
-                    print("level: \(result!.data.attributes.batteryLevel)")
-                    if (result!.data.attributes.batteryTemperature != nil){
-                        print("battery temperature: \(result!.data.attributes.batteryTemperature!)")
-                    }
+                    os_log("Successfully retrieved battery state V1:\n level: %d\n battery temperature: %d", log: self.serviceLog, type: .debug, result!.data.attributes.batteryLevel ?? "N/A", result!.data.attributes.batteryTemperature ?? "N/A")
+
                     var charging_point: String?
                     if let power=result!.data.attributes.chargePower {
                         switch power {
@@ -486,7 +482,7 @@ class MyR {
                     dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
                     let date = dateFormatter.date(from:dateString)!
                     let unixMs = UInt64(date.timeIntervalSince1970) * 1000
-                    print(date)
+                    // print(date)
                     
                     // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
                     DispatchQueue.main.async{
@@ -503,6 +499,9 @@ class MyR {
                         
                     }
                 } else {
+                    
+                    os_log("Error retrieving battery state V1", log: self.serviceLog, type: .debug)
+
                     DispatchQueue.main.async{
                         callback(true,
                                  false,
@@ -521,11 +520,8 @@ class MyR {
         case .v2:
             self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:BatteryInfoV2?) -> Void in
                 if result != nil {
-                    print("Successfully retrieved battery state V2:")
-                    print("level: \(result!.data.attributes.batteryLevel)")
-                    if (result!.data.attributes.batteryTemperature != nil){
-                        print("battery temperature: \(result!.data.attributes.batteryTemperature!)")
-                    }
+                    os_log("Successfully retrieved battery state V2:\n level: %d\n battery temperature: %d", log: self.serviceLog, type: .debug, result!.data.attributes.batteryLevel ?? "N/A", result!.data.attributes.batteryTemperature ?? "N/A")
+
                     var charging_point: String?
                     if let power=result!.data.attributes.chargingInstantaneousPower {
                         switch power {
@@ -551,7 +547,7 @@ class MyR {
                     dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
                     let date = dateFormatter.date(from:dateString)!
                     let unixMs = UInt64(date.timeIntervalSince1970) * 1000
-                    print(date)
+                    //print(date)
                     
                     // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
                     DispatchQueue.main.async{
@@ -568,6 +564,9 @@ class MyR {
                         
                     }
                 } else {
+                    
+                    os_log("Error retrieving battery state V2", log: self.serviceLog, type: .debug)
+
                     DispatchQueue.main.async{
                         callback(true,
                                  false,
@@ -640,8 +639,8 @@ class MyR {
             case .v1:
                 self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:cockpitInfoV1?) -> Void in
                     if result != nil {
-                        print("Successfully retrieved cockpit state V1:")
-                        print("total mileage: \(result!.data.attributes.totalMileage) km")
+                        os_log("Successfully retrieved cockpit state V1:\n total mileage: %d km", log: self.serviceLog, type: .debug, result!.data.attributes.totalMileage)
+
                         DispatchQueue.main.async{
                             callback(false, Float(result!.data.attributes.totalMileage))
                         }
@@ -655,8 +654,7 @@ class MyR {
             case .v2:
                 self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:cockpitInfoV2?) -> Void in
                     if result != nil {
-                        print("Successfully retrieved cockpit state V2:")
-                        print("total mileage: \(result!.data.attributes.totalMileage) km")
+                        os_log("Successfully retrieved cockpit state V2:\n total mileage: %d km", log: self.serviceLog, type: .debug, result!.data.attributes.totalMileage)
 
                         DispatchQueue.main.async{
                             callback(false, result!.data.attributes.totalMileage)
@@ -707,8 +705,7 @@ class MyR {
         // Fetch info using the retrieved access token
         self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:    StartCharging?) -> Void in
             if result != nil {
-                print("Successfully sent request, got: \(result!.data)")
-                // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
+                // print("Successfully sent request, got: \(result!.data)")
                 DispatchQueue.main.async{
                     callback(false)
                 }
@@ -835,7 +832,7 @@ class MyR {
                 callback(false, command, date, nil)
                 return
             } else {
-                print(String(data: uploadData!, encoding: .utf8)!)
+                // print(String(data: uploadData!, encoding: .utf8)!)
             }
         }
         
@@ -848,8 +845,8 @@ class MyR {
         if (command == .read) { // for .read GET status
             self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:PreconditionInfo?) -> Void in
                 if result != nil {
-                    print("Successfully sent GET request, got: \(result!.data)")
-                    print("External temperature: \(result!.data.attributes.externalTemperature)")
+                    //print("Successfully sent GET request, got: \(result!.data)")
+                    //print("External temperature: \(result!.data.attributes.externalTemperature)")
                     let date:Date?
                     if let dateString = result!.data.attributes.nextHvacStartDate {
                         // e.g. "2020-02-03T06:30:00Z"
@@ -872,8 +869,7 @@ class MyR {
         } else { // all other commands POST action
             self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:Precondition?) -> Void in
                 if result != nil {
-                    print("Successfully sent POST request, got: \(result!.data)")
-                    // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
+                    // print("Successfully sent POST request, got: \(result!.data)")
                     DispatchQueue.main.async{
                         callback(false, command, date, nil)
                     }
@@ -933,11 +929,10 @@ class MyR {
         // Fetch info using the retrieved access token
         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:HvacSessions?) -> Void in
             if result != nil {
-                print("Successfully retrieved AC sessions: \(result!.data.attributes.hvacSessions.count) sessions")
-                //print("level: \(result!.data.attributes.hvacSessions[0])")
-                
+                os_log("Successfully retrieved AC sessions: %d sessions", log: self.serviceLog, type: .debug, result!.data.attributes.hvacSessions.count)
+
                 if (result!.data.attributes.hvacSessions.count > 0) { // array not empty  - never happens, HTTP 500 instead!
-                    print("AC last state: \(result!.data.attributes.hvacSessions[0])")
+                    os_log("AC last state:\n hvacSessionRequestDate: %{public}s\n hvacSessionStartDate: %{public}s\n hvacSessionEndStatus: %{public}s", log: self.serviceLog, type: .debug, result!.data.attributes.hvacSessions[0].hvacSessionRequestDate, result!.data.attributes.hvacSessions[0].hvacSessionStartDate, result!.data.attributes.hvacSessions[0].hvacSessionEndStatus)
 
                     let dateString = result!.data.attributes.hvacSessions[0].hvacSessionStartDate
                     let dateFormatter = DateFormatter()
@@ -958,7 +953,7 @@ class MyR {
                         rStatus = nil
                     }
                     
-                    print("A/C lst state: \(date), \(rStatus ?? "-")")
+                    //print("A/C last state: \(date), \(rStatus ?? "-")")
                     
                     DispatchQueue.main.async {
                         callback(false,
@@ -1021,6 +1016,12 @@ class MyR {
         request.allHTTPHeaderFields = headers
         // request.setValue("...", forHTTPHeaderField: "...")
 
+//        os_log("MYR default log mesage.", log: serviceLog, type: .default)
+//        os_log("MYR debug log mesage.", log: serviceLog, type: .debug)
+//        os_log("MYR info log mesage.", log: serviceLog, type: .info)
+//        os_log("MYR error log mesage.", log: serviceLog, type: .error)
+
+        
         let task = URLSession.shared.dataTask(with: request){ data, response, error in
             
             os_log("Request: %{public}s", log: self.serviceLog, type: .debug, request.description)
@@ -1040,7 +1041,6 @@ class MyR {
             }
             
             if let jsonData = data {
-                //print ("raw JSON data: \(String(data: jsonData, encoding: .utf8)!)")
                 os_log("raw JSON data: %{public}s", log: self.serviceLog, type: .debug, String(data: jsonData, encoding: .utf8)!)
 
                 let decoder = JSONDecoder()

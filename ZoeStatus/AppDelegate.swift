@@ -9,9 +9,15 @@
 import UIKit
 import WatchConnectivity
 import os // for os_log
+//import OSLog
 import Intents
+import MapKit
 
-let customLog = OSLog(subsystem: "com.grm.ZoeStatus", category: "ZOE")
+let subsystem = Bundle.main.bundleIdentifier! //"com.grm.ZoeStatus"
+
+//let customLog = Logger(subsystem: subsystem, category: "ZOE") // needs iOS 14, watchos ?
+let customLog = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "ZOE")
+
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
@@ -147,6 +153,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        
+
+        os_log("ZOE Custom default log mesage.", log: customLog, type: .default)
+        //customLog.notice("ZOE Custom default log mesage.")
+       
+        os_log("ZOE Custom debug log mesage.", log: customLog, type: .debug)
+
+        os_log("ZOE Custom info log mesage.", log: customLog, type: .info)
+        //customLog.info("ZOE Custom info log mesage.")
+        os_log("ZOE Custom error log mesage.", log: customLog, type: .error)
+        //customLog.error("ZOE Custom error log mesage.")
+        
+        // Privacy only is enabled in the Console.app when running the iOS app without the debugger attached!
+        //customLog.error("Private: \("top secret", privacy: .private)")
+        os_log("Private: %{private}s", log: customLog, type: .error, "top secret")
+        //customLog.error("Public: \("not a secret", privacy: .public)")
+        os_log("Public: %{public}s", log: customLog, type: .error, "not a secret")
+
+        /*
+         // iOS 15 only, crashes when run without debugger:
+         
+        let logStore =  try? OSLogStore(scope: .currentProcessIdentifier)
+      //  let oneHourAgo = logStore!.position(date: Date().addingTimeInterval(-3600))
+        let oneMinuteAgo = logStore!.position(timeIntervalSinceEnd: -60.0)
+
+        let match = NSPredicate(format:"(subsystem == %@) AND (category == %@)", subsystem, "ZOE")
+
+        let allEntries = try? logStore!.getEntries(at: oneMinuteAgo, matching: match)
+        for entry in allEntries! {
+            print("LOG: [\(entry.date)] \(entry.composedMessage)") // does NOT presever privacy!
+        }
+        */
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
@@ -171,11 +209,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
         }
 
         NotificationCenter.default.post(name: Notification.Name("applicationDidBecomeActive"), object: nil)
-        os_log("ZOE Custom default log mesage.", log: customLog, type: .default)
-        os_log("ZOE Custom info log mesage.", log: customLog, type: .info)
-        os_log("ZOE Custom error log mesage.", log: customLog, type: .error)
-        os_log("Private: %{private}s", log: customLog, type: .error, "top secret")
-        os_log("Public: %{public}s", log: customLog, type: .error, "not a secret")
 
     }
 

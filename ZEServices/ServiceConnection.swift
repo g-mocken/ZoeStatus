@@ -18,7 +18,7 @@ public enum PreconditionCommand {
 
 public class ServiceConnection {
 
-    let serviceLog = OSLog(subsystem: "com.grm.ZEServices", category: "ZOE")
+    let serviceLog = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "ZE")
 
     var myR: MyR!
     
@@ -81,18 +81,19 @@ public class ServiceConnection {
     
     
     fileprivate func extractExpiryDate(ofToken:String?)->UInt64? { // token is usually valid for 15min after it was issued
-        print ("Analysing token...")
+        //print ("Analysing token...")
         if let token = ofToken{
             let indexFirstPeriod = token.firstIndex(of: ".") ?? token.startIndex
 
             let header = String(token[..<indexFirstPeriod]).fromBase64()
-            print("Header: \(header!)")
+            os_log("Token Header: %{public}s", log: serviceLog, type: .default, header!)
+
             let indexSecondPeriod = token[token.index(after:indexFirstPeriod)...].firstIndex(of: ".") ?? token.endIndex
-            print("Payload: \(String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]))")
+            os_log("Token Payload: %{public}s", log: serviceLog, type: .default, String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]))
 
             if let payload = String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]).fromBase64()
             {
-                print("Decoded Payload: \(payload)")
+                os_log("Token Decoded Payload: %{public}s", log: serviceLog, type: .default, payload)
                 
                 struct payloadResult: Codable{
                     let sub: String?
@@ -107,13 +108,11 @@ public class ServiceConnection {
                     let result = try? decoder.decode(payloadResult.self, from: payloadData)
                     if let result = result {
                         
-                        print("Issued \(result.iat)")
-                        print("Expires \(result.exp)")
                         let date = Date()
                         let interval = UInt64(date.timeIntervalSince1970)
-                        print("Current \(interval)")
-                        
-                        
+
+                        os_log("Token:\n issued:  %u\n expires: %u\n current: %u", log: serviceLog, type: .default, result.iat, result.exp, interval)
+                                                
                         // only for debugging also print human readable time and date:
                         if let unixTime = Double(exactly:result.exp) {
                             let date = Date(timeIntervalSince1970: unixTime)
@@ -123,7 +122,7 @@ public class ServiceConnection {
                             dateFormatter.locale = NSLocale.current
                             dateFormatter.dateFormat = "dd.MM.yyyy HH:mm:ss" //Specify your format that you want
                             let strDate = dateFormatter.string(from: date)
-                            print("Expires: \(strDate)")
+                            os_log("Token expires: %{public}s", log: serviceLog, type: .default, strDate)
                         }
                         return result.exp
                     }
@@ -175,13 +174,13 @@ public class ServiceConnection {
     
     
     func login_MyR (callback:@escaping(Bool, MyR.Context?, String?)->Void, version: MyR.Version) {
-        print ("New API login")
-        
+
+        os_log("New API login", log: serviceLog, type: .default)
         myR = MyR(username: userName!, password: password!, version: version, kamereon: kamereon!, vehicle: vehicle!)
         myR.handleLoginProcess(onError: { errorMessage in
             DispatchQueue.main.async{callback(false, nil, errorMessage)}
         }, onSuccess: { vin, token, context in
-            print("Login MyR successful.")
+            os_log("Login MyR successful.", log: self.serviceLog, type: .default)
             self.tokenExpiry = self.extractExpiryDate(ofToken: token)
             self.vehicleIdentification = vin // to avoid crashes, when switching API versions
             DispatchQueue.main.async{
@@ -196,7 +195,6 @@ public class ServiceConnection {
     public func renewToken (callback:@escaping(Bool)->Void) {
         os_log("renewToken", log: serviceLog, type: .default)
 
-        
         switch api {
         case .MyRv1, .MyRv2:
             renewToken_MyR(callback:callback)
@@ -217,7 +215,7 @@ public class ServiceConnection {
 
         cache.timestamp = Date()
         if simulation {
-            print ("batteryState: simulated")
+            //print ("batteryState: simulated")
             self.cache.charging=true
             self.cache.plugged=true
             if (self.cache.charge_level == nil || self.cache.charge_level! > 100){
@@ -295,7 +293,7 @@ public class ServiceConnection {
         os_log("cockpitState", log: serviceLog, type: .default)
 
         if simulation {
-            print ("cockpitState: simulated")
+            //print ("cockpitState: simulated")
             if (self.cache.totalMileage == nil) {
                 self.cache.totalMileage = 123000.0
             } else {
@@ -330,10 +328,10 @@ public class ServiceConnection {
         let date = Date()
         let now = UInt64(date.timeIntervalSince1970)
         if (  tokenExpiry != nil && tokenExpiry! > now + 60) { // must be valid for at least one more minute
-            print("isTokenExpired: Token still valid for \(tokenExpiry! - now) seconds")
+            os_log("isTokenExpired: Token still valid for %d seconds", log: serviceLog, type: .default, tokenExpiry! - now)
             return false
         } else {
-            print("isTokenExpired: Token expired or will expire too soon (or expiry date is nil), must renew")
+            os_log("isTokenExpired: Token expired or will expire too soon (or expiry date is nil), must renew", log: serviceLog, type: .default)
             return true
         }        
     }
