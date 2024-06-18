@@ -9,11 +9,35 @@
 import Intents
 import ZEServices
 
-class IntentHandler: INExtension, INGetCarPowerLevelStatusIntentHandling {
+class IntentHandlerCarList: INExtension,INListCarsIntentHandling {
+    
+    func confirm(intent: INListCarsIntent, completion: @escaping (INListCarsIntentResponse) -> Void) {
+        // Confirms that you can provide a list of the user’s electric vehicles.
+
+        print("confirming... \(intent)")
+        let response = INListCarsIntentResponse(code: INListCarsIntentResponseCode.ready, userActivity: nil)
+        completion(response)
+    }
+    
+    func handle(intent: INListCarsIntent, completion: @escaping (INListCarsIntentResponse) -> Void) {
+        // Provides a list of the user’s electric vehicles.
+
+        print("handling... \(intent)")
+        let response = INListCarsIntentResponse(code: INListCarsIntentResponseCode.success, userActivity: nil)
+        response.cars = [INCar(carIdentifier: "VIN", displayName: "ZOE", year: "2014", make: "Renault", model: "Q210", color: nil, headUnit: nil, supportedChargingConnectors: [INCar.ChargingConnectorType.mennekes])]
+        completion(response)
+
+        
+    }
+   
+    
+}
+
+class IntentHandlerPowerLevel:INExtension, INGetCarPowerLevelStatusIntentHandling {
     
     let sc=ServiceConnection.shared
 
-    
+    var observer:INGetCarPowerLevelStatusIntentResponseObserver?
     
     func resolveCarName(for intent: INGetCarPowerLevelStatusIntent, with completion: @escaping (INSpeakableStringResolutionResult) -> Void) {
         print("resolving... \(intent)")
@@ -33,7 +57,7 @@ class IntentHandler: INExtension, INGetCarPowerLevelStatusIntentHandling {
 //                ( carName == INSpeakableString(spokenPhrase: "Zoe") )
 //            ){
 //                result = INSpeakableStringResolutionResult.confirmationRequired(with: carName)
-//                
+//
 //            } else {
 //                result = INSpeakableStringResolutionResult.unsupported()
 //            }
@@ -98,8 +122,16 @@ class IntentHandler: INExtension, INGetCarPowerLevelStatusIntentHandling {
                     response.charging = charging
                     response.chargePercentRemaining = Float(charge_level)/100.0 // 0.12 = 12%
                     response.distanceRemaining = Measurement(value: Double(remaining_range), unit: UnitLength.kilometers)
-                    response.activeConnector =  INCar.ChargingConnectorType.mennekes
-                    response.carIdentifier = vehicle_id
+                    if #available(iOSApplicationExtension 14.0, *) {
+                        response.activeConnector =  INCar.ChargingConnectorType.mennekes
+                    } else {
+                        // Fallback on earlier versions
+                    }
+                    if #available(iOSApplicationExtension 14.0, *) {
+                        response.carIdentifier = vehicle_id
+                    } else {
+                        // Fallback on earlier versions
+                    }
                    // response.distanceRemainingElectric = Measurement(value: Double(200.0), unit: UnitLength.kilometers)
                    // response.currentBatteryCapacity  = Measurement(value: Double(22.0), unit: UnitEnergy.kilowattHours)
 
@@ -139,29 +171,56 @@ class IntentHandler: INExtension, INGetCarPowerLevelStatusIntentHandling {
                 actionCode()
             }
         }
-        
-      
-        
-                
-       
-
-        
-      
     }
     
-//
-//    override func handler(for intent: INIntent) -> Any {
-//        // This is the default implementation.  If you want different objects to handle different intents,
-//        // you can override this and return the handler you want for that particular intent.
-//
-//        print("handle \(intent)")
-//        switch intent {
-//            case is INGetCarPowerLevelStatusIntent: return self
-//            default: break
-//        }
-//
-//
-//        return self
-//    }
-//
+    
+
+    
+    func startSendingUpdates(for intent: INGetCarPowerLevelStatusIntent, to observer: INGetCarPowerLevelStatusIntentResponseObserver) {
+        print("startSendingUpdates")
+        
+        self.observer = observer
+        let response = INGetCarPowerLevelStatusIntentResponse(code: INGetCarPowerLevelStatusIntentResponseCode.success, userActivity: nil)
+        
+// must set up a timer to periodically call:
+        response.charging = false
+        response.chargePercentRemaining = Float(12)/100.0 // 0.12 = 12%
+        response.distanceRemaining = Measurement(value: Double(123), unit: UnitLength.kilometers)
+            response.activeConnector =  INCar.ChargingConnectorType.mennekes
+        observer.didUpdate(getCarPowerLevelStatus: response)
+    }
+    
+    func stopSendingUpdates(for intent: INGetCarPowerLevelStatusIntent) {
+        print("stopSendingUpdates")
+        // stop timer and callbacks
+    }
+}
+
+
+class IntentHandler: INExtension {
+    
+    override func handler(for intent: INIntent) -> Any {
+        // This is the default implementation.  If you want different objects to handle different intents,
+        // you can override this and return the handler you want for that particular intent.
+
+        print("handle \(intent)")
+        if #available(iOSApplicationExtension 14.0, *) {
+            switch intent {
+            case is INGetCarPowerLevelStatusIntent: return IntentHandlerPowerLevel()
+            case is INListCarsIntent: return IntentHandlerCarList()
+            default: break
+            }
+        } else {
+            // Fallback on earlier versions
+            switch intent {
+                case is INGetCarPowerLevelStatusIntent: return IntentHandlerPowerLevel()
+                default: break
+            }
+        }
+
+
+        
+        return self
+    }
+
 }

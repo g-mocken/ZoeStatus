@@ -13,6 +13,7 @@
 			<key>IntentsSupported</key>
 			<array>
 				<string>INGetCarPowerLevelStatusIntent</string>
+				<string>INListCarsIntent</string>
 			</array>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>
