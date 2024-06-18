@@ -342,11 +342,11 @@ class MyR {
         struct BatteryInfoV2: Codable {
             var data: Data
             struct Data: Codable {
-                var type: String
+                var type: String?
                 var id: String
                 var attributes: Attributes
                 struct Attributes: Codable {
-                    var batteryLevel: Int
+                    var batteryLevel: Int?
                     var batteryTemperature: Int?
                     var chargingInstantaneousPower: Float?
                     var batteryAutonomy: Float?
@@ -371,16 +371,22 @@ class MyR {
          2020-02-07 21:22:04.731187+0100 ZoeStatus[43997:3264106] [ZOE-MYR] raw JSON data: {"data":{"type":"Car","id":"...","attributes":{"timestamp":"2020-02-07T21:21:26+01:00","batteryLevel":63,"batteryTemperature":9,"batteryAutonomy":71,"batteryCapacity":0,"batteryAvailableEnergy":0,"plugStatus":1,"chargingStatus":1.0,"chargingRemainingTime":300,"chargingInstantaneousPower":2300.0}}}
 
          
+         
+         With errors:
+         
+         raw JSON data: {"data":{"id":"...","attributes":{"timestamp":"2024-05-31T15:59:12Z","batteryAutonomy":108,"plugStatus":0,"chargingStatus":-1.1}}}
+
+         
          */
         
         struct BatteryInfo: Codable {
             var data: Data
             struct Data: Codable {
-                var type: String
+                var type: String?
                 var id: String
                 var attributes: Attributes
                 struct Attributes: Codable {
-                    var batteryLevel: Int
+                    var batteryLevel: Int?
                     var batteryTemperature: Int?
                     var chargePower: Int?
                     var rangeHvacOff: Float?
@@ -489,7 +495,7 @@ class MyR {
                         callback(false,
                                  result!.data.attributes.chargeStatus > 0,
                                  result!.data.attributes.plugStatus > 0,
-                                 UInt8(result!.data.attributes.batteryLevel),
+                                 UInt8(result!.data.attributes.batteryLevel ?? 0),
                                  result!.data.attributes.rangeHvacOff ?? -1.0,
                                  unixMs,
                                  charging_point,
@@ -554,7 +560,7 @@ class MyR {
                         callback(false,
                                  result!.data.attributes.chargingStatus == 1.0,
                                  result!.data.attributes.plugStatus > 0,
-                                 UInt8(result!.data.attributes.batteryLevel),
+                                 UInt8(result!.data.attributes.batteryLevel ?? 0),
                                  result!.data.attributes.batteryAutonomy ?? -1.0,
                                  unixMs,
                                  charging_point,
