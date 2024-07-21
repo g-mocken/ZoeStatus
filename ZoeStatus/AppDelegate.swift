@@ -109,14 +109,63 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
 
     var shortcutItemToProcess: UIApplicationShortcutItem?
 
+#if false
+    func donateListCarsIntent() {
+        let intent = INListCarsIntent()
+        intent.suggestedInvocationPhrase = "List my cars"
+        let interaction = INInteraction(intent: intent, response: nil)
+        interaction.donate { error in
+            if let error = error {
+                print("Error donating interaction: \(error.localizedDescription)")
+            } else {
+                print("Successfully donated interaction")
+            }
+        }
+        
+        let intent2 = INGetCarPowerLevelStatusIntent()
+        intent2.suggestedInvocationPhrase = "Get my car's state of charge"
+        let interaction2 = INInteraction(intent: intent2, response: nil)
+        interaction2.donate { error in
+            if let error = error {
+                print("Error donating interaction2: \(error.localizedDescription)")
+            } else {
+                print("Successfully donated interaction2")
+            }
+        }
 
+    }
+
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        if let intent = userActivity.interaction?.intent as? INListCarsIntent {
+            // Handle the intent
+            print("Handle the intent INListCarsIntent")
+
+            return true
+        }
+        
+        if let intent = userActivity.interaction?.intent as? INGetCarPowerLevelStatusIntent {
+            // Handle the intent
+            print("Handle the intent INGetCarPowerLevelStatusIntent")
+
+            return true
+        }
+
+        return false
+    }
+#endif
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         print("didFinishLaunchingWithOptions")
         
+        
         INPreferences.requestSiriAuthorization({ status in
             if status == .authorized {
                 print("Ok - authorized")
+#if false
+                self.donateListCarsIntent()
+#endif
+
             }
         })
 

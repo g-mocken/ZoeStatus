@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1500"
+   LastUpgradeVersion = "1540"
    wasCreatedForAppExtension = "YES"
    version = "2.0">
    <BuildAction
@@ -48,9 +48,9 @@
    <LaunchAction
       buildConfiguration = "Debug"
       intentQueryString = "Wie ist der Ladestand meines Autos?"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      launchStyle = "1"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      launchStyle = "0"
       askForAppToLaunch = "Yes"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -58,15 +58,17 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2">
-      <MacroExpansion>
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.notificationcenterui">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9A512FA021B2DDCB007EFAAB"
-            BuildableName = "ZoeStatus.app"
-            BlueprintName = "ZoeStatus"
+            BlueprintIdentifier = "9AC2BE9C28F0D5D500AACA6A"
+            BuildableName = "ZoeStatus Intents Extension.appex"
+            BlueprintName = "ZoeStatus Intents Extension"
             ReferencedContainer = "container:ZoeStatus.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </RemoteRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -75,6 +77,7 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES"
+      askForAppToLaunch = "Yes"
       launchAutomaticallySubstyle = "2">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">

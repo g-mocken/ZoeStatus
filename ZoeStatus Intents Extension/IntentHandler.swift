@@ -8,9 +8,12 @@
 
 import Intents
 import ZEServices
+import os.log
 
 class IntentHandlerCarList: INExtension,INListCarsIntentHandling {
     
+    
+
     func confirm(intent: INListCarsIntent, completion: @escaping (INListCarsIntentResponse) -> Void) {
         // Confirms that you can provide a list of the user’s electric vehicles.
 
@@ -199,11 +202,16 @@ class IntentHandlerPowerLevel:INExtension, INGetCarPowerLevelStatusIntentHandlin
 
 class IntentHandler: INExtension {
     
+    let subsystem = Bundle.main.bundleIdentifier! //"com.grm.ZoeStatus"
+    let log = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "ZOE")
+
     override func handler(for intent: INIntent) -> Any {
         // This is the default implementation.  If you want different objects to handle different intents,
         // you can override this and return the handler you want for that particular intent.
 
         print("handle \(intent)")
+        os_log("Handling INListCarsIntent", log: log, type: .info)
+
         if #available(iOSApplicationExtension 14.0, *) {
             switch intent {
             case is INGetCarPowerLevelStatusIntent: return IntentHandlerPowerLevel()
