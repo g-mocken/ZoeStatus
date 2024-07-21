@@ -98,7 +98,8 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         
         sc.userName = userName
         sc.password = password
-        sc.api = ServiceConnection.ApiVersion(rawValue: api!)
+        sc.api = ServiceConnection.ApiVersion(rawValue: 1 /*api!*/) // dummy value 1, which is ignored
+        /* Renault is no longer using a consistent version, i.e. battery state only works as v2 and cockpit as v1. */
         sc.units = ServiceConnection.Units(rawValue: units!)
         sc.kamereon = kamereon
         sc.vehicle = vehicle

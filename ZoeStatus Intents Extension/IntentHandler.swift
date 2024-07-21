@@ -181,13 +181,13 @@ class IntentHandlerPowerLevel:INExtension, INGetCarPowerLevelStatusIntentHandlin
     
     func startSendingUpdates(for intent: INGetCarPowerLevelStatusIntent, to observer: INGetCarPowerLevelStatusIntentResponseObserver) {
         print("startSendingUpdates")
-        
+        /* Maps calls this method when it begins a navigation session, and you must use the observer to inform Maps of any abrupt changes in the electric vehicle’s battery charge. */
         self.observer = observer
         let response = INGetCarPowerLevelStatusIntentResponse(code: INGetCarPowerLevelStatusIntentResponseCode.success, userActivity: nil)
         
-// must set up a timer to periodically call:
+        // TODO: set up a timer to periodically call:
         response.charging = false
-        response.chargePercentRemaining = Float(12)/100.0 // 0.12 = 12%
+        response.chargePercentRemaining = Float(12)/100.0 // e.g. 0.12 = 12%
         response.distanceRemaining = Measurement(value: Double(123), unit: UnitLength.kilometers)
             response.activeConnector =  INCar.ChargingConnectorType.mennekes
         observer.didUpdate(getCarPowerLevelStatus: response)

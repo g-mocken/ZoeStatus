@@ -4,8 +4,6 @@
 <dict>
 	<key>experimental_preference</key>
 	<false/>
-	<key>api_preference</key>
-	<integer>2</integer>
 	<key>units_preference</key>
 	<integer>1</integer>
 	<key>kamereon_preference</key>

@@ -132,191 +132,193 @@ class MyR {
         let endpointUrl = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_" + language + ".json")!
         let components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: nil) { (result:ApiKeyResult?) -> Void in
+            //if result != nil {
             if result != nil {
-                
                 os_log("Successfully retrieved targets and api keys:\nKamereon: %{public}s, key=%{public}s\nGigya: %{public}s, key=%{public}s", log: self.serviceLog, type: .debug, result!.servers.wiredProd.target, result!.servers.wiredProd.apikey, result!.servers.gigyaProd.target, result!.servers.gigyaProd.apikey)
-                
                 self.context.apiKeysAndUrls = result // save for later use
-                
-                // override Kamereon if a key is specified in user preferences:
-                if self.kamereon! != "" {
-                    os_log("Override Kamereon Key: %{public}s", log: self.serviceLog, type: .debug, self.kamereon!)
-                    self.context.apiKeysAndUrls!.servers.wiredProd.apikey = self.kamereon!
-                }
-                
-                // Fetch session key from the previously learned URL using the retreived API key
-                let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.login")!
-                var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-                components.queryItems = [
-                    URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey),
-                    URLQueryItem(name: "loginID", value: self.username),
-                    URLQueryItem(name: "password", value: self.password),
-                    URLQueryItem(name: "sessionExpiration",value: "900") // try to set it myself, so I know the value
-                    // see https://developers.gigya.com/display/GD/accounts.login+REST
-                ]
-                self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:SessionInfo?) -> Void in
-                    if result != nil {
-                        os_log("Successfully retrieved session key, Cookie value: %{public}s", log: self.serviceLog, type: .debug,result!.sessionInfo.cookieValue)
-                        
-                        self.context.sessionInfo = result // save for later use.
-                        // do not know how to decode the cookie.
-                        
-                        let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getAccountInfo")!
-                        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-                        components.queryItems = [
-                            /* old style */
-                            URLQueryItem(name: "oauth_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
-                            /* new style */
-                            URLQueryItem(name: "login_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
-                            URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey)
-                        ]
-                                        
-                        // Fetch person ID from the same URL using the retrieved session key
-                        self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:AccountInfo?) -> Void in
-                            if result != nil {
-                                os_log("Successfully retrieved account info, person ID: %{public}s", log: self.serviceLog, type: .debug, result!.data.personId)
-                                
-                                self.context.accountInfo = result // save for later use
-                                
-                                let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getJWT")!
-                                var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-                                components.queryItems = [
-                                    /* old style */
-                                    URLQueryItem(name: "oauth_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
-                                    /* new style */
-                                    URLQueryItem(name: "login_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
-                                    URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey),
-                                    /* other fields */
-                                    URLQueryItem(name: "fields", value: "data.personId,data.gigyaDataCenter"),
-                                    URLQueryItem(name: "expiration", value: "900")
-                                ]
-                                
-                                // Fetch Gigya JWT token from the same URL using the retrieved session key
-                                self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:TokenInfo?) -> Void in
-                                    if result != nil {
-                                        os_log("Successfully retrieved Gigya JWT token", log: self.serviceLog, type: .debug)
-                                        self.context.tokenInfo = result // save for later use
-                                        self.decodeToken(token:result!.id_token) // "exp" fields contains timestamp 900s in the future
-                                        
-                                        let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/persons/"+self.context.accountInfo!.data.personId)!
-                                        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-                                        components.queryItems = [
-                                            URLQueryItem(name: "country", value: self.country)
-                                        ]
-                                        let headers = [
-                                            "x-gigya-id_token":self.context.tokenInfo!.id_token,
-                                            "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey
-                                        ]
-                                        // Fetch Kamereon account ID from the person-id dependent URL using the retrieved Gigya JWT token
-                                        self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:KamereonAccountInfo?) -> Void in
-                                            if result != nil {
-                                                os_log("Successfully retrieved Kamereon accounts, Account id 0: %{public}s", log: self.serviceLog, type: .debug, result!.accounts[0].accountId)
-                                                
-                                                self.context.kamereonAccountInfo = result // save for later use
-                                                
-                                                
-                                                let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/token")!
-                                                var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-                                                components.queryItems = [
-                                                    URLQueryItem(name: "country", value: self.country)
-                                                ]
-                                                let headers = [
-                                                    "x-gigya-id_token":self.context.tokenInfo!.id_token,
-                                                    "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey
-                                                ]
-                                                // Fetch Kamereon accessToken from the account dependent URL using the retrieved Gigya JWT token
-                                                self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:KamereonTokenInfo?) -> Void in
-                                                    if result != nil {
-                                                        os_log("Successfully retrieved Kamereon accessToken", log: self.serviceLog, type: .debug)
-                                                        self.context.kamereonTokenInfo = result // save for later use
-                                                        self.decodeToken(token:result!.accessToken) // "expires_in":3600000 = 1h ?
-                                                        // not used, just investigating:
-//                                                        print("refreshToken:")
-//                                                        self.decodeToken(token: result!.refreshToken)
-//                                                        print("idToken:")
-//                                                        self.decodeToken(token: result!.idToken)
-
-                                                        let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
-                                                        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-                                                        components.queryItems = [
-                                                            URLQueryItem(name: "country", value: self.country)
-                                                        ]
-                                                        let headers = [
-                                                            "x-gigya-id_token": self.context.tokenInfo!.id_token,
-                                                            "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey,
-                                                            "x-kamereon-authorization": "Bearer " + self.context.kamereonTokenInfo!.accessToken
-                                                        ]
-                                                        // Fetch VIN using the retrieved access token
-                                                        self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
-                                                            if result != nil {
-                                                                os_log("Successfully retrieved vehicles with Kamereon token, Number of vehicles in account: %{public}d", log: self.serviceLog, type: .debug, result!.vehicleLinks.count)
-
-                                                                if self.vehicle >= result!.vehicleLinks.count {
-                                                                    errorCode("VIN index not found.")
-                                                                } else {
-                                                                    os_log("VIN[%{public}d]: %{public}s", log: self.serviceLog, type: .debug, self.vehicle, result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)
-
-                                                                    self.context.vehiclesInfo = result // save for later use
-                                                                    
-                                                                    // must explicitly pass results, because the actionCode closure would use older captured values otherwise
-                                                                    actionCode(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
-                                                                }
-                                                            } else {
-                                                                errorCode("Error retrieving vehicles with Kamereon token")
-                                                            }
-                                                        } // end of closure
-                                                    } else {
-                                                        os_log("Could not retrieve Kamereon token - trying without anyway", log: self.serviceLog, type: .debug)
-
-                                                        let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
-                                                        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-                                                        components.queryItems = [
-                                                            URLQueryItem(name: "country", value: self.country)
-                                                        ]
-                                                        let headers = [
-                                                            "x-gigya-id_token": self.context.tokenInfo!.id_token,
-                                                            "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey
-                                                        ]
-                                                        // Fetch VIN using the retrieved access token
-                                                        self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
-                                                            if result != nil {
-                                                                os_log("Successfully retrieved vehicles without Kamereon token, Number of vehicles in account: %{public}d", log: self.serviceLog, type: .debug, result!.vehicleLinks.count)
-
-                                                                if self.vehicle >= result!.vehicleLinks.count {
-                                                                    errorCode("VIN index not found.")
-                                                                } else {
-                                                                    os_log("VIN[%{public}d]: %{public}s", log: self.serviceLog, type: .debug, self.vehicle, result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)
-
-                                                                    self.context.vehiclesInfo = result // save for later use
-                                                                    
-                                                                    // must explicitly pass results, because the actionCode closure would use older captured values otherwise
-                                                                    actionCode(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
-                                                                }
-                                                            } else {
-                                                                errorCode("Error retrieving vehicles without Kamereon token")
-                                                            }
-                                                        } // end of closure
-                                                    }
-                                                } // end of closure
-                                            } else {
-                                                errorCode("Error retrieving Kamereon accounts")
-                                            }
-                                        } // end of closure
-                                    } else {
-                                        errorCode("Error retrieving Gigya JWT token")
-                                    }
-                                } // end of closure
-                            } else {
-                                errorCode("Error retrieving account info")
-                            }
-                        } // end of closure
-                    } else {
-                        errorCode("Error retrieving session key")
-                    }
-                } // end of closure
             } else {
-                errorCode("Error retrieving targets and api keys")
+                self.context.apiKeysAndUrls = ApiKeyResult(servers: ApiKeyResult.Servers(wiredProd: ApiKeyResult.Servers.ServerAndKey(target: "https://api-wired-prod-1-euw1.wrd-aws.com", apikey: "oF09WnKqvBDcrQzcW1rJNpjIuy7KdGaB"), gigyaProd: ApiKeyResult.Servers.ServerAndKey(target: "https://accounts.eu1.gigya.com", apikey: "3_7PLksOyBRkHv126x5WhHb-5pqC1qFR8pQjxSeLB6nhAnPERTUlwnYoznHSxwX668")))
             }
+            
+            // override Kamereon if a key is specified in user preferences:
+            if self.kamereon! != "" {
+                os_log("Override Kamereon Key: %{public}s", log: self.serviceLog, type: .debug, self.kamereon!)
+                self.context.apiKeysAndUrls!.servers.wiredProd.apikey = self.kamereon!
+            }
+            
+            // Fetch session key from the previously learned URL using the retreived API key
+            let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.login")!
+            var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+            components.queryItems = [
+                URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey),
+                URLQueryItem(name: "loginID", value: self.username),
+                URLQueryItem(name: "password", value: self.password),
+                URLQueryItem(name: "sessionExpiration",value: "900") // try to set it myself, so I know the value
+                // see https://developers.gigya.com/display/GD/accounts.login+REST
+            ]
+            self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:SessionInfo?) -> Void in
+                if result != nil {
+                    os_log("Successfully retrieved session key, Cookie value: %{public}s", log: self.serviceLog, type: .debug,result!.sessionInfo.cookieValue)
+                    
+                    self.context.sessionInfo = result // save for later use.
+                    // do not know how to decode the cookie.
+                    
+                    let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getAccountInfo")!
+                    var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+                    components.queryItems = [
+                        /* old style */
+                        URLQueryItem(name: "oauth_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
+                        /* new style */
+                        URLQueryItem(name: "login_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
+                        URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey)
+                    ]
+                    
+                    // Fetch person ID from the same URL using the retrieved session key
+                    self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:AccountInfo?) -> Void in
+                        if result != nil {
+                            os_log("Successfully retrieved account info, person ID: %{public}s", log: self.serviceLog, type: .debug, result!.data.personId)
+                            
+                            self.context.accountInfo = result // save for later use
+                            
+                            let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getJWT")!
+                            var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+                            components.queryItems = [
+                                /* old style */
+                                URLQueryItem(name: "oauth_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
+                                /* new style */
+                                URLQueryItem(name: "login_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
+                                URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey),
+                                /* other fields */
+                                URLQueryItem(name: "fields", value: "data.personId,data.gigyaDataCenter"),
+                                URLQueryItem(name: "expiration", value: "900")
+                            ]
+                            
+                            // Fetch Gigya JWT token from the same URL using the retrieved session key
+                            self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:TokenInfo?) -> Void in
+                                if result != nil {
+                                    os_log("Successfully retrieved Gigya JWT token", log: self.serviceLog, type: .debug)
+                                    self.context.tokenInfo = result // save for later use
+                                    self.decodeToken(token:result!.id_token) // "exp" fields contains timestamp 900s in the future
+                                    
+                                    let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/persons/"+self.context.accountInfo!.data.personId)!
+                                    var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+                                    components.queryItems = [
+                                        URLQueryItem(name: "country", value: self.country)
+                                    ]
+                                    let headers = [
+                                        "x-gigya-id_token":self.context.tokenInfo!.id_token,
+                                        "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey
+                                    ]
+                                    // Fetch Kamereon account ID from the person-id dependent URL using the retrieved Gigya JWT token
+                                    self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:KamereonAccountInfo?) -> Void in
+                                        if result != nil {
+                                            os_log("Successfully retrieved Kamereon accounts, Account id 0: %{public}s", log: self.serviceLog, type: .debug, result!.accounts[0].accountId)
+                                            
+                                            self.context.kamereonAccountInfo = result // save for later use
+                                            
+                                            
+                                            let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/token")!
+                                            var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+                                            components.queryItems = [
+                                                URLQueryItem(name: "country", value: self.country)
+                                            ]
+                                            let headers = [
+                                                "x-gigya-id_token":self.context.tokenInfo!.id_token,
+                                                "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey
+                                            ]
+                                            // Fetch Kamereon accessToken from the account dependent URL using the retrieved Gigya JWT token
+                                            self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:KamereonTokenInfo?) -> Void in
+                                                if result != nil {
+                                                    os_log("Successfully retrieved Kamereon accessToken", log: self.serviceLog, type: .debug)
+                                                    self.context.kamereonTokenInfo = result // save for later use
+                                                    self.decodeToken(token:result!.accessToken) // "expires_in":3600000 = 1h ?
+                                                    // not used, just investigating:
+                                                    //                                                        print("refreshToken:")
+                                                    //                                                        self.decodeToken(token: result!.refreshToken)
+                                                    //                                                        print("idToken:")
+                                                    //                                                        self.decodeToken(token: result!.idToken)
+                                                    
+                                                    let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
+                                                    var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+                                                    components.queryItems = [
+                                                        URLQueryItem(name: "country", value: self.country)
+                                                    ]
+                                                    let headers = [
+                                                        "x-gigya-id_token": self.context.tokenInfo!.id_token,
+                                                        "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey,
+                                                        "x-kamereon-authorization": "Bearer " + self.context.kamereonTokenInfo!.accessToken
+                                                    ]
+                                                    // Fetch VIN using the retrieved access token
+                                                    self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
+                                                        if result != nil {
+                                                            os_log("Successfully retrieved vehicles with Kamereon token, Number of vehicles in account: %{public}d", log: self.serviceLog, type: .debug, result!.vehicleLinks.count)
+                                                            
+                                                            if self.vehicle >= result!.vehicleLinks.count {
+                                                                errorCode("VIN index not found.")
+                                                            } else {
+                                                                os_log("VIN[%{public}d]: %{public}s", log: self.serviceLog, type: .debug, self.vehicle, result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)
+                                                                
+                                                                self.context.vehiclesInfo = result // save for later use
+                                                                
+                                                                // must explicitly pass results, because the actionCode closure would use older captured values otherwise
+                                                                actionCode(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
+                                                            }
+                                                        } else {
+                                                            errorCode("Error retrieving vehicles with Kamereon token")
+                                                        }
+                                                    } // end of closure
+                                                } else {
+                                                    os_log("Could not retrieve Kamereon token - trying without anyway", log: self.serviceLog, type: .debug)
+                                                    
+                                                    let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
+                                                    var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+                                                    components.queryItems = [
+                                                        URLQueryItem(name: "country", value: self.country)
+                                                    ]
+                                                    let headers = [
+                                                        "x-gigya-id_token": self.context.tokenInfo!.id_token,
+                                                        "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey
+                                                    ]
+                                                    // Fetch VIN using the retrieved access token
+                                                    self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
+                                                        if result != nil {
+                                                            os_log("Successfully retrieved vehicles without Kamereon token, Number of vehicles in account: %{public}d", log: self.serviceLog, type: .debug, result!.vehicleLinks.count)
+                                                            
+                                                            if self.vehicle >= result!.vehicleLinks.count {
+                                                                errorCode("VIN index not found.")
+                                                            } else {
+                                                                os_log("VIN[%{public}d]: %{public}s", log: self.serviceLog, type: .debug, self.vehicle, result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)
+                                                                
+                                                                self.context.vehiclesInfo = result // save for later use
+                                                                
+                                                                // must explicitly pass results, because the actionCode closure would use older captured values otherwise
+                                                                actionCode(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
+                                                            }
+                                                        } else {
+                                                            errorCode("Error retrieving vehicles without Kamereon token")
+                                                        }
+                                                    } // end of closure
+                                                }
+                                            } // end of closure
+                                        } else {
+                                            errorCode("Error retrieving Kamereon accounts")
+                                        }
+                                    } // end of closure
+                                } else {
+                                    errorCode("Error retrieving Gigya JWT token")
+                                }
+                            } // end of closure
+                        } else {
+                            errorCode("Error retrieving account info")
+                        }
+                    } // end of closure
+                } else {
+                    errorCode("Error retrieving session key")
+                }
+            } // end of closure
+            //} else {
+            //  errorCode("Error retrieving targets and api keys")
+            //}
         } // end of closure
     }
     
@@ -339,6 +341,9 @@ class MyR {
     }
     
     func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?, String?) -> ()) {
+        
+        let version: Version = .v2
+        
         struct BatteryInfoV2: Codable {
             var data: Data
             struct Data: Codable {
@@ -526,7 +531,7 @@ class MyR {
         case .v2:
             self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:BatteryInfoV2?) -> Void in
                 if result != nil {
-                    os_log("Successfully retrieved battery state V2:\n level: %d\n battery temperature: %d", log: self.serviceLog, type: .debug, result!.data.attributes.batteryLevel ?? "N/A", result!.data.attributes.batteryTemperature ?? "N/A")
+                    os_log("Successfully retrieved battery state V2:\n level: %d\n battery temperature: %d", log: self.serviceLog, type: .debug, result!.data.attributes.batteryLevel ?? -128, result!.data.attributes.batteryTemperature ?? -128)
 
                     var charging_point: String?
                     if let power=result!.data.attributes.chargingInstantaneousPower {
@@ -593,7 +598,7 @@ class MyR {
         
     func cockpitState(callback:@escaping  (Bool, Float?) -> ()) {
         
-        
+        let version:Version = .v1
         /*
          
         v1:
@@ -610,7 +615,7 @@ class MyR {
         struct cockpitInfoV1: Codable {
                     var data: Data
                     struct Data: Codable {
-                        var type: String
+                        var type: String?
                         var id: String
                         var attributes: Attributes
                         struct Attributes: Codable {
@@ -622,7 +627,7 @@ class MyR {
         struct cockpitInfoV2: Codable {
                 var data: Data
                 struct Data: Codable {
-                    var type: String
+                    var type: String?
                     var id: String
                     var attributes: Attributes
                     struct Attributes: Codable {

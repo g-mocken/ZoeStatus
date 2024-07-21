@@ -156,7 +156,9 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         }
         userDefaults.setValue(sc.kamereon, forKey: "kamereon_preference") // preset this field in current release
 
-        let new_api = ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference"))
+        
+        let new_api = ServiceConnection.ApiVersion(rawValue: 1 /*userDefaults.integer(forKey: "api_preference")*/) // dummy value 1, which is ignored
+        /* Renault is no longer using a consistent version, i.e. battery state only works as v2 and cockpit as v1. */
        
         if (sc.api != new_api) { // if there is an API change, force new login
             sc.api = new_api

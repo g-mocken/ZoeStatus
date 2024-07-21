@@ -19,6 +19,7 @@
 		9A47C943237F5E00006A5FDB /* WidgetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A47C942237F5E00006A5FDB /* WidgetViewController.swift */; };
 		9A47C946237F5E00006A5FDB /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A47C944237F5E00006A5FDB /* MainInterface.storyboard */; };
 		9A47C94A237F5E00006A5FDB /* Zoe.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9A47C93E237F5E00006A5FDB /* Zoe.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		9A49E6A12C4DB633005BD26D /* AppIntentVocabulary.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9A49E6A02C4DB633005BD26D /* AppIntentVocabulary.plist */; };
 		9A512FA521B2DDCB007EFAAB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FA421B2DDCB007EFAAB /* AppDelegate.swift */; };
 		9A512FA721B2DDCB007EFAAB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FA621B2DDCB007EFAAB /* ViewController.swift */; };
 		9A512FAA21B2DDCB007EFAAB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FA821B2DDCB007EFAAB /* Main.storyboard */; };
@@ -167,6 +168,7 @@
 		9A47C942237F5E00006A5FDB /* WidgetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViewController.swift; sourceTree = "<group>"; };
 		9A47C945237F5E00006A5FDB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		9A47C947237F5E00006A5FDB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9A49E6A02C4DB633005BD26D /* AppIntentVocabulary.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = AppIntentVocabulary.plist; sourceTree = "<group>"; };
 		9A512FA121B2DDCB007EFAAB /* ZoeStatus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZoeStatus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A512FA421B2DDCB007EFAAB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9A512FA621B2DDCB007EFAAB /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -275,6 +277,7 @@
 		9A512F9821B2DDCB007EFAAB = {
 			isa = PBXGroup;
 			children = (
+				9A49E6A02C4DB633005BD26D /* AppIntentVocabulary.plist */,
 				9A512FA321B2DDCB007EFAAB /* ZoeStatus */,
 				9A47C941237F5E00006A5FDB /* ZoeStatus Widget */,
 				9AA73CFA23A15526001A6234 /* ZEServices */,
@@ -622,6 +625,7 @@
 			files = (
 				9A9C859421E40A640022EC47 /* defaultValues.plist in Resources */,
 				9A512FB921B3FE71007EFAAB /* Settings.bundle in Resources */,
+				9A49E6A12C4DB633005BD26D /* AppIntentVocabulary.plist in Resources */,
 				9A512FAF21B2DDCD007EFAAB /* LaunchScreen.storyboard in Resources */,
 				9A512FAC21B2DDCD007EFAAB /* Assets.xcassets in Resources */,
 				9A512FAA21B2DDCB007EFAAB /* Main.storyboard in Resources */,
@@ -802,7 +806,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -837,7 +841,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -872,7 +876,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Widget/ZoeStatusWidget.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = "ZoeStatus Widget/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
@@ -898,7 +902,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Widget/ZoeStatusWidget.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = "ZoeStatus Widget/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
@@ -1046,7 +1050,7 @@
 				CODE_SIGN_ENTITLEMENTS = ZoeStatus/ZoeStatus.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = ZoeStatus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
@@ -1073,7 +1077,7 @@
 				CODE_SIGN_ENTITLEMENTS = ZoeStatus/ZoeStatus.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = ZoeStatus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
@@ -1099,7 +1103,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconWatch;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				IBSC_MODULE = Watch_Extension;
 				INFOPLIST_FILE = "ZoeStatus Watch/Info.plist";
@@ -1122,7 +1126,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconWatch;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				IBSC_MODULE = Watch_Extension;
 				INFOPLIST_FILE = "ZoeStatus Watch/Info.plist";
@@ -1144,7 +1148,7 @@
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = "ZoeStatus Watch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1170,7 +1174,7 @@
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				INFOPLIST_FILE = "ZoeStatus Watch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1196,7 +1200,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1232,7 +1236,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1269,7 +1273,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Intents Extension/ZoeStatus Intents Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ZoeStatus Intents Extension/Info.plist";
@@ -1301,7 +1305,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Intents Extension/ZoeStatus Intents Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3.0.1;
+				CURRENT_PROJECT_VERSION = 1.3.0.3;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ZoeStatus Intents Extension/Info.plist";
