@@ -765,7 +765,7 @@ class MyR {
         
         switch command {
         case .read:
-            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/hvac-status")!
+            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/hvac-status")!  // endpoint does no longer exist? error 404 -> missing time for next planned session and missing external temperature
 
         case .now, .later, .delete:
             endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/actions/hvac-start")!
@@ -791,7 +791,7 @@ class MyR {
             struct Data:Codable {
                 var type: String
                 var id: String?
-                var attributes:Attributes
+                var attributes:Attributes?
                 struct Attributes:Codable {
                     var action: String
                     var targetTemperature: Float?
@@ -919,7 +919,7 @@ class MyR {
          
          */
         
-        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/hvac-sessions")!
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/hvac-sessions")! // endpoint does no longer exist? error 404 -> missing status&time&date of last session
         
         let dateFormatter = DateFormatter()
         let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET

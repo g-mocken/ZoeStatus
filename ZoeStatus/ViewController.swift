@@ -617,7 +617,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
                 }
             } else {
-                datePickerButton.setTitle("⏰ error", for: .normal)
+                datePickerButton.setTitle("⏰ …", for: .normal) // do not display "error", although it technically would be correct (e.g. error 404 while trying to read status)
             }
             if command == .read && externalTemperature != nil {
                 temperatureResult.text = "🌡 \(externalTemperature!)°"
