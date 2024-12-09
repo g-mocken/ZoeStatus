@@ -13,6 +13,7 @@
 		9A244451239478200001AF9B /* ServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */; };
 		9A244452239478650001AF9B /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A57C96323800D2B00A01C61 /* Utilities.swift */; };
 		9A244456239556B60001AF9B /* ZEServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A244444239473990001AF9B /* ZEServices.framework */; };
+		9A24A3E42D07A146004B96FC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FAB21B2DDCD007EFAAB /* Assets.xcassets */; };
 		9A368F1023E3415800DE95BF /* MyR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A368F0F23E3415800DE95BF /* MyR.swift */; };
 		9A368F1123E34A4000DE95BF /* MyR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A368F0F23E3415800DE95BF /* MyR.swift */; };
 		9A47C940237F5E00006A5FDB /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */; platformFilter = ios; };
@@ -242,6 +243,7 @@
 		9A4E5D1B2D03A39200D2C761 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Assets.xcassets,
 				Info.plist,
 			);
 			target = 9A4E5D0B2D03A39100D2C761 /* ZoeStatus Modern WidgetExtension */;
@@ -716,6 +718,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A24A3E42D07A146004B96FC /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

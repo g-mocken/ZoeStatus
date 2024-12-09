@@ -210,7 +210,7 @@ struct ZoeStatus_Modern_WidgetEntryView : View {
         @unknown default:
             smallWidgetView
         }
-    }
+  }
     
     
     private var smallWidgetView: some View {
@@ -220,30 +220,29 @@ struct ZoeStatus_Modern_WidgetEntryView : View {
         }
     }
     
+
     private var mediumWidgetView: some View {
-        ZStack{
-            Color(#colorLiteral(red: 0.3293802142, green: 0.8935492039, blue: 0.9993924499, alpha: 1))
-            VStack(alignment: .center, spacing: 5){
-                GeometryReader { geometry in
-                    let availableWidth = geometry.size.width
-                    let fontSize = availableWidth * 0.1 // Calculate font size as a fraction of width
-                    
-                    HStack {
-                        Text(entry.level)
-                            .font(.system(size: fontSize)) // Dynamically scale font
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                        Text(entry.range)
-                            .font(.system(size: fontSize)) // Same scaling factor
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                }.frame(height: 50)
-                Text(entry.last_update).minimumScaleFactor(0.1).lineLimit(1)
-            }
+        VStack(alignment: .center, spacing: 05){
+            //Text("ZOE Status")
+            GeometryReader { geometry in
+                let availableWidth = geometry.size.width
+                let fontSize = availableWidth * 0.1 // Calculate font size as a fraction of width
+                HStack {
+                    Text(entry.level)
+                        .font(.system(size: fontSize)) // Dynamically scale font
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                    Text(entry.range)
+                        .font(.system(size: fontSize)) // Same scaling factor
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+            }.frame(height: 50)
+            Text(entry.last_update).minimumScaleFactor(0.1).lineLimit(1)
         }
     }
+
 
     
 
@@ -279,7 +278,9 @@ struct ZoeStatus_Modern_Widget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             if #available(iOS 17.0, *) {
                 ZoeStatus_Modern_WidgetEntryView(entry: entry)
-                    .containerBackground(.fill.tertiary, for: .widget)
+                    .containerBackground(/*.fill.tertiary, */ for: .widget){
+                    Color("Color-ZE")
+                    }
             } else {
                 ZoeStatus_Modern_WidgetEntryView(entry: entry)
                     .padding()
