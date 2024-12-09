@@ -243,7 +243,6 @@
 		9A4E5D1B2D03A39200D2C761 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Assets.xcassets,
 				Info.plist,
 			);
 			target = 9A4E5D0B2D03A39100D2C761 /* ZoeStatus Modern WidgetExtension */;
