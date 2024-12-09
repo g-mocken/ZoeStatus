@@ -221,24 +221,27 @@ struct ZoeStatus_Modern_WidgetEntryView : View {
     }
     
     private var mediumWidgetView: some View {
-        VStack(alignment: .center, spacing: 5){
-            GeometryReader { geometry in
-                let availableWidth = geometry.size.width
-                let fontSize = availableWidth * 0.1 // Calculate font size as a fraction of width
-
-                HStack {
-                    Text(entry.level)
-                        .font(.system(size: fontSize)) // Dynamically scale font
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                    Text(entry.range)
-                        .font(.system(size: fontSize)) // Same scaling factor
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-            }.frame(height: 50)
-            Text(entry.last_update).minimumScaleFactor(0.1).lineLimit(1)
+        ZStack{
+            Color(#colorLiteral(red: 0.3293802142, green: 0.8935492039, blue: 0.9993924499, alpha: 1))
+            VStack(alignment: .center, spacing: 5){
+                GeometryReader { geometry in
+                    let availableWidth = geometry.size.width
+                    let fontSize = availableWidth * 0.1 // Calculate font size as a fraction of width
+                    
+                    HStack {
+                        Text(entry.level)
+                            .font(.system(size: fontSize)) // Dynamically scale font
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                        Text(entry.range)
+                            .font(.system(size: fontSize)) // Same scaling factor
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                }.frame(height: 50)
+                Text(entry.last_update).minimumScaleFactor(0.1).lineLimit(1)
+            }
         }
     }
 
