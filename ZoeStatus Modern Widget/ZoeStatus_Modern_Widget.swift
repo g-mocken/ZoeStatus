@@ -52,16 +52,18 @@ struct Provider: TimelineProvider {
         }
     }
     
+
     func placeholder(in context: Context) -> SimpleEntry {
         print("placeholder") // is called at startup ... not shown anywhwere?
-        return SimpleEntry(date: Date(), range: "🛣️ …\u{2009}km", level: "🔋…\u{2009}%", last_update: "📅 … 🕰 …", widgetFamily: context.family)
+        return SimpleEntry(date: Date(), data: dummy, widgetFamily: context.family)
 
     }
 
+    
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
         
         print("getSnapshot") // preview with dummy data, is shown when adding new widget to homescreen or elsewhere
-        let entry = SimpleEntry(date: .now, range: "🛣️ 300.0\u{2009}km", level: "🔋100\u{2009}%", last_update: "📅 01.02.2003 🕰 12:34:56", widgetFamily: context.family)
+        let entry = SimpleEntry(date: .now, data: snapshot,  widgetFamily: context.family)
         completion(entry)
     }
     
@@ -75,13 +77,22 @@ struct Provider: TimelineProvider {
                         
             let range:String
             let level:String
+            let charger:String
             let update:String
-            
+            let chargingText: String
+            let pluggedText: String
+            let time: String
+
             if (error){
                 displayMessage(title: "Error", body: "Could not obtain battery state.")
                 range = "🛣️ …\u{2009}km"
-                level = "🔋…\u{2009}%"
+                level = "🔋 …\u{2009}%"
+                charger = "⛽️ …"
                 update = "📅 … 🕰 …"
+                time = "⏳ …"
+                pluggedText = "🔌 ❌"
+                chargingText = "⚡️ ❌"
+
             } else {
                 
                 level = String(format: "🔋%3d%%", charge_level)
@@ -99,18 +110,38 @@ struct Provider: TimelineProvider {
                     range = String(format: "🛣️ …")
                 }
                 remainingRangeCache = remaining_range
-                
+
                 update = timestampToDateString(timestamp: last_update)
                 last_update_cache = last_update
                 
+                if plugged, charging_point != nil {
+                    charger = "⛽️ " + charging_point!
+                } else {
+                    charger = "⛽️ …"
+                }
+
+                if charging, remaining_time != nil {
+                    time = String(format: "⏳ %d min.", remaining_time!)
+                } else {
+                    time = "⏳ …"
+                }
+                
+                pluggedText = plugged ? "🔌 ✅" : "🔌 ❌"
+                chargingText = charging ? "⚡️ ✅" : "⚡️ ❌"
+
             }
+
+            
+          
+
             
             let currentDate = Date()
+            let data = BatteryInfo(range: range, level: level, charger: charger, charging:chargingText, plugged: pluggedText, time: time, last_update: update)
             
             var entries: [SimpleEntry] = []
             for offset in stride(from: 0, to: 30, by: 1) { // 30min with steps of 1min
                 let entryDate = Calendar.current.date(byAdding: .minute, value: offset, to: currentDate)!
-                let entry = SimpleEntry(date: entryDate, range: range, level: level, last_update: update, widgetFamily: context.family)
+                let entry = SimpleEntry(date: entryDate, data: data, widgetFamily: context.family)
                 entries.append(entry)
             }
             
@@ -174,14 +205,21 @@ struct Provider: TimelineProvider {
 }
 
 
+struct BatteryInfo {
 
+    let range: String
+    let level: String
+    let charger: String
+    let charging: String
+    let plugged: String
+    let time: String
+    let last_update: String
+}
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
-//    let emoji: String
-    let range: String
-    let level: String
-    let last_update: String
+    
+    let data: BatteryInfo
     
     let widgetFamily: WidgetFamily
 
@@ -214,32 +252,82 @@ struct ZoeStatus_Modern_WidgetEntryView : View {
     
     
     private var smallWidgetView: some View {
-        VStack(alignment: .leading, spacing: 5){
-            Text(entry.level).font(.system(size: 48)).minimumScaleFactor(0.1).lineLimit(1)
-            Text(entry.range).font(.system(size: 48)).minimumScaleFactor(0.1).lineLimit(1)
+        GeometryReader { geometry in
+            let availableWidth = geometry.size.width
+            let fontSize = availableWidth * 0.3 // Calculate font size as a fraction of width
+            VStack(alignment: .leading, spacing: 10){
+                Text("ZOE").font(.system(size: fontSize)).bold()
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+                Spacer(minLength: 1.0)
+                Text(entry.data.level).font(.system(size: fontSize)).minimumScaleFactor(0.5).lineLimit(1)
+                Spacer(minLength: 1.0)
+                Text(entry.data.range).font(.system(size: fontSize)).minimumScaleFactor(0.5).lineLimit(1)
+            }
         }
     }
     
 
     private var mediumWidgetView: some View {
-        VStack(alignment: .center, spacing: 05){
-            //Text("ZOE Status")
+        VStack(alignment: .leading, spacing: 5){
+
             GeometryReader { geometry in
                 let availableWidth = geometry.size.width
                 let fontSize = availableWidth * 0.1 // Calculate font size as a fraction of width
-                HStack {
-                    Text(entry.level)
-                        .font(.system(size: fontSize)) // Dynamically scale font
-                        .lineLimit(1)
+                VStack(alignment: .leading, spacing: 5){
+                    Text("ZOE").font(.system(size: fontSize)).bold()
                         .minimumScaleFactor(0.5)
-                    Text(entry.range)
-                        .font(.system(size: fontSize)) // Same scaling factor
                         .lineLimit(1)
-                        .minimumScaleFactor(0.5)
+                        .frame(maxWidth: .infinity)
+                        .multilineTextAlignment(.center)
+                    Spacer(minLength: 1.0)
+                    HStack {
+                        Text(entry.data.level)
+                            .font(.system(size: fontSize)) // Dynamically scale font
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                        Text(entry.data.range)
+                            .font(.system(size: fontSize)) // Same scaling factor
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
+                    Spacer(minLength: 1.0)
+                    HStack {
+                        Text(entry.data.charger)
+                            .font(.system(size: fontSize)) // Dynamically scale font
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                        Text(entry.data.time)
+                            .font(.system(size: fontSize)) // Same scaling factor
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
+                    Spacer(minLength: 1.0)
+                    HStack {
+                        Text(entry.data.plugged)
+                            .font(.system(size: fontSize)) // Same scaling factor
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                        Text(entry.data.charging)
+                            .font(.system(size: fontSize)) // Same scaling factor
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
+                    Spacer(minLength: 1.0)
+                    HStack {
+                        Text(entry.data.last_update).font(.system(size: fontSize)) // Same scaling factor
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
-            }.frame(height: 50)
-            Text(entry.last_update).minimumScaleFactor(0.1).lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }//.frame(height: 55)
+            
+            
+ 
+            
         }
     }
 
@@ -248,24 +336,26 @@ struct ZoeStatus_Modern_WidgetEntryView : View {
 
     
     private var circularWidgetView: some View {
-        VStack(alignment: .leading, spacing: 5){
-            Text(entry.level).font(.system(size: 48)).minimumScaleFactor(0.1).lineLimit(1)
-            Text(entry.range).font(.system(size: 48)).minimumScaleFactor(0.1).lineLimit(1)
+        VStack(alignment: .leading, spacing: -2){
+            Text("ZOE").font(.system(size: 20)).minimumScaleFactor(0.1).lineLimit(1).frame(maxWidth: .infinity) // Takes the full width
+                .multilineTextAlignment(.center) // Centers the text
+            Text(entry.data.range).font(.system(size: 48)).minimumScaleFactor(0.1).lineLimit(1).padding(.bottom, 6) // Custom spacing just for this entry
+            Text(entry.data.level).font(.system(size: 48)).minimumScaleFactor(0.1).lineLimit(1)
         }
     }
     private var rectangularWidgetView: some View {
 
             VStack(alignment: .leading, spacing: 5){
                 HStack{
-                    Text(entry.level + "  " + entry.range).minimumScaleFactor(0.5).lineLimit(1)
+                    Text(entry.data.level + "  " + entry.data.range).minimumScaleFactor(0.5).lineLimit(1)
                 }
-                Text(entry.last_update).minimumScaleFactor(0.5).lineLimit(1)
+                Text(entry.data.last_update).minimumScaleFactor(0.5).lineLimit(1)
             }
     }
     
     private var inlineWidgetView: some View {
         HStack{
-            Text(entry.level + "  " + entry.range).minimumScaleFactor(0.5).lineLimit(1) // why do two Text() not work here?
+            Text("ZOE:" + entry.data.level + entry.data.range ).minimumScaleFactor(0.5).lineLimit(1) // why do two Text() not work here?
         }
     }
     
@@ -294,13 +384,18 @@ struct ZoeStatus_Modern_Widget: Widget {
     }
 }
 
+
+let dummy = BatteryInfo(range: "🛣️ …\u{2009}km", level: "🔋…\u{2009}%", charger: "⛽️ …", charging: "⚡️ ❌", plugged: "🔌 ❌", time: "⏳ …", last_update: "📅 … 🕰 …")
+let snapshot = BatteryInfo(range: "🛣️ 300.0\u{2009}km", level: "🔋100\u{2009}%", charger: "⛽️ 0\u{2009}kW", charging: "⚡️ ❌", plugged: "🔌 ✅", time: "⏳ 0 min.", last_update: "📅 01.02.2003 🕰 12:34:56")
+
+
 #Preview("Small", as: .systemSmall) {
     ZoeStatus_Modern_Widget()
 } timeline: {
 
     // "\u{2009}" = thin space
-    SimpleEntry(date: .now, range: "🛣️ 300.0\u{2009}km", level: "🔋100\u{2009}%", last_update: "📅 01.02.2003 🕰 12:34:56", widgetFamily: .systemSmall)
-    SimpleEntry(date: .now, range: "🛣️ …\u{2009}km", level: "🔋…\u{2009}%", last_update: "📅 … 🕰 …", widgetFamily: .systemSmall)
+    SimpleEntry(date: .now, data: snapshot, widgetFamily: .systemSmall)
+    SimpleEntry(date: .now, data: dummy, widgetFamily: .systemSmall)
 }
 
 #Preview("Medium", as: .systemMedium) {
@@ -308,16 +403,16 @@ struct ZoeStatus_Modern_Widget: Widget {
 } timeline: {
 
     // "\u{2009}" = thin space
-    SimpleEntry(date: .now, range: "🛣️ 300.0\u{2009}km", level: "🔋100\u{2009}%", last_update: "📅 01.02.2003 🕰 12:34:56", widgetFamily: .systemMedium)
-    SimpleEntry(date: .now, range: "🛣️ …\u{2009}km", level: "🔋…\u{2009}%", last_update: "📅 … 🕰 …", widgetFamily: .systemMedium)
+    SimpleEntry(date: .now, data: snapshot, widgetFamily: .systemMedium)
+    SimpleEntry(date: .now, data: dummy, widgetFamily: .systemMedium)
 }
 #Preview("Large", as: .systemLarge) {
     ZoeStatus_Modern_Widget()
 } timeline: {
 
     // "\u{2009}" = thin space
-    SimpleEntry(date: .now, range: "🛣️ 300.0\u{2009}km", level: "🔋100\u{2009}%", last_update: "📅 01.02.2003 🕰 12:34:56", widgetFamily: .systemLarge)
-    SimpleEntry(date: .now, range: "🛣️ …\u{2009}km", level: "🔋…\u{2009}%", last_update: "📅 … 🕰 …", widgetFamily: .systemLarge)
+    SimpleEntry(date: .now, data: snapshot, widgetFamily: .systemLarge)
+    SimpleEntry(date: .now, data: dummy, widgetFamily: .systemLarge)
 }
 
  
@@ -326,8 +421,8 @@ struct ZoeStatus_Modern_Widget: Widget {
 } timeline: {
 
     // "\u{2009}" = thin space
-    SimpleEntry(date: .now, range: "🛣️ 300.0\u{2009}km", level: "🔋100\u{2009}%", last_update: "📅 01.02.2003 🕰 12:34:56", widgetFamily: .systemExtraLarge)
-    SimpleEntry(date: .now, range: "🛣️ …\u{2009}km", level: "🔋…\u{2009}%", last_update: "📅 … 🕰 …", widgetFamily: .systemExtraLarge)
+    SimpleEntry(date: .now, data: snapshot, widgetFamily: .systemExtraLarge)
+    SimpleEntry(date: .now, data: dummy, widgetFamily: .systemExtraLarge)
 }
 
 
@@ -336,8 +431,8 @@ struct ZoeStatus_Modern_Widget: Widget {
 } timeline: {
 
     // "\u{2009}" = thin space
-    SimpleEntry(date: .now, range: "🛣️ 300.0\u{2009}km", level: "🔋100\u{2009}%", last_update: "📅 01.02.2003 🕰 12:34:56", widgetFamily: .accessoryCircular)
-    SimpleEntry(date: .now, range: "🛣️ …\u{2009}km", level: "🔋…\u{2009}%", last_update: "📅 … 🕰 …", widgetFamily: .accessoryCircular)
+    SimpleEntry(date: .now, data: snapshot, widgetFamily: .accessoryCircular)
+    SimpleEntry(date: .now, data: dummy, widgetFamily: .accessoryCircular)
 }
 
  
@@ -346,8 +441,8 @@ struct ZoeStatus_Modern_Widget: Widget {
 } timeline: {
 
     // "\u{2009}" = thin space
-    SimpleEntry(date: .now, range: "🛣️ 300.0\u{2009}km", level: "🔋100\u{2009}%", last_update: "📅 01.02.2003 🕰 12:34:56", widgetFamily: .accessoryInline)
-    SimpleEntry(date: .now, range: "🛣️ …\u{2009}km", level: "🔋…\u{2009}%", last_update: "📅 … 🕰 …", widgetFamily: .accessoryInline)
+    SimpleEntry(date: .now, data: snapshot, widgetFamily: .accessoryInline)
+    SimpleEntry(date: .now, data: dummy, widgetFamily: .accessoryInline)
 }
 
 
@@ -356,6 +451,6 @@ struct ZoeStatus_Modern_Widget: Widget {
 } timeline: {
 
     // "\u{2009}" = thin space
-    SimpleEntry(date: .now, range: "🛣️ 300.0\u{2009}km", level: "🔋100\u{2009}%", last_update: "📅 01.02.2003 🕰 12:34:56", widgetFamily: .accessoryRectangular)
-    SimpleEntry(date: .now, range: "🛣️ …\u{2009}km", level: "🔋…\u{2009}%", last_update: "📅 … 🕰 …", widgetFamily: .accessoryRectangular)
+    SimpleEntry(date: .now, data: snapshot, widgetFamily: .accessoryRectangular)
+    SimpleEntry(date: .now, data: dummy, widgetFamily: .accessoryRectangular)
 }
