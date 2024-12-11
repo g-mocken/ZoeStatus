@@ -236,9 +236,9 @@ struct ZoeStatus_Modern_WidgetEntryView : View {
         case .systemMedium:
             mediumWidgetView
         case .systemLarge:
-            mediumWidgetView
+            largeWidgetView
         case .systemExtraLarge:
-            mediumWidgetView
+            largeWidgetView
         case .accessoryCircular:
             circularWidgetView
         case .accessoryRectangular:
@@ -254,17 +254,17 @@ struct ZoeStatus_Modern_WidgetEntryView : View {
     private var smallWidgetView: some View {
         GeometryReader { geometry in
             let availableWidth = geometry.size.width
-            let fontSize = availableWidth * 0.3 // Calculate font size as a fraction of width
+            let fontSize = availableWidth * 0.25 // Calculate font size as a fraction of width
             VStack(alignment: .leading, spacing: 10){
                 Text("ZOE").font(.system(size: fontSize)).bold()
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity)
                     .multilineTextAlignment(.center)
-                Spacer(minLength: 1.0)
-                Text(entry.data.level).font(.system(size: fontSize)).minimumScaleFactor(0.5).lineLimit(1)
-                Spacer(minLength: 1.0)
-                Text(entry.data.range).font(.system(size: fontSize)).minimumScaleFactor(0.5).lineLimit(1)
+                //Spacer(minLength: 10)
+                Text(entry.data.level).font(.system(size: fontSize)).minimumScaleFactor(0.1).lineLimit(1)
+                //Spacer(minLength: 0)
+                Text(entry.data.range).font(.system(size: fontSize)).minimumScaleFactor(0.1).lineLimit(1)
             }
         }
     }
@@ -275,7 +275,7 @@ struct ZoeStatus_Modern_WidgetEntryView : View {
 
             GeometryReader { geometry in
                 let availableWidth = geometry.size.width
-                let fontSize = availableWidth * 0.1 // Calculate font size as a fraction of width
+                let fontSize = availableWidth * 0.06 // Calculate font size as a fraction of width
                 VStack(alignment: .leading, spacing: 5){
                     Text("ZOE").font(.system(size: fontSize)).bold()
                         .minimumScaleFactor(0.5)
@@ -287,52 +287,102 @@ struct ZoeStatus_Modern_WidgetEntryView : View {
                         Text(entry.data.level)
                             .font(.system(size: fontSize)) // Dynamically scale font
                             .lineLimit(1)
-                            .minimumScaleFactor(0.5)
+                            //.minimumScaleFactor(0.5)
                         Text(entry.data.range)
                             .font(.system(size: fontSize)) // Same scaling factor
                             .lineLimit(1)
-                            .minimumScaleFactor(0.5)
+                            //.minimumScaleFactor(0.5)
                     }
                     Spacer(minLength: 1.0)
                     HStack {
                         Text(entry.data.charger)
                             .font(.system(size: fontSize)) // Dynamically scale font
                             .lineLimit(1)
-                            .minimumScaleFactor(0.5)
+                            //.minimumScaleFactor(0.5)
                         Text(entry.data.time)
                             .font(.system(size: fontSize)) // Same scaling factor
                             .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                    }
-                    Spacer(minLength: 1.0)
-                    HStack {
+                            //.minimumScaleFactor(0.5)
                         Text(entry.data.plugged)
                             .font(.system(size: fontSize)) // Same scaling factor
                             .lineLimit(1)
-                            .minimumScaleFactor(0.5)
+                            //.minimumScaleFactor(0.5)
                         Text(entry.data.charging)
                             .font(.system(size: fontSize)) // Same scaling factor
                             .lineLimit(1)
-                            .minimumScaleFactor(0.5)
+                            //.minimumScaleFactor(0.5)
                     }
                     Spacer(minLength: 1.0)
                     HStack {
                         Text(entry.data.last_update).font(.system(size: fontSize)) // Same scaling factor
                             .lineLimit(1)
-                            .minimumScaleFactor(0.5)
+                            //.minimumScaleFactor(0.5)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }//.frame(height: 55)
-            
-            
- 
-            
         }
     }
 
 
-    
+    private var largeWidgetView: some View {
+        VStack(alignment: .leading, spacing: 5){
+
+            GeometryReader { geometry in
+                let availableWidth = geometry.size.width
+                let fontSize = availableWidth * 0.08 // Calculate font size as a fraction of width
+                VStack(alignment: .leading, spacing: 5){
+                    Text("ZOE").font(.system(size: fontSize)).bold()
+                        //.minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity)
+                        .multilineTextAlignment(.center)
+                    Spacer(minLength: 1.0)
+                    HStack {
+                        Text(entry.data.level)
+                            .font(.system(size: fontSize)) // Dynamically scale font
+                            .lineLimit(1)
+                            //.minimumScaleFactor(0.5)
+                        Text(entry.data.range)
+                            .font(.system(size: fontSize)) // Same scaling factor
+                            .lineLimit(1)
+                            //.minimumScaleFactor(0.5)
+                    }
+                    Spacer(minLength: 1.0)
+                    HStack {
+                        Text(entry.data.charger)
+                            .font(.system(size: fontSize)) // Dynamically scale font
+                            .lineLimit(1)
+                            //.minimumScaleFactor(0.5)
+                        Text(entry.data.time)
+                            .font(.system(size: fontSize)) // Same scaling factor
+                            .lineLimit(1)
+                            //.minimumScaleFactor(0.5)
+                       
+                    }
+                    Spacer(minLength: 1.0)
+                    HStack {
+                        
+                        Text(entry.data.plugged)
+                            .font(.system(size: fontSize)) // Same scaling factor
+                            .lineLimit(1)
+                        //.minimumScaleFactor(0.5)
+                        Text(entry.data.charging)
+                            .font(.system(size: fontSize)) // Same scaling factor
+                            .lineLimit(1)
+                        //.minimumScaleFactor(0.5)
+                    }
+                    Spacer(minLength: 1.0)
+                    HStack {
+                        Text(entry.data.last_update).font(.system(size: fontSize)) // Same scaling factor
+                            .lineLimit(1)
+                            //.minimumScaleFactor(0.5)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }//.frame(height: 55)
+        }
+    }
 
     
     private var circularWidgetView: some View {
