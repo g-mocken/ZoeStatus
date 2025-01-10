@@ -563,7 +563,7 @@ class MyR {
                     // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
                     DispatchQueue.main.async{
                         callback(false,
-                                 result!.data.attributes.chargingStatus == 1.0,
+                                 result!.data.attributes.chargingStatus == 1.0 || (result!.data.attributes.chargingRemainingTime ?? 0 > 0       ) /* see https://github.com/hacf-fr/renault-api/blob/main/src/renault_api/kamereon/enums.py */,
                                  result!.data.attributes.plugStatus > 0,
                                  UInt8(result!.data.attributes.batteryLevel ?? 0),
                                  result!.data.attributes.batteryAutonomy ?? -1.0,
