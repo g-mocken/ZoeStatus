@@ -10,6 +10,7 @@ import UIKit
 import ZEServices
 import WatchConnectivity
 import os
+import WidgetKit
 
 class ViewController: UIViewController, MapViewControllerDelegate {
     
@@ -489,7 +490,10 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     var count = 0
 
     @IBAction func refreshButtonPressed(_ sender: UIButton) {
-              
+         
+        WidgetCenter.shared.reloadTimelines(ofKind: "ZoeStatus_Modern_Widget")
+
+        
 #if targetEnvironment(macCatalyst)
     // UIKit running on macOS requires an explicit refresh of the preferences, because the notification is never triggered
     self.applicationDidBecomeActive(notification: Notification(name: Notification.Name("applicationDidBecomeActive"), object: nil))

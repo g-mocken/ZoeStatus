@@ -12,6 +12,8 @@ import os // for os_log
 //import OSLog
 import Intents
 import MapKit
+import BackgroundTasks
+import WidgetKit
 
 let subsystem = Bundle.main.bundleIdentifier! //"com.grm.ZoeStatus"
 
@@ -158,6 +160,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
         // Override point for customization after application launch.
         print("didFinishLaunchingWithOptions")
         
+        // Register the background task handler
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.grm.ZoeStatus.refresh", using: nil) { task in
+            self.handleBackgroundRefresh(task: task as! BGAppRefreshTask)
+        }
+        print("BGAppRefreshTask registered")
+
+        
         
         INPreferences.requestSiriAuthorization({ status in
             if status == .authorized {
@@ -198,6 +207,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+
+        scheduleBackgroundTask()
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -274,5 +285,55 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
         print("Re-launched with shortcut \(String(describing: shortcutItemToProcess))")
     }
 
+    
+    // https://developer.apple.com/documentation/UIKit/using-background-tasks-to-update-your-app
+    
+    func scheduleBackgroundTask() {
+        let request = BGAppRefreshTaskRequest(identifier: "com.grm.ZoeStatus.refresh")
+        request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // 15 minutes from now
+        do {
+            try BGTaskScheduler.shared.submit(request)
+            print("Scheduled background task for \(request.earliestBeginDate!)")
+        } catch {
+            print("Failed to schedule background task: \(error)")
+        }
+        
+        BGTaskScheduler.shared.getPendingTaskRequests(){ list in
+            print("scheduled background tasks: \(list)")
+
+        }
+        
+        
+        // https://developer.apple.com/documentation/backgroundtasks/starting-and-terminating-tasks-during-development
+        
+       /* Hit breakpoint here and enter in debugger for launch:
+        e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.grm.ZoeStatus.refresh"]
+        */
+
+        
+        /* Hit breakpoint here and enter in debugger for termination (expiration handler):
+         e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateExpirationForTaskWithIdentifier:@"com.grm.ZoeStatus.refresh"]
+
+         */
+    }
+
+    
+    func handleBackgroundRefresh(task: BGAppRefreshTask) {
+
+        scheduleBackgroundTask()
+
+        task.expirationHandler = {
+            // Handle expiration (e.g., clean up resources).
+            task.setTaskCompleted(success: true)
+        }
+        
+        
+        print("Executing scheduled background task")
+
+        WidgetCenter.shared.reloadTimelines(ofKind: "ZoeStatus_Modern_Widget")
+        
+        task.setTaskCompleted(success: true)
+
+    }
 }
 
