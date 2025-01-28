@@ -237,6 +237,7 @@
 		9AC2BEA028F0D5D500AACA6A /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
 		9AC2BEA228F0D5D500AACA6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9AC2BEA628F0D5D500AACA6A /* ZoeStatus Intents Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ZoeStatus Intents Extension.entitlements"; sourceTree = "<group>"; };
+		9AFFAEE62D49925F00BE63CC /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -337,6 +338,7 @@
 		9A512F9821B2DDCB007EFAAB = {
 			isa = PBXGroup;
 			children = (
+				9AFFAEE62D49925F00BE63CC /* README.md */,
 				9A4E5D1A2D03A39200D2C761 /* ZoeStatus Modern WidgetExtension.entitlements */,
 				9A49E6A02C4DB633005BD26D /* AppIntentVocabulary.plist */,
 				9A512FA321B2DDCB007EFAAB /* ZoeStatus */,
