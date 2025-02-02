@@ -35,15 +35,15 @@ public func timestampToDateString(timestamp: UInt64?) -> String{
     var strDate = "📅 … 🕰 …"
     
     if timestamp != nil {
-        if let unixTime = Double(exactly:timestamp!/1000) {
-            let date = Date(timeIntervalSince1970: unixTime)
-            let dateFormatter = DateFormatter()
-            let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
-            dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
-            dateFormatter.locale = NSLocale.current
-            dateFormatter.dateFormat = "📅 dd.MM.yyyy 🕰 HH:mm:ss" //Specify your format that you want
-            strDate = dateFormatter.string(from: date)
-        }
+        let unixTime = Double(timestamp!/1000)
+        let date = Date(timeIntervalSince1970: unixTime)
+        let dateFormatter = DateFormatter()
+        let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
+        dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
+        dateFormatter.locale = NSLocale.current
+        dateFormatter.dateFormat = "📅 dd.MM.yyyy 🕰 HH:mm:ss" //Specify your format that you want
+        strDate = dateFormatter.string(from: date)
+        
     }
     return strDate
 }
