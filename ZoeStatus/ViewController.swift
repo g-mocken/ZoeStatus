@@ -542,7 +542,14 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 rangeForMap = nil
             }
             update.text = timestampToDateString(timestamp: last_update)
-           
+
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            if last_update != 0 {
+                let last = Date(timeIntervalSince1970: Double(last_update/1000))
+                appDelegate.nextUpdate = last.addingTimeInterval(30 * 60 + 5)
+            } else {
+                appDelegate.nextUpdate = nil
+            }
             
             charger.text = chargingPointToChargerString(plugged, charging_point)
             

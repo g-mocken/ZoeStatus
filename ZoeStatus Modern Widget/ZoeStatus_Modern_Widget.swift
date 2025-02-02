@@ -54,7 +54,7 @@ struct Provider: TimelineProvider {
     
 
     func placeholder(in context: Context) -> SimpleEntry {
-        print("placeholder") // is called at startup ... not shown anywhwere?
+        print("placeholder for family \(context.family)") // is called at startup ... not shown anywhere?
         return SimpleEntry(date: Date(), data: dummy, widgetFamily: context.family)
 
     }
@@ -69,7 +69,7 @@ struct Provider: TimelineProvider {
     
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
 
-        print("getTimeline")
+        print("getTimeline for family: \(context.family)")
 
         
         // local wrapper for batteryState
@@ -138,14 +138,25 @@ struct Provider: TimelineProvider {
             let currentDate = Date()
             let data = BatteryInfo(range: range, level: level, charger: charger, charging:chargingText, plugged: pluggedText, time: time, last_update: update)
             
+            let last = Date(timeIntervalSince1970: Double(last_update/1000))
+
             var entries: [SimpleEntry] = []
-            for offset in stride(from: 0, to: 30, by: 1) { // 30min with steps of 1min
+            for offset in stride(from: 0, to: 30, by: 1) { // 30min with steps of 1min, all the same value (this could be extrapolated if the charge/consumption rate was known)
                 let entryDate = Calendar.current.date(byAdding: .minute, value: offset, to: currentDate)!
                 let entry = SimpleEntry(date: entryDate, data: data, widgetFamily: context.family)
                 entries.append(entry)
             }
             
-            let timeline = Timeline(entries: entries, policy: .after(Date().addingTimeInterval(29 * 60)) /*.atEnd*/) // new timeline of 30min after 29min
+            var nextUpdate =   last.addingTimeInterval(30 * 60 + 5)
+            
+            if nextUpdate < Date() { // if it would lie in the past, use current date as reference
+                nextUpdate = Date().addingTimeInterval(30 * 60 + 5)
+            }
+            
+            // new timeline 30min and 5s after last update from the car (5s extra to be safe and not fetch old values again)
+            print("next update of timeline after \(nextUpdate)")
+
+            let timeline = Timeline(entries: entries, policy: .after(nextUpdate) /*.atEnd*/)
             completion(timeline)
             
         }

@@ -288,9 +288,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
     
     // https://developer.apple.com/documentation/UIKit/using-background-tasks-to-update-your-app
     
+    var nextUpdate:Date?
+    
     func scheduleBackgroundTask() {
         let request = BGAppRefreshTaskRequest(identifier: "com.grm.ZoeStatus.refresh")
-        request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // 15 minutes from now
+        
+        if nextUpdate != nil && nextUpdate! < Date(){ // ignore dates in the past
+            nextUpdate = nil
+        }
+
+        request.earliestBeginDate = nextUpdate ?? Date(timeIntervalSinceNow: 15 * 60) // 15 minutes from now if no more precise date is available
         do {
             try BGTaskScheduler.shared.submit(request)
             print("Scheduled background task for \(request.earliestBeginDate!)")
