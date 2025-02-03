@@ -330,6 +330,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         pickerViewToolbar.setItems([toolbarTitle]+pickerViewToolbar.items!, animated: false)
 
         NotificationCenter.default.addObserver(forName: Notification.Name("applicationDidBecomeActive"), object: nil, queue: OperationQueue.main, using: {n in self.applicationDidBecomeActive(notification: n)})
+        NotificationCenter.default.addObserver(forName: Notification.Name("applicationShouldRefresh"), object: nil, queue: OperationQueue.main, using: {n in self.applicationShouldRefresh(notification: n)})
+
         
 
     }
@@ -486,9 +488,28 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     
     
     
+    func applicationShouldRefresh(notification: Notification) {
+        print ("applicationShouldRefresh notification received!")
+        refreshAll()
+    }
     
-    var count = 0
-
+    fileprivate func refreshAll() {
+        handleLogin(onError: {}){
+            self.updateActivity(type:.start)
+            self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
+            
+            self.updateActivity(type:.start)
+            self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
+            
+            self.updateActivity(type: .start)
+            self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
+            
+            self.updateActivity(type: .start)
+            self.sc.cockpitState(callback: self.cockpitState(error:total_mileage:))
+            
+        }
+    }
+    
     @IBAction func refreshButtonPressed(_ sender: UIButton) {
          
         WidgetCenter.shared.reloadTimelines(ofKind: "ZoeStatus_Modern_Widget")
@@ -501,20 +522,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
 #endif
         
-        handleLogin(onError: {}){
-            self.updateActivity(type:.start)
-            self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
-
-            self.updateActivity(type:.start)
-            self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
-            
-            self.updateActivity(type: .start)
-            self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
-            
-            self.updateActivity(type: .start)
-            self.sc.cockpitState(callback: self.cockpitState(error:total_mileage:))
-            
-        }
+        refreshAll()
     }
     
     

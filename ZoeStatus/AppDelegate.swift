@@ -338,7 +338,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
         print("Executing scheduled background task")
 
         WidgetCenter.shared.reloadTimelines(ofKind: "ZoeStatus_Modern_Widget")
-        
+        NotificationCenter.default.post(name: Notification.Name("applicationShouldRefresh"), object: nil)
+
         task.setTaskCompleted(success: true)
 
     }
