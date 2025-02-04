@@ -368,15 +368,22 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     @IBOutlet var totalMileageVertical: NSLayoutConstraint!
     @IBOutlet var totalMileageHorizontal: NSLayoutConstraint!
     
+    var activeAlertController:UIAlertController?
+    
     fileprivate func displayMessage(title: String, body: String) {
+        
+
+        activeAlertController?.dismiss(animated: true, completion: nil) // dismiss any other if still active
+        activeAlertController = nil
+        
         let defaultAction = UIAlertAction(title: "Dismiss",
                                           style: .default) { (action) in
                                             // Respond to user selection of the action.
         }
-        let alert = UIAlertController(title: title, message: body, preferredStyle: .alert)
-        alert.addAction(defaultAction)
+        activeAlertController = UIAlertController(title: title, message: body, preferredStyle: .alert)
+        activeAlertController!.addAction(defaultAction)
         
-        self.present(alert, animated: true) {
+        self.present(activeAlertController!, animated: true) {
             // The alert was presented
         }
     }
@@ -494,6 +501,11 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     }
     
     fileprivate func refreshAll() {
+        
+        // dismiss alert if any is active
+        activeAlertController?.dismiss(animated: true, completion: nil)
+        activeAlertController = nil
+        
         handleLogin(onError: {}){
             self.updateActivity(type:.start)
             self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
