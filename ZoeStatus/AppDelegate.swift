@@ -285,6 +285,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
         print("Re-launched with shortcut \(String(describing: shortcutItemToProcess))")
     }
 
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+
+        if userActivity.activityType == "ZoeStatus_Modern_Widget" {
+            print("App resumed from widget")
+            NotificationCenter.default.post(name: Notification.Name("applicationShouldRefresh"), object: nil)
+            return true
+        }
+        
+        return false // did not handle it here
+    }
     
     // https://developer.apple.com/documentation/UIKit/using-background-tasks-to-update-your-app
     
@@ -338,7 +348,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
         print("Executing scheduled background task")
 
         WidgetCenter.shared.reloadTimelines(ofKind: "ZoeStatus_Modern_Widget")
-        NotificationCenter.default.post(name: Notification.Name("applicationShouldRefresh"), object: nil)
+        // NotificationCenter.default.post(name: Notification.Name("applicationShouldRefresh"), object: nil) // do not refresh app regularly, as this can trigger alerts. Instead, refresh when called from widget.
 
         task.setTaskCompleted(success: true)
 
