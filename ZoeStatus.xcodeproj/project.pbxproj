@@ -25,7 +25,6 @@
 		9A4E5D0E2D03A39100D2C761 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4E5CF42D039F2400D2C761 /* SwiftUI.framework */; };
 		9A4E5D192D03A39200D2C761 /* ZoeStatus Modern WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9A4E5D0C2D03A39100D2C761 /* ZoeStatus Modern WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9A4E5D1F2D03AB0900D2C761 /* ZEServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A244444239473990001AF9B /* ZEServices.framework */; };
-		9A4E5D202D03AB0900D2C761 /* ZEServices.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9A244444239473990001AF9B /* ZEServices.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9A512FA521B2DDCB007EFAAB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FA421B2DDCB007EFAAB /* AppDelegate.swift */; };
 		9A512FA721B2DDCB007EFAAB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FA621B2DDCB007EFAAB /* ViewController.swift */; };
 		9A512FAA21B2DDCB007EFAAB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FA821B2DDCB007EFAAB /* Main.storyboard */; };
@@ -142,17 +141,6 @@
 				9A4E5D192D03A39200D2C761 /* ZoeStatus Modern WidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9A4E5D232D03AB0900D2C761 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				9A4E5D202D03AB0900D2C761 /* ZEServices.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		9AA73CDD23A020CF001A6234 /* Embed Watch Content */ = {
@@ -513,7 +501,6 @@
 				9A4E5D082D03A39100D2C761 /* Sources */,
 				9A4E5D092D03A39100D2C761 /* Frameworks */,
 				9A4E5D0A2D03A39100D2C761 /* Resources */,
-				9A4E5D232D03AB0900D2C761 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
