@@ -32,6 +32,7 @@ Also, **ZOE Status includes an iOS Widget and an AppleWatch counterpart**, where
 
 Use latest Xcode to open and finally compile and install "ZoeStatus.xcodeproj" on your iOS device (iOS 14.0 and above).
 Use the watch application to transfer the companion app to your Apple Watch (watchOS 6.1 and avove).
+Between AppStore Releases, there will occasionally be [Testflight versions](https://testflight.apple.com/join/lT0KBqzh).
 
 ## Usage:
 At the first launch it should take you to the settings app, where you need to enter your Z.E. services / My Renault credentials. It also requires a so-called Kamereon key. This field is pre-filled with the one known to be working at the time of release. You may have to replace it occasionally with a newer one, which is easy to find on the internet.
