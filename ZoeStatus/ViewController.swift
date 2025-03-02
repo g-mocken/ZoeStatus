@@ -105,82 +105,86 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         // need to remember result, but when to reset?
     }
     
+    func updateSettings(){
+        
+         let userDefaults = UserDefaults.standard
+
+         let newUserName = userDefaults.string(forKey: "userName_preference")
+         if ( sc.userName != newUserName )
+         {
+             sc.userName = newUserName
+             os_log("Never started before or Username was switched, forcing new login", log: self.serviceLog, type: .default)
+             sc.tokenExpiry = nil
+         }
+         
+         let newPassword = userDefaults.string(forKey: "password_preference")
+         if ( sc.password != newPassword )
+         {
+             sc.password = newPassword
+             os_log("Never started before or Password was switched, forcing new login", log: self.serviceLog, type: .default)
+             sc.tokenExpiry = nil
+         }
+         
+         sc.units = ServiceConnection.Units(rawValue: userDefaults.integer(forKey: "units_preference"))
+
+         let newVehicle = userDefaults.integer(forKey: "vehicle_preference")
+         if (sc.vehicle != newVehicle){
+             sc.vehicle = newVehicle
+             os_log("Never started before or vehicle was switched, forcing new login", log: self.serviceLog, type: .default)
+             sc.tokenExpiry = nil
+         }
+         
+         let newKamereon = userDefaults.string(forKey: "kamereon_preference")
+         if ( sc.kamereon != newKamereon )
+         {
+             sc.kamereon = newKamereon
+             os_log("Never started before or Kamereon was switched, forcing new login", log: self.serviceLog, type: .default)
+             sc.tokenExpiry = nil
+         }
+         userDefaults.setValue(sc.kamereon, forKey: "kamereon_preference") // preset this field in current release
+
+         
+         let new_api = ServiceConnection.ApiVersion(rawValue: 1 /*userDefaults.integer(forKey: "api_preference")*/) // dummy value 1, which is ignored
+         /* Renault is no longer using a consistent version, i.e. battery state only works as v2 and cockpit as v1. */
+        
+         if (sc.api != new_api) { // if there is an API change, force new login
+             sc.api = new_api
+             os_log("Never started before or API was switched, forcing new login", log: self.serviceLog, type: .default)
+             sc.tokenExpiry = nil
+         }
+         
+
+         // share preferences with widget:
+         let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatus");
+         sharedDefaults?.set(sc.userName, forKey: "userName")
+         sharedDefaults?.set(sc.password, forKey: "password")
+         sharedDefaults?.set(sc.kamereon, forKey: "kamereon")
+         sharedDefaults?.set(sc.vehicle, forKey: "vehicle")
+
+        
+         
+         sharedDefaults?.set(sc.api!.rawValue, forKey: "api")
+         sharedDefaults?.set(sc.units!.rawValue, forKey: "units")
+
+         sharedDefaults?.synchronize()
+         
+        let experimentalFeatures = userDefaults.bool(forKey: "experimental_preference")
+        os_log("experimental features: %u", log: serviceLog, type: .default, experimentalFeatures ? 1 : 0)
+
+        chargeNowButton.isHidden = false
+
+        if (experimentalFeatures){
+            mapButton.isHidden = false
+        } else {
+            mapButton.isHidden = true
+        }
+
+    }
     
     func applicationDidBecomeActive(notification: Notification) {
         print ("applicationDidBecomeActive notification received!")
        
-        let userDefaults = UserDefaults.standard
-        
-        /*
-         { // PERSONAL VALUES MUST BE REMOVED BEFORE GOING PUBLIC! ALSO DO NOT COMMIT TO GIT!
-         let defaultUserName = "your@email.address"
-         let defaultPassword = "secret password"
-         
-         userDefaults.setValue(defaultUserName, forKey: "userName_preference")
-         userDefaults.setValue(defaultPassword, forKey: "password_preference")
-         
-         userDefaults.synchronize()
-         }
-         */
-
-        let newUserName = userDefaults.string(forKey: "userName_preference")
-        if ( sc.userName != newUserName )
-        {
-            sc.userName = newUserName
-            print("Never started before or Username was switched, forcing new login")
-            sc.tokenExpiry = nil
-        }
-        
-        let newPassword = userDefaults.string(forKey: "password_preference")
-        if ( sc.password != newPassword )
-        {
-            sc.password = newPassword
-            print("Never started before or Password was switched, forcing new login")
-            sc.tokenExpiry = nil
-        }
-        
-        sc.units = ServiceConnection.Units(rawValue: userDefaults.integer(forKey: "units_preference"))
-
-        let newVehicle = userDefaults.integer(forKey: "vehicle_preference")
-        if (sc.vehicle != newVehicle){
-            sc.vehicle = newVehicle
-            print("Never started before or vehicle was switched, forcing new login")
-            sc.tokenExpiry = nil
-        }
-        
-        let newKamereon = userDefaults.string(forKey: "kamereon_preference")
-        if ( sc.kamereon != newKamereon )
-        {
-            sc.kamereon = newKamereon
-            print("Never started before or Kamereon was switched, forcing new login")
-            sc.tokenExpiry = nil
-        }
-        userDefaults.setValue(sc.kamereon, forKey: "kamereon_preference") // preset this field in current release
-
-        
-        let new_api = ServiceConnection.ApiVersion(rawValue: 1 /*userDefaults.integer(forKey: "api_preference")*/) // dummy value 1, which is ignored
-        /* Renault is no longer using a consistent version, i.e. battery state only works as v2 and cockpit as v1. */
-       
-        if (sc.api != new_api) { // if there is an API change, force new login
-            sc.api = new_api
-            print("Never started before or API was switched, forcing new login")
-            sc.tokenExpiry = nil
-        }
-        
-
-        // share preferences with widget:
-        let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatus");
-        sharedDefaults?.set(sc.userName, forKey: "userName")
-        sharedDefaults?.set(sc.password, forKey: "password")
-        sharedDefaults?.set(sc.kamereon, forKey: "kamereon")
-        sharedDefaults?.set(sc.vehicle, forKey: "vehicle")
-
-       
-        
-        sharedDefaults?.set(sc.api!.rawValue, forKey: "api")
-        sharedDefaults?.set(sc.units!.rawValue, forKey: "units")
-
-        sharedDefaults?.synchronize()
+        updateSettings()
         
         // load settings
         if (sc.tokenExpiry == nil && sc.simulation != true){
@@ -194,25 +198,15 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         }
         
         if traitCollection.userInterfaceStyle == .light {
-            print("Light mode")
+            os_log("Light mode", log: self.serviceLog, type: .default)
             self.view.backgroundColor = UIColor.init(red: 0.329, green: 0.894, blue: 1.000, alpha: 1.0)
         } else {
-            print("Dark mode")
+            os_log("Dark mode", log: self.serviceLog, type: .default)
             self.view.backgroundColor = UIColor.init(red: 0.093, green: 0.254, blue: 0.284, alpha: 1.0)
 
         }
         
         
-        let experimentalFeatures = userDefaults.bool(forKey: "experimental_preference")
-        print("experimental features = \(experimentalFeatures)")
-
-        chargeNowButton.isHidden = false
-
-        if (experimentalFeatures){
-            mapButton.isHidden = false
-        } else {
-            mapButton.isHidden = true
-        }
 
     }
 
@@ -497,6 +491,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     
     func applicationShouldRefresh(notification: Notification) {
         print ("applicationShouldRefresh notification received!")
+        updateSettings()
         refreshAll()
     }
     
