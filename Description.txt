@@ -1,0 +1,32 @@
+This app allows owners of a Renault electric car to retrieve useful status information about their vehicle and to interact with it.
+
+A subscription to Renault's MY Z.E. Inter@tive and/or MY Z.E. Connect service is required.
+
+Car status display:
+- State of charge
+- Remaining range
+- Charging speed
+- Remaining time until fully charged
+- Plug status
+- Charging status
+- Total mileage
+- Battery temperature
+- Outside temperature
+- Range map (experimental feature - see settings)
+- Range in either kilometres or miles
+
+Interaction with car:
+- Charge pause override
+- A/C preconditioning (timer controlled or immediate)
+
+App Features:
+- Starting with v.1.1.0, supports only MY.Renault API (dropped support for obsolete Z.E. API)
+- includes watch companion app
+- includes widgets for the Today View and Lock Screen
+- includes quick action for A/C trigger
+
+DISCLAIMER:
+Neither me nor this work is in any way linked to Renault.
+I may not be held responsible for any damage to your car or any inconveniences that you may run into as a result of using this app.
+The entire app or some of the features listed above may stop working at any time (e.g. when there is a change of the Renault APIs).
+Use at your own risk!

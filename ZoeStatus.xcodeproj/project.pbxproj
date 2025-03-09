@@ -183,6 +183,7 @@
 		9A244446239473990001AF9B /* ZEServices.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZEServices.h; sourceTree = "<group>"; };
 		9A244447239473990001AF9B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9A368F0F23E3415800DE95BF /* MyR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyR.swift; sourceTree = "<group>"; };
+		9A3BF3FD2D7DB7A1005C8ACA /* Description.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Description.txt; sourceTree = "<group>"; };
 		9A47C93E237F5E00006A5FDB /* Zoe.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Zoe.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
 		9A47C942237F5E00006A5FDB /* WidgetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViewController.swift; sourceTree = "<group>"; };
@@ -327,6 +328,7 @@
 			isa = PBXGroup;
 			children = (
 				9AFFAEE62D49925F00BE63CC /* README.md */,
+				9A3BF3FD2D7DB7A1005C8ACA /* Description.txt */,
 				9A4E5D1A2D03A39200D2C761 /* ZoeStatus Modern WidgetExtension.entitlements */,
 				9A49E6A02C4DB633005BD26D /* AppIntentVocabulary.plist */,
 				9A512FA321B2DDCB007EFAAB /* ZoeStatus */,
