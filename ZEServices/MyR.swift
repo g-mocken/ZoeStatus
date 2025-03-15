@@ -324,7 +324,7 @@ class MyR {
     
     
     
-    func handleLoginProcessAsync(onError errorCode:@escaping(_ errorMessage:String)->Void) async -> (vin:String?, token:String?, context:Context)  {
+    func handleLoginProcessAsync() async -> (vin:String?, token:String?, context:Context, errorMessage:String?)  {
         
         // Fetch URLs and API keys from a fixed URL
         let endpointUrl1 = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_" + language + ".json")!
@@ -452,17 +452,17 @@ class MyR {
                                 os_log("Successfully retrieved vehicles with Kamereon token, Number of vehicles in account: %{public}d", log: self.serviceLog, type: .debug, result!.vehicleLinks.count)
                                 
                                 if self.vehicle >= result!.vehicleLinks.count {
-                                    errorCode("VIN index not found.")
+                                    return (vin:nil, token: nil, context: self.context, errorMessage: "VIN index not found.")
                                 } else {
                                     os_log("VIN[%{public}d]: %{public}s", log: self.serviceLog, type: .debug, self.vehicle, result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)
                                     
                                     self.context.vehiclesInfo = result // save for later use
                                     
                                     // must explicitly pass results, because the actionCode closure would use older captured values otherwise
-                                    return (vin: result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, token: self.context.tokenInfo!.id_token, context: self.context)
+                                    return (vin: result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, token: self.context.tokenInfo!.id_token, context: self.context, errorMessage: nil)
                                 }
                             } else {
-                                errorCode("Error retrieving vehicles with Kamereon token")
+                                return (vin:nil, token: nil, context: self.context, errorMessage: "Error retrieving vehicles with Kamereon token")
                             }
                         } else {
                             os_log("Could not retrieve Kamereon token - trying without anyway", log: self.serviceLog, type: .debug)
@@ -482,35 +482,34 @@ class MyR {
                                 os_log("Successfully retrieved vehicles without Kamereon token, Number of vehicles in account: %{public}d", log: self.serviceLog, type: .debug, result!.vehicleLinks.count)
                                 
                                 if self.vehicle >= result!.vehicleLinks.count {
-                                    errorCode("VIN index not found.")
+                                    return (vin:nil, token: nil, context: self.context, errorMessage: "VIN index not found.")
                                 } else {
                                     os_log("VIN[%{public}d]: %{public}s", log: self.serviceLog, type: .debug, self.vehicle, result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)
                                     
                                     self.context.vehiclesInfo = result // save for later use
                                     
                                     // must explicitly pass results, because the actionCode closure would use older captured values otherwise
-                                    return (vin: result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, token: self.context.tokenInfo!.id_token, context: self.context)
+                                    return (vin: result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, token: self.context.tokenInfo!.id_token, context: self.context, errorMessage: nil)
                                 }
                             } else {
-                                errorCode("Error retrieving vehicles without Kamereon token")
+                                return (vin:nil, token: nil, context: self.context, errorMessage:"Error retrieving vehicles without Kamereon token")
                             }
                         }
                     } else {
-                        errorCode("Error retrieving Kamereon accounts")
+                        return (vin:nil, token: nil, context: self.context, errorMessage: "Error retrieving Kamereon accounts")
                     }
                 } else {
-                    errorCode("Error retrieving Gigya JWT token")
+                    return (vin:nil, token: nil, context: self.context, errorMessage: "Error retrieving Gigya JWT token")
                 }
             } else {
-                errorCode("Error retrieving account info")
+                return (vin:nil, token: nil, context: self.context, errorMessage: "Error retrieving account info")
             }
         } else {
-            errorCode("Error retrieving session key")
+            return (vin:nil, token: nil, context: self.context, errorMessage: "Error retrieving session key")
         }
         //} else {
-        //  errorCode("Error retrieving targets and api keys")
+        //    return (vin:nil, token: nil, context: self.context, errorMessage: "Error retrieving targets and api keys")
         //}
-        return (nil,nil, context) // indicates error on return error this way!
     }
     
     func getHeaders()->[String:String] {

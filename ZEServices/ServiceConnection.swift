@@ -174,11 +174,31 @@ public class ServiceConnection {
     
     public func loginAsync() async -> (result:Bool, errorMessage:String?){
        
-     
+        os_log("login", log: serviceLog, type: .default)
         
+        if userName == "simulation", password == "simulation"
+        {
+            simulation = true
+        } else {
+            simulation = false
+        }
+        if simulation {
+            try? await Task.sleep(nanoseconds:  500_000_000) // .5-second delay
+            return(true, nil)
+        }
+        
+        guard (userName != nil && password != nil) else{
+            return (false, "username/password missing")
+        }
+                
+        switch api {
+        case .MyRv1:
+            return await login_MyR_async(version: .v1)
+        case .MyRv2:
+            return await login_MyR_async(version: .v2)
+        case .none:
             return (true, "") // dummy
-    
-       
+        }
     }
     
     
@@ -200,26 +220,41 @@ public class ServiceConnection {
          }) // later change latter to true
          */
         
+        // async variant 
         Task {
-            let result = await myR.handleLoginProcessAsync(onError: { errorMessage in
+            let result = await myR.handleLoginProcessAsync()
+            if let errorMessage = result.errorMessage {
                 DispatchQueue.main.async{
                     callback(false, nil, errorMessage)
                 }
-            })
-            
+            } else {
+                os_log("Login MyR successful.", log: self.serviceLog, type: .default)
+                self.tokenExpiry = self.extractExpiryDate(ofToken: result.token)
+                self.vehicleIdentification = result.vin // to avoid crashes, when switching API versions
+                
+                DispatchQueue.main.async{
+                    callback(true, result.context, nil)
+                }
+            }
+        }
+    }
+    
+    func login_MyR_async(version: MyR.Version) async -> (result:Bool, errorMessage:String?){
+        os_log("New API login", log: serviceLog, type: .default)
+        myR = MyR(username: userName!, password: password!, version: .v1, kamereon: kamereon!, vehicle: vehicle!)
+
+        let result = await myR.handleLoginProcessAsync()
+        if let errorMessage = result.errorMessage {
+            return (result: false, errorMessage: errorMessage)
+        } else {
             os_log("Login MyR successful.", log: self.serviceLog, type: .default)
             self.tokenExpiry = self.extractExpiryDate(ofToken: result.token)
             self.vehicleIdentification = result.vin // to avoid crashes, when switching API versions
-            
-            DispatchQueue.main.async{
-                callback(true, result.context, nil)
-            }
+            self.myR.context = result.context
+            print ("check: \(self.myR.context.vehiclesInfo!)")
+            return (result: true, errorMessage: nil)
         }
-        
-        
     }
-    
-    
     
     
     public func renewToken (callback:@escaping(Bool)->Void) {
