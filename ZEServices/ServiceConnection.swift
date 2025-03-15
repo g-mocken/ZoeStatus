@@ -132,7 +132,7 @@ public class ServiceConnection {
         return nil
     }
     
-    public func login (callback:@escaping(Bool, String?)->Void) {
+    public func login (callback:@escaping(_ result:Bool, _ errorMessage:String?)->Void) {
     
         os_log("login", log: serviceLog, type: .default)
         
@@ -197,11 +197,11 @@ public class ServiceConnection {
             })
             
             os_log("Login MyR successful.", log: self.serviceLog, type: .default)
-            self.tokenExpiry = self.extractExpiryDate(ofToken: result.1)
-            self.vehicleIdentification = result.0 // to avoid crashes, when switching API versions
+            self.tokenExpiry = self.extractExpiryDate(ofToken: result.token)
+            self.vehicleIdentification = result.vin // to avoid crashes, when switching API versions
 
             DispatchQueue.main.async{
-                callback(true, result.2, nil)
+                callback(true, result.context, nil)
             }
         }
 
@@ -229,7 +229,7 @@ public class ServiceConnection {
 
 
     
-    public func batteryState(callback c:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?, String?) -> ()) {
+    public func batteryState(callback c:@escaping (_ error:Bool, _ charging:Bool, _ plugged:Bool, _ charge_level:UInt8, _ remaining_range:Float, _ last_update:UInt64, _ charging_point:String?, _ remaining_time:Int?, _ battery_temperature:Int?, _ vehicle_id:String?) -> ()) {
         os_log("batteryState", log: serviceLog, type: .default)
 
         cache.timestamp = Date()
@@ -285,8 +285,26 @@ public class ServiceConnection {
             //batteryState_MyR(callback:c)
             Task {
                 let result = await myR.batteryStateAsync()
+                cache.charging=result.charging
+                cache.plugged=result.plugged
+                cache.charge_level=result.charge_level
+                cache.remaining_range=result.remaining_range
+                cache.last_update=result.last_update
+                cache.charging_point=result.charging_point
+                cache.remaining_time=result.remaining_time
+                cache.battery_temperature=result.battery_temperature
+                cache.vehicleId=result.vehicle_id
                 DispatchQueue.main.async{
-                    c(result.0, result.1, result.2, result.3, result.4, result.5, result.6, result.7, result.8, result.9)
+                    c(result.error,
+                      result.charging,
+                      result.plugged,
+                      result.charge_level,
+                      result.remaining_range,
+                      result.last_update,
+                      result.charging_point,
+                      result.remaining_time,
+                      result.battery_temperature,
+                      result.vehicle_id)
                 }
             }
 
@@ -294,7 +312,7 @@ public class ServiceConnection {
             ()
         }
     }
-    func batteryState_MyR(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?, String?) -> ()) {
+    func batteryState_MyR(callback:@escaping (_ error:Bool, _ charging:Bool, _ plugged:Bool, _ charge_level:UInt8, _ remaining_range:Float, _ last_update:UInt64, _ charging_point:String?, _ remaining_time:Int?, _ battery_temperature:Int?, _ vehicle_id:String?) -> ()) {
         
         myR.batteryState(callback:
             {error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time, battery_temperature, vehicle_id in
@@ -315,7 +333,7 @@ public class ServiceConnection {
     
     
     
-    public func cockpitState(callback c:@escaping  (Bool, Float?) -> ()) {
+    public func cockpitState(callback c:@escaping (_ error:Bool, _ total_mileage:Float?) -> ()) {
         os_log("cockpitState", log: serviceLog, type: .default)
 
         if simulation {
@@ -338,9 +356,9 @@ public class ServiceConnection {
             //cockpitState_MyR(callback:c)
             Task {
                 let result = await myR.cockpitStateAsync()
-                self.cache.totalMileage = result.1
+                cache.totalMileage = result.total_mileage
                 DispatchQueue.main.async{
-                    c(result.0, result.1)
+                    c(result.error, result.total_mileage)
                 }
             }
 
@@ -349,7 +367,7 @@ public class ServiceConnection {
         }
     }
 
-    func cockpitState_MyR(callback:@escaping  (Bool, Float?) -> ()) {
+    func cockpitState_MyR(callback:@escaping (_ error:Bool, _ total_mileage:Float?) -> ()) {
         myR.cockpitState(callback: {error, total_mileage in
             self.cache.totalMileage = total_mileage
             callback(error,total_mileage)
@@ -371,7 +389,7 @@ public class ServiceConnection {
     }
     
 
-    public func precondition(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?, Float?) -> ()) {
+    public func precondition(command:PreconditionCommand, date: Date?, callback:@escaping (_ error: Bool, _ command:PreconditionCommand, _ date: Date?, _ externalTemperature: Float? ) -> ()) {
         
         os_log("precondition", log: serviceLog, type: .default)
 
@@ -396,7 +414,7 @@ public class ServiceConnection {
             Task {
                 let result = await myR.preconditionAsync(command: command, date: date)
                 DispatchQueue.main.async{
-                    callback(result.0, result.1, result.2, result.3)
+                    callback(result.error, result.command, result.date, result.externalTemperature)
                 }
             }
 
@@ -405,7 +423,7 @@ public class ServiceConnection {
         }
     }
     
-    public func precondition_MyR(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?, Float?) -> ()) {
+    public func precondition_MyR(command:PreconditionCommand, date: Date?, callback:@escaping  (_ error: Bool, _ command:PreconditionCommand, _ date: Date?, _ externalTemperature: Float? ) -> ()) {
         myR.precondition(command: command, date: date, callback: callback)
     }
     
@@ -415,7 +433,7 @@ public class ServiceConnection {
     
     
     
-    public func airConditioningLastState(callback c:@escaping  (Bool, UInt64, String?, String?) -> ()) {
+    public func airConditioningLastState(callback c:@escaping  (_ error: Bool, _ date:UInt64, _ type:String?, _ result:String?) -> ()) {
         
         os_log("airConditioningLastState", log: serviceLog, type: .default)
         
@@ -436,7 +454,7 @@ public class ServiceConnection {
             Task {
                 let result = await myR.airConditioningLastStateAsync()
                 DispatchQueue.main.async{
-                    c(result.0, result.1, result.2, result.3)
+                    c(result.error, result.date, result.type, result.result)
                 }
             }
 
@@ -446,7 +464,7 @@ public class ServiceConnection {
         }
     }
     
-    public func airConditioningLastState_MyR(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
+    public func airConditioningLastState_MyR(callback:@escaping  (_ error: Bool, _ date:UInt64, _ type:String?, _ result:String?) -> ()) {
         myR.airConditioningLastState(callback: callback)
     }
 
@@ -454,7 +472,7 @@ public class ServiceConnection {
     
     
     
-    public func chargeNowRequest(callback:@escaping  (Bool) -> ()) {
+    public func chargeNowRequest(callback:@escaping  (_ error: Bool) -> ()) {
         if simulation {
             print ("chargeNowRequest: simulated")
             DispatchQueue.main.async {
@@ -477,7 +495,7 @@ public class ServiceConnection {
         }
     }
     
-    public func chargeNowRequest_MyR(callback:@escaping  (Bool) -> ()) {
+    public func chargeNowRequest_MyR(callback:@escaping  (_ error: Bool) -> ()) {
     
         myR.chargeNowRequest(callback:callback)
         

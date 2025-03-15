@@ -324,7 +324,7 @@ class MyR {
     
     
     
-    func handleLoginProcessAsync(onError errorCode:@escaping(_ errorMessage:String)->Void) async -> (String?, String?, Context)  {
+    func handleLoginProcessAsync(onError errorCode:@escaping(_ errorMessage:String)->Void) async -> (vin:String?, token:String?, context:Context)  {
         
         // Fetch URLs and API keys from a fixed URL
         let endpointUrl1 = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_" + language + ".json")!
@@ -459,7 +459,7 @@ class MyR {
                                     self.context.vehiclesInfo = result // save for later use
                                     
                                     // must explicitly pass results, because the actionCode closure would use older captured values otherwise
-                                    return (result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
+                                    return (vin: result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, token: self.context.tokenInfo!.id_token, context: self.context)
                                 }
                             } else {
                                 errorCode("Error retrieving vehicles with Kamereon token")
@@ -489,7 +489,7 @@ class MyR {
                                     self.context.vehiclesInfo = result // save for later use
                                     
                                     // must explicitly pass results, because the actionCode closure would use older captured values otherwise
-                                    return (result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
+                                    return (vin: result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, token: self.context.tokenInfo!.id_token, context: self.context)
                                 }
                             } else {
                                 errorCode("Error retrieving vehicles without Kamereon token")
@@ -786,7 +786,7 @@ class MyR {
         }
     }
     
-    func batteryStateAsync() async -> (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?, String?) {
+    func batteryStateAsync() async -> (error:Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?, battery_temperature:Int?, vehicle_id:String?) {
         
         let version: Version = .v2
         
@@ -1116,7 +1116,7 @@ class MyR {
     
     
     
-    func cockpitStateAsync() async -> (Bool, Float?){
+    func cockpitStateAsync() async -> (error:Bool, total_mileage:Float?){
         
         
         let version:Version = .v1
@@ -1173,18 +1173,18 @@ class MyR {
             
             if result != nil {
                 os_log("Successfully retrieved cockpit state V1:\n total mileage: %d km", log: self.serviceLog, type: .debug, result!.data.attributes.totalMileage)
-                return (false, Float(result!.data.attributes.totalMileage))
+                return (error: false, total_mileage: Float(result!.data.attributes.totalMileage))
             } else {
-                return (true, nil)
+                return (error: true, total_mileage: nil)
             }
             
         case .v2:
             let result:cockpitInfoV2? = await fetchJsonDataViaHttpAsync(usingMethod:.GET, withComponents: components, withHeaders: headers)
             if result != nil {
                 os_log("Successfully retrieved cockpit state V2:\n total mileage: %d km", log: self.serviceLog, type: .debug, result!.data.attributes.totalMileage)
-                return (false, result!.data.attributes.totalMileage)
+                return (error: false, total_mileage: result!.data.attributes.totalMileage)
             } else {
-                return (true, nil)
+                return (error: true, total_mileage: nil)
             }
         }
     }
@@ -1439,7 +1439,7 @@ class MyR {
     }
     
     
-    public func preconditionAsync(command:PreconditionCommand, date: Date?) async ->  (Bool, PreconditionCommand, Date?, Float?) {
+    public func preconditionAsync(command:PreconditionCommand, date: Date?) async -> (error: Bool, command:PreconditionCommand, date: Date?, externalTemperature: Float? ) {
         
         let endpointUrl:URL
         
@@ -1547,17 +1547,17 @@ class MyR {
                     } else {
                         date = nil
                     }
-                        return (false, command, date, result!.data.attributes.externalTemperature)
+                return (error: false, command: command, date: date, externalTemperature: result!.data.attributes.externalTemperature)
                 } else {
-                    return (true, command, date, nil)
+                    return (error: true, command: command, date: date, externalTemperature: nil)
                 }
         } else { // all other commands POST action
             let result:PreconditionInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData)
                 if result != nil {
                     // print("Successfully sent POST request, got: \(result!.data)")
-                    return (false, command, date, nil)
+                    return (error: false, command: command, date: date, externalTemperature: nil)
                 } else {
-                    return (true, command, date, nil)
+                    return (error: true, command: command, date: date, externalTemperature: nil)
                 }
         }
     }
@@ -1663,7 +1663,7 @@ class MyR {
     }
     
     
-    public func airConditioningLastStateAsync() async -> (Bool, UInt64, String?, String?){
+    public func airConditioningLastStateAsync() async -> (error: Bool, date:UInt64, type:String?, result:String?){
         
         struct HvacSessions: Codable {
             var data: Data
@@ -1733,24 +1733,24 @@ class MyR {
                 
                 //print("A/C last state: \(date), \(rStatus ?? "-")")
                 
-                return (false,
-                        unixMs,
-                        "USER_REQUEST",
-                        rStatus)
+                return (error:false,
+                        date:unixMs,
+                        type:"USER_REQUEST",
+                        result:rStatus)
                 
             } else { // array empty, no data
-                return (false, // no error, but no data
-                        0,
-                        nil,
-                        nil)
+                return (error:false, // no error, but no data
+                        date:0,
+                        type:nil,
+                        result:nil)
             }
             
             
         } else {
-            return (false, // true = error getting data -> dialog
-                    0,
-                    nil,
-                    nil)
+            return (error:false, // true = error getting data -> dialog
+                    date:0,
+                    type:nil,
+                    result:nil)
         }
         
     }
