@@ -17,9 +17,9 @@ public enum PreconditionCommand : Sendable{
  }
 
 public class ServiceConnection {
-
+    
     let serviceLog = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "ZE")
-
+    
     var myR: MyR!
     
     public static let shared = ServiceConnection() // Singleton!
@@ -37,11 +37,11 @@ public class ServiceConnection {
         public var totalMileage: Float?
         public var vehicleId: String?
     }
-    var cache = Cache()
+    var cache = Cache() // currently, cache is only used in experimental (disabled) Watch complication code. modern and classic widgets have their own local caching. TODO: use the same cache here everywhere
     
     public func updateCacheTimestamp(){
         cache.timestamp = Date()
-     }
+    }
     public func getCache()->Cache{
         return cache
     }
@@ -49,7 +49,7 @@ public class ServiceConnection {
         os_log("ServiceConnection log started.", log: serviceLog, type: .default)
     }
     
- 
+    
     
     public enum ApiVersion: Int {
         case MyRv1 = 1
@@ -62,7 +62,7 @@ public class ServiceConnection {
     }
     
     public let kmPerMile = Float(1.609344)
-
+    
     public var simulation: Bool = false
     
     public var userName:String?
@@ -84,13 +84,13 @@ public class ServiceConnection {
         //print ("Analysing token...")
         if let token = ofToken{
             let indexFirstPeriod = token.firstIndex(of: ".") ?? token.startIndex
-
+            
             let header = String(token[..<indexFirstPeriod]).fromBase64()
             os_log("Token Header: %{public}s", log: serviceLog, type: .default, header!)
-
+            
             let indexSecondPeriod = token[token.index(after:indexFirstPeriod)...].firstIndex(of: ".") ?? token.endIndex
             os_log("Token Payload: %{public}s", log: serviceLog, type: .default, String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]))
-
+            
             if let payload = String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]).fromBase64()
             {
                 os_log("Token Decoded Payload: %{public}s", log: serviceLog, type: .default, payload)
@@ -110,9 +110,9 @@ public class ServiceConnection {
                         
                         let date = Date()
                         let interval = UInt64(date.timeIntervalSince1970)
-
+                        
                         os_log("Token:\n issued:  %u\n expires: %u\n current: %u", log: serviceLog, type: .default, result.iat, result.exp, interval)
-                                                
+                        
                         // only for debugging also print human readable time and date:
                         if let unixTime = Double(exactly:result.exp) {
                             let date = Date(timeIntervalSince1970: unixTime)
@@ -133,7 +133,7 @@ public class ServiceConnection {
     }
     
     public func login (callback:@escaping(_ result:Bool, _ errorMessage:String?)->Void) {
-    
+        
         os_log("login", log: serviceLog, type: .default)
         
         if userName == "simulation", password == "simulation"
@@ -153,7 +153,7 @@ public class ServiceConnection {
             callback(false, "username/password missing")
             return
         }
-
+        
         let storeContextThenRunCallback = { (success:Bool, context:MyR.Context?, errorMessage:String?)->() in
             if (success) {
                 self.myR.context = context!
@@ -172,48 +172,59 @@ public class ServiceConnection {
         }
     }
     
+    public func loginAsync() async -> (result:Bool, errorMessage:String?){
+       
+     
+        
+            return (true, "") // dummy
     
-    func login_MyR (callback:@escaping(Bool, MyR.Context?, String?)->Void, version: MyR.Version) {
-
+       
+    }
+    
+    
+    func login_MyR (callback:@escaping(_ success:Bool, _ context:MyR.Context?, _ errorMessage:String?)->Void, version: MyR.Version) {
+        
         os_log("New API login", log: serviceLog, type: .default)
         myR = MyR(username: userName!, password: password!, version: version, kamereon: kamereon!, vehicle: vehicle!)
-  
+        
         /*
-        myR.handleLoginProcess(onError: { errorMessage in
-            DispatchQueue.main.async{callback(false, nil, errorMessage)}
-        }, onSuccess: { vin, token, context in
-            os_log("Login MyR successful.", log: self.serviceLog, type: .default)
-            self.tokenExpiry = self.extractExpiryDate(ofToken: token)
-            self.vehicleIdentification = vin // to avoid crashes, when switching API versions
-            DispatchQueue.main.async{
-                callback(true, context, nil)
-            }
-        }) // later change latter to true
-        */
+         myR.handleLoginProcess(onError: { errorMessage in
+         DispatchQueue.main.async{callback(false, nil, errorMessage)}
+         }, onSuccess: { vin, token, context in
+         os_log("Login MyR successful.", log: self.serviceLog, type: .default)
+         self.tokenExpiry = self.extractExpiryDate(ofToken: token)
+         self.vehicleIdentification = vin // to avoid crashes, when switching API versions
+         DispatchQueue.main.async{
+         callback(true, context, nil)
+         }
+         }) // later change latter to true
+         */
         
         Task {
             let result = await myR.handleLoginProcessAsync(onError: { errorMessage in
-                DispatchQueue.main.async{callback(false, nil, errorMessage)}
+                DispatchQueue.main.async{
+                    callback(false, nil, errorMessage)
+                }
             })
             
             os_log("Login MyR successful.", log: self.serviceLog, type: .default)
             self.tokenExpiry = self.extractExpiryDate(ofToken: result.token)
             self.vehicleIdentification = result.vin // to avoid crashes, when switching API versions
-
+            
             DispatchQueue.main.async{
                 callback(true, result.context, nil)
             }
         }
-
+        
         
     }
-        
-
+    
+    
     
     
     public func renewToken (callback:@escaping(Bool)->Void) {
         os_log("renewToken", log: serviceLog, type: .default)
-
+        
         switch api {
         case .MyRv1, .MyRv2:
             renewToken_MyR(callback:callback)
@@ -225,13 +236,13 @@ public class ServiceConnection {
     public func renewToken_MyR (callback:@escaping(Bool)->Void) {
         callback(false) // cannot renew, just trigger automatic new login
     }
-
-
-
+    
+    
+    
     
     public func batteryState(callback c:@escaping (_ error:Bool, _ charging:Bool, _ plugged:Bool, _ charge_level:UInt8, _ remaining_range:Float, _ last_update:UInt64, _ charging_point:String?, _ remaining_time:Int?, _ battery_temperature:Int?, _ vehicle_id:String?) -> ()) {
         os_log("batteryState", log: serviceLog, type: .default)
-
+        
         cache.timestamp = Date()
         if simulation {
             //print ("batteryState: simulated")
@@ -242,22 +253,22 @@ public class ServiceConnection {
             } else {
                 self.cache.charge_level! += 1
             }
-
+            
             self.cache.remaining_range=123.4
-
+            
             if (self.cache.remaining_time == nil ){
                 self.cache.last_update=1550874142000
             } else {
                 self.cache.last_update! += 30*60
             }
-
+            
             self.cache.charging_point="ACCELERATED"
             if (self.cache.remaining_time == nil || self.cache.remaining_time! == 0){
                 self.cache.remaining_time=345
             } else {
                 self.cache.remaining_time! -= 1
             }
-
+            
             if (self.cache.battery_temperature == nil){
                 self.cache.battery_temperature = 30
             }
@@ -307,7 +318,7 @@ public class ServiceConnection {
                       result.vehicle_id)
                 }
             }
-
+            
         case .none:
             ()
         }
@@ -315,22 +326,114 @@ public class ServiceConnection {
     func batteryState_MyR(callback:@escaping (_ error:Bool, _ charging:Bool, _ plugged:Bool, _ charge_level:UInt8, _ remaining_range:Float, _ last_update:UInt64, _ charging_point:String?, _ remaining_time:Int?, _ battery_temperature:Int?, _ vehicle_id:String?) -> ()) {
         
         myR.batteryState(callback:
-            {error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time, battery_temperature, vehicle_id in
-                self.cache.charging=charging
-                self.cache.plugged=plugged
-                self.cache.charge_level=charge_level
-                self.cache.remaining_range=remaining_range
-                self.cache.last_update=last_update
-                self.cache.charging_point=charging_point
-                self.cache.remaining_time=remaining_time
-                self.cache.battery_temperature=battery_temperature
-                self.cache.vehicleId=vehicle_id
-                callback(error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time,battery_temperature,vehicle_id)
-            }
+                            {error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time, battery_temperature, vehicle_id in
+            self.cache.charging=charging
+            self.cache.plugged=plugged
+            self.cache.charge_level=charge_level
+            self.cache.remaining_range=remaining_range
+            self.cache.last_update=last_update
+            self.cache.charging_point=charging_point
+            self.cache.remaining_time=remaining_time
+            self.cache.battery_temperature=battery_temperature
+            self.cache.vehicleId=vehicle_id
+            callback(error,charging,plugged,charge_level,remaining_range,last_update,charging_point,remaining_time,battery_temperature,vehicle_id)
+        }
         )
     }
     
     
+    
+    
+    public func batteryStateAsync() async -> (error:Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?, battery_temperature:Int?, vehicle_id:String?){
+        os_log("batteryState", log: serviceLog, type: .default)
+        
+        cache.timestamp = Date()
+        if simulation {
+            //print ("batteryState: simulated")
+            cache.charging=true
+            cache.plugged=true
+            if (cache.charge_level == nil || cache.charge_level! > 100){
+                cache.charge_level=50
+            } else {
+                cache.charge_level! += 1
+            }
+            
+            cache.remaining_range=123.4
+            
+            if (cache.remaining_time == nil ){
+                cache.last_update=1550874142000
+            } else {
+                cache.last_update! += 30*60
+            }
+            
+            cache.charging_point="ACCELERATED"
+            if (cache.remaining_time == nil || cache.remaining_time! == 0){
+                cache.remaining_time=345
+            } else {
+                cache.remaining_time! -= 1
+            }
+            
+            if (cache.battery_temperature == nil){
+                cache.battery_temperature = 30
+            }
+            if (cache.vehicleId == nil){
+                cache.vehicleId = "Simulated Vehicle"
+            }
+            try? await Task.sleep(nanoseconds:  500_000_000) // .5-second delay
+            
+            return (false,
+                    cache.charging!,
+                    cache.plugged!,
+                    cache.charge_level!,
+                    cache.remaining_range!,
+                    cache.last_update!,
+                    cache.charging_point!,
+                    cache.remaining_time!,
+                    cache.battery_temperature!,
+                    cache.vehicleId!)
+        }
+        
+        
+        switch api {
+        case .MyRv1, .MyRv2:
+            
+            let result = await myR.batteryStateAsync()
+            cache.charging=result.charging
+            cache.plugged=result.plugged
+            cache.charge_level=result.charge_level
+            cache.remaining_range=result.remaining_range
+            cache.last_update=result.last_update
+            cache.charging_point=result.charging_point
+            cache.remaining_time=result.remaining_time
+            cache.battery_temperature=result.battery_temperature
+            cache.vehicleId=result.vehicle_id
+            
+            return (result.error,
+                    result.charging,
+                    result.plugged,
+                    result.charge_level,
+                    result.remaining_range,
+                    result.last_update,
+                    result.charging_point,
+                    result.remaining_time,
+                    result.battery_temperature,
+                    result.vehicle_id)
+            
+            
+            
+        case .none: // dummy return for nil value
+            return (false,
+                    cache.charging!,
+                    cache.plugged!,
+                    cache.charge_level!,
+                    cache.remaining_range!,
+                    cache.last_update!,
+                    cache.charging_point!,
+                    cache.remaining_time!,
+                    cache.battery_temperature!,
+                    cache.vehicleId!)
+        }
+    }
     
     
     public func cockpitState(callback c:@escaping (_ error:Bool, _ total_mileage:Float?) -> ()) {
@@ -374,6 +477,40 @@ public class ServiceConnection {
         })
     }
 
+    public func cockpitStateAsync() async -> (error:Bool, total_mileage:Float?) {
+        os_log("cockpitState", log: serviceLog, type: .default)
+        
+        if simulation {
+            //print ("cockpitState: simulated")
+            if (self.cache.totalMileage == nil) {
+                self.cache.totalMileage = 123000.0
+            } else {
+                self.cache.totalMileage! += 1.23
+            }
+            try? await Task.sleep(nanoseconds:  500_000_000) // .5-second delay
+            return(error: false,
+                   total_mileage: cache.totalMileage!)
+            
+        }
+        
+        
+        switch api {
+        case .MyRv1, .MyRv2:
+            let result = await myR.cockpitStateAsync()
+            cache.totalMileage = result.total_mileage
+            
+            return (error: result.error,
+                    total_mileage: result.total_mileage)
+            
+            
+            
+        case .none: // dummy
+            return(error: false,
+                   total_mileage: cache.totalMileage!)
+        }
+    }
+
+    
     
     
     public func isTokenExpired()->Bool {
@@ -429,7 +566,42 @@ public class ServiceConnection {
     
 
     
-    
+    public func preconditionAsync(command:PreconditionCommand, date: Date?) async ->  (error: Bool, command:PreconditionCommand, date: Date?, externalTemperature: Float? ) {
+        
+        os_log("precondition", log: serviceLog, type: .default)
+        
+        if simulation {
+            print ("precondition: simulated")
+            return (error:false,
+                    command:command,
+                    date:date,
+                    externalTemperature:12.3)
+        }
+        
+#if false
+        DispatchQueue.main.async {
+            callback(false, command, date)
+        }
+        return
+#endif
+
+        switch api {
+        case .MyRv1, .MyRv2:
+
+            let result = await myR.preconditionAsync(command: command, date: date)
+            return (error:result.error,
+                    command:result.command,
+                    date:result.date,
+                    externalTemperature:result.externalTemperature)
+
+        case .none: // dummy
+            return (error:false,
+                    command:command,
+                    date:date,
+                    externalTemperature:12.3)
+        }
+    }
+
     
     
     
@@ -468,6 +640,36 @@ public class ServiceConnection {
         myR.airConditioningLastState(callback: callback)
     }
 
+    public func airConditioningLastStateAsync() async -> (error: Bool, date:UInt64, type:String?, result:String?){
+        
+        os_log("airConditioningLastState", log: serviceLog, type: .default)
+        
+        if simulation {
+            print ("airConditioningLastState: simulated")
+            return (error: false,
+                    date: 1550874142000,
+                    type: "-",
+                    result: "SUCCESS")
+             
+        }
+        
+        switch api {
+        case .MyRv1, .MyRv2:
+            let result = await myR.airConditioningLastStateAsync()
+            return (error: result.error,
+                    date: result.date,
+                    type: result.type,
+                    result: result.result)
+
+            
+        case .none: // dummy
+            return (error: false,
+                    date: 1550874142000,
+                    type: "-",
+                    result: "SUCCESS")
+
+        }
+    }
 
     
     

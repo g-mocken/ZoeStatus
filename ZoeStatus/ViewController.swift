@@ -94,6 +94,55 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                     }
                 }
             }
+            
+            
+            // async variant
+            /*
+            Task{
+                updateActivity(type:.start)
+                let r : (result:Bool, errorMessage:String?) = await sc.loginAsync()
+                updateActivity(type:.stop)
+                
+                if r.result {
+                    os_log("Login to Z.E. / MY.R. services successful", log: self.serviceLog, type: .default)
+                    
+                    // auto-refresh after successful login
+                    updateActivity(type:.start)
+                    let bs = await sc.batteryStateAsync()
+                    DispatchQueue.main.async{ // TODO: check if necessary for UI update here and below
+                        self.batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
+                    }
+                    // updateActivity(type:.stop) // TODO: enable here and remove duplicate of this in batteryState() when comversion to asyn code is complete
+                    
+                    self.updateActivity(type:.start)
+                    let ac = await sc.airConditioningLastStateAsync()
+                    acLastState(error:ac.error, date: ac.date, type: ac.type, result: ac.result)
+                    // updateActivity(type:.stop) // TODO: see above
+                    
+                    
+                    self.updateActivity(type: .start)
+                    let pc = await sc.preconditionAsync (command: .read, date: nil)
+                    preconditionState(error: pc.error, command: pc.command, date: pc.date, externalTemperature: pc.externalTemperature )
+                    // updateActivity(type:.stop) // TODO: see above
+                    
+                    self.updateActivity(type: .start)
+                    let cp = await sc.cockpitStateAsync()
+                    cockpitState(error:cp.error, total_mileage:cp.total_mileage)
+                    // updateActivity(type:.stop) // TODO: see above
+                    
+                    
+                } else {
+                    switch sc.api {
+                    case .MyRv1, .MyRv2:
+                        displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(r.errorMessage!))")
+                    case .none:
+                        displayMessage(title: "Error", body:"Failed to login because API is not set.")
+                    }
+                }
+                
+            } // Task
+            */
+            
         }
     }
     

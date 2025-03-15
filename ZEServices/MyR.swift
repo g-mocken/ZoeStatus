@@ -510,7 +510,7 @@ class MyR {
         //} else {
         //  errorCode("Error retrieving targets and api keys")
         //}
-        return ("", "", context) // dummy return
+        return (nil,nil, context) // indicates error on return error this way!
     }
     
     func getHeaders()->[String:String] {
