@@ -1234,7 +1234,46 @@ class MyR {
         }
     }
     
-    
+    public func chargeNowRequestAsync() async -> (Bool) {
+        
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/actions/charging-start")!
+
+        
+        struct StartCharging: Codable {
+            var data: Data
+            struct Data:Codable {
+                var type: String
+                var id: String?
+                var attributes:Attributes
+                struct Attributes:Codable {
+                    var action:String
+                }
+            }
+        }
+           
+        let startCharging = StartCharging(data: StartCharging.Data(type: "ChargingStart", attributes: StartCharging.Data.Attributes(action: "start")))
+        
+        guard let uploadData = try? JSONEncoder().encode(startCharging) else {
+            return (false)
+        }
+        
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+        components.queryItems = [
+            URLQueryItem(name: "country", value: self.country)
+        ]
+        let headers = getHeaders()
+                 
+        // Fetch info using the retrieved access token
+        let result:StartCharging? = await fetchJsonDataViaHttpAsync(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData)
+        if result != nil {
+            // print("Successfully sent request, got: \(result!.data)")
+            return (false)
+        } else {
+            return (true)
+        }
+        
+    }
+
     
     
     /*

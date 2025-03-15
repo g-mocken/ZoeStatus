@@ -465,7 +465,13 @@ public class ServiceConnection {
         
         switch api {
         case .MyRv1, .MyRv2:
-            chargeNowRequest_MyR(callback:callback)
+            // chargeNowRequest_MyR(callback:callback)
+            Task {
+                let result = await myR.chargeNowRequestAsync()
+                DispatchQueue.main.async{
+                    callback(result)
+                }
+            }
         case .none:
             ()
         }
