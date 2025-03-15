@@ -44,7 +44,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     
     fileprivate func performLogin() {
 
-        
         if ((sc.userName == nil) || (sc.password == nil)){
             //print ("Enter user credentials in settings app!")
             
@@ -64,7 +63,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             
             
         } else {
-            
+            /*
             updateActivity(type:.start)
             sc.login(){(result:Bool, errorMessage:String?)->() in
                 self.updateActivity(type:.stop)
@@ -94,10 +93,10 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                     }
                 }
             }
-            
+            */
             
             // async variant
-            /*
+            
             Task{
                 updateActivity(type:.start)
                 let r : (result:Bool, errorMessage:String?) = await sc.loginAsync()
@@ -109,9 +108,9 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                     // auto-refresh after successful login
                     updateActivity(type:.start)
                     let bs = await sc.batteryStateAsync()
-                    DispatchQueue.main.async{ // TODO: check if necessary for UI update here and below
-                        self.batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
-                    }
+                    // DispatchQueue.main.async{ // TODO: check if necessary for UI update here and below
+                    batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
+                    //  }
                     // updateActivity(type:.stop) // TODO: enable here and remove duplicate of this in batteryState() when comversion to asyn code is complete
                     
                     self.updateActivity(type:.start)
@@ -141,8 +140,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 }
                 
             } // Task
-            */
-            
         }
     }
     
