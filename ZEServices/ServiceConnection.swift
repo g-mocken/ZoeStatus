@@ -9,7 +9,7 @@
 import Foundation
 import os
 
-public enum PreconditionCommand {
+public enum PreconditionCommand : Sendable{
      case now
      case later
      case delete
@@ -263,7 +263,14 @@ public class ServiceConnection {
         
         switch api {
         case .MyRv1, .MyRv2:
-            batteryState_MyR(callback:c)
+            //batteryState_MyR(callback:c)
+            Task {
+                let result = await myR.batteryStateAsync()
+                DispatchQueue.main.async{
+                    c(result.0, result.1, result.2, result.3, result.4, result.5, result.6, result.7, result.8, result.9)
+                }
+            }
+
         case .none:
             ()
         }
@@ -309,7 +316,15 @@ public class ServiceConnection {
         
         switch api {
         case .MyRv1, .MyRv2:
-            cockpitState_MyR(callback:c)
+            //cockpitState_MyR(callback:c)
+            Task {
+                let result = await myR.cockpitStateAsync()
+                self.cache.totalMileage = result.1
+                DispatchQueue.main.async{
+                    c(result.0, result.1)
+                }
+            }
+
         case .none:
             ()
         }
@@ -358,7 +373,14 @@ public class ServiceConnection {
 
         switch api {
         case .MyRv1, .MyRv2:
-            precondition_MyR(command: command, date: date, callback:callback)
+            //precondition_MyR(command: command, date: date, callback:callback)
+            Task {
+                let result = await myR.preconditionAsync(command: command, date: date)
+                DispatchQueue.main.async{
+                    callback(result.0, result.1, result.2, result.3)
+                }
+            }
+
         case .none:
             ()
         }
@@ -391,7 +413,15 @@ public class ServiceConnection {
         
         switch api {
         case .MyRv1, .MyRv2:
-            airConditioningLastState_MyR(callback:c)
+            // airConditioningLastState_MyR(callback:c)
+            Task {
+                let result = await myR.airConditioningLastStateAsync()
+                DispatchQueue.main.async{
+                    c(result.0, result.1, result.2, result.3)
+                }
+            }
+
+            
         case .none:
             ()
         }
