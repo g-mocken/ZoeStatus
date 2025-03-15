@@ -177,6 +177,8 @@ public class ServiceConnection {
 
         os_log("New API login", log: serviceLog, type: .default)
         myR = MyR(username: userName!, password: password!, version: version, kamereon: kamereon!, vehicle: vehicle!)
+  
+        /*
         myR.handleLoginProcess(onError: { errorMessage in
             DispatchQueue.main.async{callback(false, nil, errorMessage)}
         }, onSuccess: { vin, token, context in
@@ -187,6 +189,23 @@ public class ServiceConnection {
                 callback(true, context, nil)
             }
         }) // later change latter to true
+        */
+        
+        Task {
+            let result = await myR.handleLoginProcessAsync(onError: { errorMessage in
+                DispatchQueue.main.async{callback(false, nil, errorMessage)}
+            })
+            
+            os_log("Login MyR successful.", log: self.serviceLog, type: .default)
+            self.tokenExpiry = self.extractExpiryDate(ofToken: result.1)
+            self.vehicleIdentification = result.0 // to avoid crashes, when switching API versions
+
+            DispatchQueue.main.async{
+                callback(true, result.2, nil)
+            }
+        }
+
+        
     }
         
 

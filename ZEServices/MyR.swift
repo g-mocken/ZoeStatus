@@ -324,7 +324,7 @@ class MyR {
     
     
     
-    func handleLoginProcessAsync(onError errorCode:@escaping(_ errorMessage:String)->Void, onSuccess actionCode:@escaping(_ vin:String?, _ token:String?, _ context:Context)->Void) async -> (){
+    func handleLoginProcessAsync(onError errorCode:@escaping(_ errorMessage:String)->Void) async -> (String?, String?, Context)  {
         
         // Fetch URLs and API keys from a fixed URL
         let endpointUrl1 = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_" + language + ".json")!
@@ -459,7 +459,7 @@ class MyR {
                                     self.context.vehiclesInfo = result // save for later use
                                     
                                     // must explicitly pass results, because the actionCode closure would use older captured values otherwise
-                                    actionCode(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
+                                    return (result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
                                 }
                             } else {
                                 errorCode("Error retrieving vehicles with Kamereon token")
@@ -489,7 +489,7 @@ class MyR {
                                     self.context.vehiclesInfo = result // save for later use
                                     
                                     // must explicitly pass results, because the actionCode closure would use older captured values otherwise
-                                    actionCode(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
+                                    return (result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
                                 }
                             } else {
                                 errorCode("Error retrieving vehicles without Kamereon token")
@@ -510,6 +510,7 @@ class MyR {
         //} else {
         //  errorCode("Error retrieving targets and api keys")
         //}
+        return ("", "", context) // dummy return
     }
     
     func getHeaders()->[String:String] {
