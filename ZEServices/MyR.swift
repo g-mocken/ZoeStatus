@@ -1065,5 +1065,65 @@ class MyR {
         task.resume()
         
     }
+    
+    
+    // variant which uses async URLSession.shared.data() function jut as is because it is async itself (i.e. must be called from Task), simply returns result and has no callback for that
+    func fetchJsonDataViaHttpAsync<T> (usingMethod method:HttpMethod, withComponents components:URLComponents, withHeaders headers:[String:String]?, withBody body: Data?=nil) async -> T? where T:Decodable {
+        
+        let query = components.url!.query
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = method.string
+        if (query != nil) && (method == .POST) {
+            request.httpBody = Data(query!.utf8) // must not be used for GET
+        }
+
+        if (body != nil) && (method == .POST) {
+            request.httpBody = body
+        }
+        request.allHTTPHeaderFields = headers
+        // request.setValue("...", forHTTPHeaderField: "...")
+
+        
+        // Perform the network request using async/await
+        do {
+
+            let (jsonData, response) = try await URLSession.shared.data(for: request)
+
+            os_log("Request: %{public}s", log: self.serviceLog, type: .debug, request.description)
+
+            if (request.httpBody != nil) {os_log("POST-Body: %{public}s", log: self.serviceLog, type: .debug, String(data: request.httpBody!, encoding: .utf8)!)
+            }
+
+            guard let resp = response as? HTTPURLResponse,
+                  (200...299).contains(resp.statusCode)
+                    
+            else {
+                os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
+                return nil
+            }
+            
+            os_log("raw JSON data: %{public}s", log: self.serviceLog, type: .debug, String(data: jsonData, encoding: .utf8)!)
+            let decoder = JSONDecoder()
+            let result = try? decoder.decode(T.self, from: jsonData)
+            return result
+            
+        } catch {
+            // Handle errors
+            os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
+            return nil
+            
+            
+        }
+    }
+
+    // Wrapper for async variant which is a 1:1 replacement for fetchJsonDataViaHttp<>() (for testing the async variant only)
+    func fetchJsonDataViaHttpAsyncWrapper<T> (usingMethod method:HttpMethod, withComponents components:URLComponents, withHeaders headers:[String:String]?, withBody body: Data?=nil, callback:@escaping(T?)->Void) where T:Decodable {
+        Task {
+            let result:T? = await fetchJsonDataViaHttpAsync(usingMethod:method, withComponents: components, withHeaders: headers, withBody: body)
+            callback(result)
+        }
+    }
+
+    
 
 }
