@@ -219,52 +219,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     }
 
     
-    func handleLogin(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
-               
-        if (sc.tokenExpiry == nil){ // never logged in successfully
-        
-            updateActivity(type:.start)
-            sc.login(){(result:Bool, errorMessage:String?)->() in
-                if (result){
-                    actionCode()
-                } else {
-                    self.displayMessage(title: "Error", body:"Failed to login to MY.R. services."  + " (\(errorMessage!))")
-                    errorCode()
-                }
-                self.updateActivity(type:.stop)
-            }
-        } else {
-            if sc.isTokenExpired() {
-                //print("Token expired or will expire too soon (or expiry date is nil), must renew")
-                updateActivity(type:.start)
-                sc.renewToken(){(result:Bool)->() in
-                    if result {
-                        print("renewed expired token!")
-                        actionCode()
-                    } else {
-                        //self.displayMessage(title: "Error", body:"Failed to renew expired token.")
-                        self.sc.tokenExpiry = nil // force new login next time
-                        print("expired token NOT renewed!")
-                        self.updateActivity(type:.start)
-                        self.sc.login(){(result:Bool, errorMessage:String?)->() in
-                            if (result){
-                                actionCode()
-                            } else {
-                                self.displayMessage(title: "Error", body:"Failed to renew expired token and to login to MY.R. services." + " (\(errorMessage!))")
-                                errorCode()
-                            }
-                            self.updateActivity(type:.stop)
-                        }
-                    }
-                    self.updateActivity(type:.stop)
-                }
-            } else {
-                print("token still valid!")
-                actionCode()
-            }
-        }
-    }
-    
+   
     
     func handleLoginAsync() async -> Bool {
         

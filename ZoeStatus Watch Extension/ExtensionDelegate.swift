@@ -16,37 +16,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     var previous_last_update:UInt64?
     let refreshInterval:TimeInterval = 1.0 * 60
 
-    func handleLogin(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
-               
-        if (sc.tokenExpiry == nil){ // never logged in successfully
-        
-            sc.login(){(result:Bool, errorMessage:String?)->() in
-                if (result){
-                    actionCode()
-                } else {
-                    print("Failed to login to MY.R. services." + " (\(errorMessage!))")
-                    errorCode()
-                }
-            }
-        } else {
-            if sc.isTokenExpired() {
-                //print("Token expired or will expire too soon (or expiry date is nil), must renew")
-                sc.renewToken(){(result:Bool)->() in
-                    if result {
-                        print("renewed expired token!")
-                        actionCode()
-                    } else {
-                        print("Failed to renew expired token.")
-                        print("expired token NOT renewed!")
-                        errorCode()
-                    }
-                }
-            } else {
-                print("token still valid!")
-                actionCode()
-            }
-        }
-    }
+
     
     
     func handleLoginAsync() async -> Bool {
