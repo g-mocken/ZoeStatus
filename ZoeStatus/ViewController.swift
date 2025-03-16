@@ -108,9 +108,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                     // auto-refresh after successful login
                     updateActivity(type:.start)
                     let bs = await sc.batteryStateAsync()
-                    // DispatchQueue.main.async{ // TODO: check if necessary for UI update here and below
                     batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
-                    //  }
                     // updateActivity(type:.stop) // TODO: enable here and remove duplicate of this in batteryState() when comversion to asyn code is complete
                     
                     self.updateActivity(type:.start)
@@ -534,6 +532,58 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     }
     
     
+    func handleLoginAsync() async -> Bool {
+               
+        if (sc.tokenExpiry == nil){ // never logged in successfully
+        
+            updateActivity(type:.start)
+            let r = await sc.loginAsync()
+            updateActivity(type:.stop)
+            if (r.result){
+                return true
+            } else {
+                switch self.sc.api {
+                case .MyRv1, .MyRv2:
+                    self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(r.errorMessage!))")
+                case .none:
+                    self.displayMessage(title: "Error", body:"Failed to login because API is not set.")
+                }
+                return false
+            }
+            
+        } else {
+            if sc.isTokenExpired() {
+                //print("Token expired or will expire too soon (or expiry date is nil), must renew")
+                updateActivity(type:.start)
+                let result = await sc.renewTokenAsync()
+                updateActivity(type:.stop)
+
+                if result {
+                    print("renewed expired token!")
+                    return true
+                } else {
+                    print("expired token NOT renewed!")
+                    self.sc.tokenExpiry = nil // force new login next time
+                    // instead of error, attempt new login right now:
+                    updateActivity(type:.start)
+                    let r = await sc.loginAsync()
+                    updateActivity(type:.stop)
+                    if (r.result){
+                        return true
+                    } else {
+                        self.displayMessage(title: "Error", body:"Failed to renew expired token and to login to MY.R. services." + " (\(r.errorMessage!))")
+                        return false
+                    }
+                }
+                
+            } else {
+                print("token still valid!")
+                return true
+            }
+        }
+    }
+
+    
     
     func applicationShouldRefresh(notification: Notification) {
         print ("applicationShouldRefresh notification received!")
@@ -546,7 +596,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         // dismiss alert if any is active
         activeAlertController?.dismiss(animated: true, completion: nil)
         activeAlertController = nil
-        
+       
+        /*
         handleLogin(onError: {}){
             self.updateActivity(type:.start)
             self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
@@ -559,8 +610,39 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             
             self.updateActivity(type: .start)
             self.sc.cockpitState(callback: self.cockpitState(error:total_mileage:))
-            
         }
+        */
+        
+        // async variant
+        Task {
+            if await handleLoginAsync(){
+
+                self.updateActivity(type:.start)
+                let bs = await sc.batteryStateAsync()
+                batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
+                // updateActivity(type:.stop) // TODO: enable here and remove duplicate of this in batteryState() when comversion to asyn code is complete
+                
+                self.updateActivity(type:.start)
+                let ac = await sc.airConditioningLastStateAsync()
+                acLastState(error:ac.error, date: ac.date, type: ac.type, result: ac.result)
+                // updateActivity(type:.stop) // TODO: see above
+                
+                
+                self.updateActivity(type: .start)
+                let pc = await sc.preconditionAsync (command: .read, date: nil)
+                preconditionState(error: pc.error, command: pc.command, date: pc.date, externalTemperature: pc.externalTemperature )
+                // updateActivity(type:.stop) // TODO: see above
+                
+                self.updateActivity(type: .start)
+                let cp = await sc.cockpitStateAsync()
+                cockpitState(error:cp.error, total_mileage:cp.total_mileage)
+                // updateActivity(type:.stop) // TODO: see above
+
+            }
+        }
+
+        
+        
     }
     
     @IBAction func refreshButtonPressed(_ sender: UIButton) {
@@ -701,9 +783,24 @@ class ViewController: UIViewController, MapViewControllerDelegate {
 
     
     func preconditionCar(command:PreconditionCommand, date: Date?){
+        
+        /*
         handleLogin(onError: {self.preconditionButton.isEnabled=true}){
             self.updateActivity(type: .start)
             self.sc.precondition(command: command, date: date, callback: self.preconditionState)
+        }
+        */
+        
+        // async variant
+        Task {
+            if await !handleLoginAsync(){
+                self.preconditionButton.isEnabled=true
+            }
+            else {
+                self.updateActivity(type: .start)
+                self.sc.precondition(command: command, date: date, callback: self.preconditionState)
+                // updateActivity(type:.stop)
+            }
         }
     }
     
@@ -725,11 +822,24 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             
         confirmButtonPress(title:"Charge pause override?", body:"Will tell the car to ignore any scheduled charging pause and to start charging immediately.", cancelButton: "Cancel", cancelCallback: {self.chargeNowButton.isEnabled=true}, confirmButton: "Start charging")
         {
-            
+            /*
             self.handleLogin(onError: {self.chargeNowButton.isEnabled=true}){
                 self.updateActivity(type:.start)
                 self.sc.chargeNowRequest(callback: self.chargeNowRequest(error:))
             }
+            */
+            
+            // async variant:
+            Task {
+                if await !self.handleLoginAsync(){
+                    self.chargeNowButton.isEnabled=true
+                } else {
+                    self.updateActivity(type:.start)
+                    self.chargeNowRequest(error: await self.sc.chargeNowRequestAsync())
+                    // updateActivity(type:.stop)
+                }
+            }
+            
         }
     }
     
