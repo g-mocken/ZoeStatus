@@ -798,7 +798,8 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             }
             else {
                 self.updateActivity(type: .start)
-                self.sc.precondition(command: command, date: date, callback: self.preconditionState)
+                let pc = await sc.preconditionAsync(command: command, date: date)
+                self.preconditionState(error: pc.error, command: pc.command, date: pc.date, externalTemperature: pc.externalTemperature)
                 // updateActivity(type:.stop)
             }
         }
