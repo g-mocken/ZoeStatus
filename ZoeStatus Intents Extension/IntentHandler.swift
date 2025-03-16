@@ -115,37 +115,41 @@ class IntentHandlerPowerLevel:INExtension, INGetCarPowerLevelStatusIntentHandlin
         
         
         let actionCode = {
+            
+            Task {
+                let bs = await self.sc.batteryStateAsync()
                 
-                self.sc.batteryState(){
-                error, charging, plugged, charge_level, remaining_range, last_update, charging_point, remaining_time, battery_temperature, vehicle_id in
-                    
-                    let response = INGetCarPowerLevelStatusIntentResponse(code: INGetCarPowerLevelStatusIntentResponseCode.success, userActivity: nil)
-                    
-
-                    response.charging = charging
-                    response.chargePercentRemaining = Float(charge_level)/100.0 // 0.12 = 12%
-                    response.distanceRemaining = Measurement(value: Double(remaining_range), unit: UnitLength.kilometers)
-                    if #available(iOSApplicationExtension 14.0, *) {
-                        response.activeConnector =  INCar.ChargingConnectorType.mennekes
-                    } else {
-                        // Fallback on earlier versions
-                    }
-                    if #available(iOSApplicationExtension 14.0, *) {
-                        response.carIdentifier = vehicle_id
-                    } else {
-                        // Fallback on earlier versions
-                    }
-                   // response.distanceRemainingElectric = Measurement(value: Double(200.0), unit: UnitLength.kilometers)
-                   // response.currentBatteryCapacity  = Measurement(value: Double(22.0), unit: UnitEnergy.kilowattHours)
-
-                    completion(response)
+                let response = INGetCarPowerLevelStatusIntentResponse(code: INGetCarPowerLevelStatusIntentResponseCode.success, userActivity: nil)
+                
+                
+                response.charging = bs.charging
+                response.chargePercentRemaining = Float(bs.charge_level)/100.0 // 0.12 = 12%
+                response.distanceRemaining = Measurement(value: Double(bs.remaining_range), unit: UnitLength.kilometers)
+                if #available(iOSApplicationExtension 14.0, *) {
+                    response.activeConnector =  INCar.ChargingConnectorType.mennekes
+                } else {
+                    // Fallback on earlier versions
                 }
+                if #available(iOSApplicationExtension 14.0, *) {
+                    response.carIdentifier = bs.vehicle_id
+                } else {
+                    // Fallback on earlier versions
+                }
+                // response.distanceRemainingElectric = Measurement(value: Double(200.0), unit: UnitLength.kilometers)
+                // response.currentBatteryCapacity  = Measurement(value: Double(22.0), unit: UnitEnergy.kilowattHours)
+                
+                completion(response)
             }
+        }
         let errorCode = {
             print("Error")
             let response = INGetCarPowerLevelStatusIntentResponse(code: INGetCarPowerLevelStatusIntentResponseCode.failure, userActivity: nil)
             completion(response)
         }
+        
+        
+        
+        /*
         
         if (sc.tokenExpiry == nil){
             print("Never logged in before")
@@ -174,6 +178,39 @@ class IntentHandlerPowerLevel:INExtension, INGetCarPowerLevelStatusIntentHandlin
                 actionCode()
             }
         }
+        */
+        
+        
+        // async variant
+        Task{
+            if (sc.tokenExpiry == nil){
+                print("Never logged in before")
+                let r = await sc.loginAsync()
+                if r.result {
+                    print("Login successful")
+                    _ = actionCode()
+                } else {
+                    print("Login NOT successful")
+                    errorCode()
+                }
+                
+            } else {
+                print("Did log in before, checking token")
+                if sc.isTokenExpired() { // token expired
+                    let result = await sc.renewTokenAsync()
+                    if result {
+                        print("renewed expired token!")
+                        _ = actionCode()
+                    } else {
+                        print("expired token NOT renewed!")
+                        errorCode()
+                    }
+                } else { // token valid
+                    _ = actionCode()
+                }
+            }
+        }
+        
     }
     
     
