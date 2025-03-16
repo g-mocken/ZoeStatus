@@ -1208,7 +1208,7 @@ class MyR {
         let startCharging = StartCharging(data: StartCharging.Data(type: "ChargingStart", attributes: StartCharging.Data.Attributes(action: "start")))
         
         guard let uploadData = try? JSONEncoder().encode(startCharging) else {
-            callback(false)
+            callback(true)
             return
         }
         
@@ -1253,7 +1253,7 @@ class MyR {
         let startCharging = StartCharging(data: StartCharging.Data(type: "ChargingStart", attributes: StartCharging.Data.Attributes(action: "start")))
         
         guard let uploadData = try? JSONEncoder().encode(startCharging) else {
-            return (false)
+            return (true)
         }
         
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
@@ -1551,7 +1551,7 @@ class MyR {
                     return (error: true, command: command, date: date, externalTemperature: nil)
                 }
         } else { // all other commands POST action
-            let result:PreconditionInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData)
+            let result:Precondition? = await fetchJsonDataViaHttpAsync(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData)
                 if result != nil {
                     // print("Successfully sent POST request, got: \(result!.data)")
                     return (error: false, command: command, date: date, externalTemperature: nil)

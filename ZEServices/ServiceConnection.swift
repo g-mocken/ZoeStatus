@@ -273,6 +273,10 @@ public class ServiceConnection {
     }
     
     
+    public func renewTokenAsync() async -> Bool {
+        os_log("renewToken", log: serviceLog, type: .default)
+        return false // cannot renew, just trigger automatic new login
+    }
     
     
     public func batteryState(callback c:@escaping (_ error:Bool, _ charging:Bool, _ plugged:Bool, _ charge_level:UInt8, _ remaining_range:Float, _ last_update:UInt64, _ charging_point:String?, _ remaining_time:Int?, _ battery_temperature:Int?, _ vehicle_id:String?) -> ()) {
@@ -737,4 +741,20 @@ public class ServiceConnection {
         myR.chargeNowRequest(callback:callback)
         
     }
+    
+    public func chargeNowRequestAsync() async -> Bool {
+        if simulation {
+            print ("chargeNowRequest: simulated")
+            return false
+        }
+        
+        switch api {
+        case .MyRv1, .MyRv2:
+            return await myR.chargeNowRequestAsync()
+        case .none:
+            return false // dummy
+        }
+    }
+    
+    
 }
