@@ -171,6 +171,7 @@ struct Provider: TimelineProvider {
             sc.tokenExpiry = nil
         }
 
+        /*
         if (sc.tokenExpiry == nil){ // never logged in successfully
         
             sc.login(){(result:Bool, errorMessage:String?)->() in
@@ -211,6 +212,53 @@ struct Provider: TimelineProvider {
                 self.sc.batteryState(callback: batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
             }
         }
+         */
+        
+        // async variant
+        Task {
+            if (sc.tokenExpiry == nil){ // never logged in successfully
+                
+                let r = await sc.loginAsync()
+                if (r.result){
+                    let bs = await sc.batteryStateAsync()
+                    batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
+                } else {
+                    self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(r.errorMessage!))")
+                    batteryState(error:true, charging: false, plugged: false, charge_level:0, remaining_range:0.0, last_update:0, charging_point: "", remaining_time: 0, battery_temperature: 0, vehicle_id:"")
+                }
+                
+            } else {
+                if sc.isTokenExpired() {
+                    //print("Token expired or will expire too soon (or expiry date is nil), must renew")
+                    let result = await sc.renewTokenAsync()
+                    if result {
+                        print("renewed expired token!")
+                        self.sc.batteryState(callback: batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
+                        
+                    } else {
+                        self.displayMessage(title: "Error", body:"Failed to renew expired token.")
+                        self.sc.tokenExpiry = nil // force new login next time
+                        print("expired token NOT renewed!")
+                        // instead of error, attempt new login right now:
+                        let r = await sc.loginAsync()
+                        if (r.result){
+                            self.sc.batteryState(callback: batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
+                            
+                        } else {
+                            self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(r.errorMessage!))")
+                        }
+                    }
+                    
+                } else {
+                    print("token still valid!")
+                    
+                    self.sc.batteryState(callback: batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
+                }
+            }
+            
+        }
+        
+        
     }
     
 }
