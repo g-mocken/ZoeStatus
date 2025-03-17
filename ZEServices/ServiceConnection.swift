@@ -173,11 +173,11 @@ public class ServiceConnection {
         if let errorMessage = result.errorMessage {
             return (result: false, errorMessage: errorMessage)
         } else {
-            os_log("Login MyR successful.", log: self.serviceLog, type: .default)
-            self.tokenExpiry = self.extractExpiryDate(ofToken: result.token)
-            self.vehicleIdentification = result.vin // to avoid crashes, when switching API versions
-            self.myR.context = result.context
-            print ("check: \(self.myR.context.vehiclesInfo!)")
+            os_log("Login MyR successful.", log: serviceLog, type: .default)
+            tokenExpiry = extractExpiryDate(ofToken: result.token)
+            vehicleIdentification = result.vin // to avoid crashes, when switching API versions
+            myR.context = result.context
+            print ("check: \(myR.context.vehiclesInfo!)")
             return (result: true, errorMessage: nil)
         }
     }
@@ -289,10 +289,10 @@ public class ServiceConnection {
         
         if simulation {
             //print ("cockpitState: simulated")
-            if (self.cache.totalMileage == nil) {
-                self.cache.totalMileage = 123000.0
+            if (cache.totalMileage == nil) {
+                cache.totalMileage = 123000.0
             } else {
-                self.cache.totalMileage! += 1.23
+                cache.totalMileage! += 1.23
             }
             try? await Task.sleep(nanoseconds:  500_000_000) // .5-second delay
             return(error: false,

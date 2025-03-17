@@ -148,39 +148,6 @@ class IntentHandlerPowerLevel:INExtension, INGetCarPowerLevelStatusIntentHandlin
         }
         
         
-        
-        /*
-        
-        if (sc.tokenExpiry == nil){
-            print("Never logged in before")
-            sc.login(){(result:Bool, errorMessage:String?)->() in
-                if result {
-                    print("Login successful")
-                    actionCode()
-                } else {
-                    print("Login NOT successful")
-                    errorCode()
-                }
-            }
-        } else {
-            print("Did log in before, checking token")
-            if sc.isTokenExpired() { // token expired
-                sc.renewToken(){(result:Bool)->() in
-                    if result {
-                        print("renewed expired token!")
-                        actionCode()
-                    } else {
-                        print("expired token NOT renewed!")
-                        errorCode()
-                    }
-                }
-            } else { // token valid
-                actionCode()
-            }
-        }
-        */
-        
-        
         // async variant
         Task{
             if (sc.tokenExpiry == nil){

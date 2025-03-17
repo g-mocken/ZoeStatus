@@ -194,61 +194,6 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
             sc.tokenExpiry = nil
         }
 
-        /*
-        if (sc.tokenExpiry == nil){ // never logged in successfully
-        
-            updateActivity(type:.start)
-            sc.login(){(result:Bool, errorMessage:String?)->() in
-                if (result){
-                    self.updateActivity(type:.start)
-                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
-
-                } else {
-                    self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(errorMessage!))")
-                    self.level.text = "🔋…"
-                    self.range.text = "🛣️ …"
-                    self.update.text = timestampToDateString(timestamp: nil)
-
-                }
-                self.updateActivity(type:.stop)
-            }
-        } else {
-            if sc.isTokenExpired() {
-                //print("Token expired or will expire too soon (or expiry date is nil), must renew")
-                updateActivity(type:.start)
-                sc.renewToken(){(result:Bool)->() in
-                    if result {
-                        print("renewed expired token!")
-                        self.updateActivity(type:.start)
-                        self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
-                        
-                    } else {
-                        self.displayMessage(title: "Error", body:"Failed to renew expired token.")
-                        self.sc.tokenExpiry = nil // force new login next time
-                        print("expired token NOT renewed!")
-                        // instead of error, attempt new login right now:
-                        self.updateActivity(type:.start)
-                        self.sc.login(){(result:Bool,errorMessage:String?)->() in
-                            if (result){
-                                self.updateActivity(type:.start)
-                                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
-
-                            } else {
-                                self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(errorMessage!))")
-                            }
-                            self.updateActivity(type:.stop)
-                        }
-                    }
-                    self.updateActivity(type:.stop)
-                }
-            } else {
-                print("token still valid!")
-            
-                updateActivity(type:.start)
-                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
-            }
-        }
-         */
         
         // async variant
 
@@ -288,7 +233,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
                             let bs = await sc.batteryStateAsync()
                             batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
                         } else {
-                            self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(r.errorMessage!))")
+                            displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(r.errorMessage!))")
                         }
                     }
                     
@@ -311,7 +256,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         // If there's no update required, use NCUpdateResult.NoData
         // If there's an update, use NCUpdateResult.NewData
         if levelCache != nil {
-            self.level.text = String(format: "🔋%3d%%", levelCache!)
+            level.text = String(format: "🔋%3d%%", levelCache!)
         }
         if remainingRangeCache != nil {
             if (sc.units == .Metric){
@@ -322,7 +267,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
             
         }
         if last_update_cache != nil {
-            self.update.text = timestampToDateString(timestamp: last_update_cache!)
+            update.text = timestampToDateString(timestamp: last_update_cache!)
         }
         
         completionHandler(NCUpdateResult.noData)
@@ -336,7 +281,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
             
         } else {
                         
-            self.level.text = String(format: "🔋%3d%%", charge_level)
+            level.text = String(format: "🔋%3d%%", charge_level)
             levelCache = charge_level
             if (remaining_range >= 0.0){
                 

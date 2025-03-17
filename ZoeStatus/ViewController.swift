@@ -63,37 +63,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             
             
         } else {
-            /*
-            updateActivity(type:.start)
-            sc.login(){(result:Bool, errorMessage:String?)->() in
-                self.updateActivity(type:.stop)
-                if result {
-                    os_log("Login to Z.E. / MY.R. services successful", log: self.serviceLog, type: .default)
-                    
-                    // auto-refresh after successful login
-                    self.updateActivity(type:.start)
-                    self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
-
-                    self.updateActivity(type:.start)
-                    self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
-                    
-                    self.updateActivity(type: .start)
-                    self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
-
-                    self.updateActivity(type: .start)
-                    self.sc.cockpitState(callback: self.cockpitState(error:total_mileage:))
-
-                    
-                } else {
-                    switch self.sc.api {
-                    case .MyRv1, .MyRv2:
-                        self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(errorMessage!))")
-                    case .none:
-                        self.displayMessage(title: "Error", body:"Failed to login because API is not set.")
-                    }
-                }
-            }
-            */
             
             // async variant
             
@@ -111,18 +80,18 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                     batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
                     // updateActivity(type:.stop) // TODO: enable here and remove duplicate of this in batteryState() when comversion to asyn code is complete
                     
-                    self.updateActivity(type:.start)
+                    updateActivity(type:.start)
                     let ac = await sc.airConditioningLastStateAsync()
                     acLastState(error:ac.error, date: ac.date, type: ac.type, result: ac.result)
                     // updateActivity(type:.stop) // TODO: see above
                     
                     
-                    self.updateActivity(type: .start)
+                    updateActivity(type: .start)
                     let pc = await sc.preconditionAsync (command: .read, date: nil)
                     preconditionState(error: pc.error, command: pc.command, date: pc.date, externalTemperature: pc.externalTemperature )
                     // updateActivity(type:.stop) // TODO: see above
                     
-                    self.updateActivity(type: .start)
+                    updateActivity(type: .start)
                     let cp = await sc.cockpitStateAsync()
                     cockpitState(error:cp.error, total_mileage:cp.total_mileage)
                     // updateActivity(type:.stop) // TODO: see above
@@ -157,7 +126,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
          if ( sc.userName != newUserName )
          {
              sc.userName = newUserName
-             os_log("Never started before or Username was switched, forcing new login", log: self.serviceLog, type: .default)
+             os_log("Never started before or Username was switched, forcing new login", log: serviceLog, type: .default)
              sc.tokenExpiry = nil
          }
          
@@ -165,7 +134,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
          if ( sc.password != newPassword )
          {
              sc.password = newPassword
-             os_log("Never started before or Password was switched, forcing new login", log: self.serviceLog, type: .default)
+             os_log("Never started before or Password was switched, forcing new login", log: serviceLog, type: .default)
              sc.tokenExpiry = nil
          }
          
@@ -174,7 +143,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
          let newVehicle = userDefaults.integer(forKey: "vehicle_preference")
          if (sc.vehicle != newVehicle){
              sc.vehicle = newVehicle
-             os_log("Never started before or vehicle was switched, forcing new login", log: self.serviceLog, type: .default)
+             os_log("Never started before or vehicle was switched, forcing new login", log: serviceLog, type: .default)
              sc.tokenExpiry = nil
          }
          
@@ -182,7 +151,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
          if ( sc.kamereon != newKamereon )
          {
              sc.kamereon = newKamereon
-             os_log("Never started before or Kamereon was switched, forcing new login", log: self.serviceLog, type: .default)
+             os_log("Never started before or Kamereon was switched, forcing new login", log: serviceLog, type: .default)
              sc.tokenExpiry = nil
          }
          userDefaults.setValue(sc.kamereon, forKey: "kamereon_preference") // preset this field in current release
@@ -193,7 +162,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         
          if (sc.api != new_api) { // if there is an API change, force new login
              sc.api = new_api
-             os_log("Never started before or API was switched, forcing new login", log: self.serviceLog, type: .default)
+             os_log("Never started before or API was switched, forcing new login", log: serviceLog, type: .default)
              sc.tokenExpiry = nil
          }
          
@@ -242,10 +211,10 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         }
         
         if traitCollection.userInterfaceStyle == .light {
-            os_log("Light mode", log: self.serviceLog, type: .default)
+            os_log("Light mode", log: serviceLog, type: .default)
             self.view.backgroundColor = UIColor.init(red: 0.329, green: 0.894, blue: 1.000, alpha: 1.0)
         } else {
-            os_log("Dark mode", log: self.serviceLog, type: .default)
+            os_log("Dark mode", log: serviceLog, type: .default)
             self.view.backgroundColor = UIColor.init(red: 0.093, green: 0.254, blue: 0.284, alpha: 1.0)
 
         }
@@ -492,11 +461,11 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             if (r.result){
                 return true
             } else {
-                switch self.sc.api {
+                switch sc.api {
                 case .MyRv1, .MyRv2:
-                    self.displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(r.errorMessage!))")
+                    displayMessage(title: "Error", body:"Failed to login to MY.R. services." + " (\(r.errorMessage!))")
                 case .none:
-                    self.displayMessage(title: "Error", body:"Failed to login because API is not set.")
+                    displayMessage(title: "Error", body:"Failed to login because API is not set.")
                 }
                 return false
             }
@@ -513,7 +482,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                     return true
                 } else {
                     print("expired token NOT renewed!")
-                    self.sc.tokenExpiry = nil // force new login next time
+                    sc.tokenExpiry = nil // force new login next time
                     // instead of error, attempt new login right now:
                     updateActivity(type:.start)
                     let r = await sc.loginAsync()
@@ -521,7 +490,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                     if (r.result){
                         return true
                     } else {
-                        self.displayMessage(title: "Error", body:"Failed to renew expired token and to login to MY.R. services." + " (\(r.errorMessage!))")
+                        displayMessage(title: "Error", body:"Failed to renew expired token and to login to MY.R. services." + " (\(r.errorMessage!))")
                         return false
                     }
                 }
@@ -547,21 +516,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
         activeAlertController?.dismiss(animated: true, completion: nil)
         activeAlertController = nil
        
-        /*
-        handleLogin(onError: {}){
-            self.updateActivity(type:.start)
-            self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
-            
-            self.updateActivity(type:.start)
-            self.sc.airConditioningLastState(callback:self.acLastState(error:date:type:result:))
-            
-            self.updateActivity(type: .start)
-            self.sc.precondition(command: .read, date: nil, callback: self.preconditionState)
-            
-            self.updateActivity(type: .start)
-            self.sc.cockpitState(callback: self.cockpitState(error:total_mileage:))
-        }
-        */
         
         // async variant
         Task {
@@ -734,13 +688,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     
     func preconditionCar(command:PreconditionCommand, date: Date?){
         
-        /*
-        handleLogin(onError: {self.preconditionButton.isEnabled=true}){
-            self.updateActivity(type: .start)
-            self.sc.precondition(command: command, date: date, callback: self.preconditionState)
-        }
-        */
-        
         // async variant
         Task {
             if await !handleLoginAsync(){
@@ -773,13 +720,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             
         confirmButtonPress(title:"Charge pause override?", body:"Will tell the car to ignore any scheduled charging pause and to start charging immediately.", cancelButton: "Cancel", cancelCallback: {self.chargeNowButton.isEnabled=true}, confirmButton: "Start charging")
         {
-            /*
-            self.handleLogin(onError: {self.chargeNowButton.isEnabled=true}){
-                self.updateActivity(type:.start)
-                self.sc.chargeNowRequest(callback: self.chargeNowRequest(error:))
-            }
-            */
-            
+
             // async variant:
             Task {
                 if await !self.handleLoginAsync(){

@@ -102,11 +102,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
            print("No user credentials present.")
             
         } else {
-            /*
-            handleLogin(onError: {}){
-                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature: vehicle_id:))
-            }
-             */
+          
             Task {
                 if await handleLoginAsync() {
                     let bs = await sc.batteryStateAsync()
