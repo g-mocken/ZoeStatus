@@ -81,7 +81,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding {
         sharedDefaults?.synchronize()
         let userName = sharedDefaults?.string(forKey:"userName")
         let password = sharedDefaults?.string(forKey:"password")
-        let api = sharedDefaults?.integer(forKey: "api")
+        let _ = sharedDefaults?.integer(forKey: "api")
         let units = sharedDefaults?.integer(forKey: "units")
         let kamereon = sharedDefaults?.string(forKey: "kamereon")
         let vehicle = sharedDefaults?.integer(forKey: "vehicle")

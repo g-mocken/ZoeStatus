@@ -9,7 +9,7 @@
 import Foundation
 import os
 
-public enum PreconditionCommand : Sendable{
+public enum PreconditionCommand {
      case now
      case later
      case delete
@@ -346,13 +346,6 @@ public class ServiceConnection {
                     externalTemperature:12.3)
         }
         
-#if false
-        DispatchQueue.main.async {
-            callback(false, command, date)
-        }
-        return
-#endif
-
         switch api {
         case .MyRv1, .MyRv2:
 

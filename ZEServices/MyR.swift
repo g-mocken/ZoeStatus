@@ -721,7 +721,7 @@ class MyR {
      preconditionCar(command: .now, date: nil)
      
         refresh status:
-     sc.precondition(command: .read, date: nil, callback: self.preconditionState)
+     sc.preconditionAsync(command: .read, date: nil)
 
 
      */
@@ -963,7 +963,7 @@ class MyR {
                }
            }
     }
-    
+#if false
     func fetchJsonDataViaHttp<T> (usingMethod method:HttpMethod, withComponents components:URLComponents, withHeaders headers:[String:String]?, withBody body: Data?=nil, callback:@escaping(T?)->Void) where T:Decodable {
     
         let query = components.url!.query
@@ -1018,7 +1018,7 @@ class MyR {
         task.resume()
         
     }
-    
+#endif
     
     // variant which uses async URLSession.shared.data() function jut as is because it is async itself (i.e. must be called from Task), simply returns result and has no callback for that
     func fetchJsonDataViaHttpAsync<T> (usingMethod method:HttpMethod, withComponents components:URLComponents, withHeaders headers:[String:String]?, withBody body: Data?=nil) async -> T? where T:Decodable {
@@ -1068,6 +1068,7 @@ class MyR {
             
         }
     }
+#if false
 
     // Wrapper for async variant which is a 1:1 replacement for fetchJsonDataViaHttp<>() (for testing the async variant only)
     func fetchJsonDataViaHttpAsyncWrapper<T> (usingMethod method:HttpMethod, withComponents components:URLComponents, withHeaders headers:[String:String]?, withBody body: Data?=nil, callback:@escaping(T?)->Void) where T:Decodable {
@@ -1077,6 +1078,8 @@ class MyR {
         }
     }
 
+#endif
+    
     
 
 }
