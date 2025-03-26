@@ -16,39 +16,42 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     var previous_last_update:UInt64?
     let refreshInterval:TimeInterval = 1.0 * 60
 
-    func handleLogin(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
-               
-        if (sc.tokenExpiry == nil){ // never logged in successfully
+
+    
+    
+    func handleLoginAsync() async -> Bool {
         
-            sc.login(){(result:Bool, errorMessage:String?)->() in
-                if (result){
-                    actionCode()
-                } else {
-                    print("Failed to login to MY.R. services." + " (\(errorMessage!))")
-                    errorCode()
-                }
+        if (sc.tokenExpiry == nil){ // never logged in successfully
+            
+            let r = await sc.loginAsync()
+            
+            if (r.result){
+                return true
+            } else {
+                print("Failed to login to MY.R. services."  + " (\(r.errorMessage!))")
+                return false
             }
         } else {
             if sc.isTokenExpired() {
                 //print("Token expired or will expire too soon (or expiry date is nil), must renew")
-                sc.renewToken(){(result:Bool)->() in
-                    if result {
-                        print("renewed expired token!")
-                        actionCode()
-                    } else {
-                        print("Failed to renew expired token.")
-                        print("expired token NOT renewed!")
-                        errorCode()
-                    }
+                let result = await sc.renewTokenAsync()
+                
+                if result {
+                    print("renewed expired token!")
+                    return true
+                } else {
+                    print("Failed to renew expired token.")
+                    print("expired token NOT renewed!")
+                    return false
                 }
             } else {
                 print("token still valid!")
-                actionCode()
+                return true
             }
         }
     }
     
-    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?)->(){
+    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?, battery_temperature:Int?, vehicle_id:String?)->(){
         
         if (error){
             print("Could not obtain battery state.")
@@ -99,8 +102,12 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
            print("No user credentials present.")
             
         } else {
-            handleLogin(onError: {}){
-                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:))
+          
+            Task {
+                if await handleLoginAsync() {
+                    let bs = await sc.batteryStateAsync()
+                    batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
+                }
             }
         }
          */
@@ -164,10 +171,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         /*
         // do instant update of complication, if necessary
         let cache = sc.getCache()
-        if cache.charging != nil, cache.plugged != nil, cache.charge_level != nil, cache.remaining_range != nil, cache.last_update != nil, cache.charging_point != nil, cache.remaining_time != nil {
+        if cache.charging != nil, cache.plugged != nil, cache.charge_level != nil, cache.remaining_range != nil, cache.last_update != nil, cache.charging_point != nil, cache.remaining_time != nil, cache.battery_temperature != nil, cache.vehicleId != nil {
         
             print("Updating from cache")
-            batteryState(error: false, charging: cache.charging!, plugged: cache.plugged!, charge_level: cache.charge_level!, remaining_range: cache.remaining_range!, last_update: cache.last_update!, charging_point: cache.charging_point!, remaining_time: cache.remaining_time!)
+            batteryState(error: false, charging: cache.charging!, plugged: cache.plugged!, charge_level: cache.charge_level!, remaining_range: cache.remaining_range!, last_update: cache.last_update!, charging_point: cache.charging_point!, remaining_time: cache.remaining_time!, battery_temperature: cache.battery_temperature!,vehicle_id: cache.vehicleId!)
         } else {
             //refreshTask() // refresh from network, if no cache is present
         }

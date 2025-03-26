@@ -111,215 +111,210 @@ class MyR {
 
     
     func decodeToken(token:String) {
-        os_log("Decoding token:", log: self.serviceLog, type: .debug)
+        os_log("Decoding token:", log: serviceLog, type: .debug)
 
         let indexFirstPeriod = token.firstIndex(of: ".") ?? token.startIndex
         let header = String(token[..<indexFirstPeriod]).fromBase64()
         // first part
-        os_log("Header:  %{public}s:", log: self.serviceLog, type: .debug, header!)
+        os_log("Header:  %{public}s:", log: serviceLog, type: .debug, header!)
 
         let indexSecondPeriod = token[token.index(after:indexFirstPeriod)...].firstIndex(of: ".") ?? token.endIndex
         if let payload = String(token[token.index(after:indexFirstPeriod)..<indexSecondPeriod]).fromBase64(){ // second part
-            os_log("Payload:  %{public}s:", log: self.serviceLog, type: .debug, payload)
+            os_log("Payload:  %{public}s:", log: serviceLog, type: .debug, payload)
         }
         // the third part is the signature of the JSON web token, and not decoded/validated here
     }
     
     
-    func handleLoginProcess(onError errorCode:@escaping(_ errorMessage:String)->Void, onSuccess actionCode:@escaping(_ vin:String?, _ token:String?, _ context:Context)->Void) {
+    
+    
+    
+    func handleLoginProcessAsync() async -> (vin:String?, token:String?, context:Context, errorMessage:String?)  {
         
         // Fetch URLs and API keys from a fixed URL
-        let endpointUrl = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_" + language + ".json")!
-        let components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-        self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: nil) { (result:ApiKeyResult?) -> Void in
-            //if result != nil {
-            if result != nil {
-                os_log("Successfully retrieved targets and api keys:\nKamereon: %{public}s, key=%{public}s\nGigya: %{public}s, key=%{public}s", log: self.serviceLog, type: .debug, result!.servers.wiredProd.target, result!.servers.wiredProd.apikey, result!.servers.gigyaProd.target, result!.servers.gigyaProd.apikey)
-                self.context.apiKeysAndUrls = result // save for later use
-            } else {
-                self.context.apiKeysAndUrls = ApiKeyResult(servers: ApiKeyResult.Servers(wiredProd: ApiKeyResult.Servers.ServerAndKey(target: "https://api-wired-prod-1-euw1.wrd-aws.com", apikey: "oF09WnKqvBDcrQzcW1rJNpjIuy7KdGaB"), gigyaProd: ApiKeyResult.Servers.ServerAndKey(target: "https://accounts.eu1.gigya.com", apikey: "3_7PLksOyBRkHv126x5WhHb-5pqC1qFR8pQjxSeLB6nhAnPERTUlwnYoznHSxwX668")))
-            }
+        let endpointUrl1 = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_" + language + ".json")!
+        let components1 = URLComponents(url: endpointUrl1, resolvingAgainstBaseURL: false)!
+        let result1:ApiKeyResult? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components1, withHeaders: nil)
+        //if result != nil {
+        if result1 != nil {
+            os_log("Successfully retrieved targets and api keys:\nKamereon: %{public}s, key=%{public}s\nGigya: %{public}s, key=%{public}s", log: serviceLog, type: .debug, result1!.servers.wiredProd.target, result1!.servers.wiredProd.apikey, result1!.servers.gigyaProd.target, result1!.servers.gigyaProd.apikey)
+            context.apiKeysAndUrls = result1 // save for later use
+        } else {
+            context.apiKeysAndUrls = ApiKeyResult(servers: ApiKeyResult.Servers(wiredProd: ApiKeyResult.Servers.ServerAndKey(target: "https://api-wired-prod-1-euw1.wrd-aws.com", apikey: "oF09WnKqvBDcrQzcW1rJNpjIuy7KdGaB"), gigyaProd: ApiKeyResult.Servers.ServerAndKey(target: "https://accounts.eu1.gigya.com", apikey: "3_7PLksOyBRkHv126x5WhHb-5pqC1qFR8pQjxSeLB6nhAnPERTUlwnYoznHSxwX668")))
+        }
+        
+        // override Kamereon if a key is specified in user preferences:
+        if kamereon! != "" {
+            os_log("Override Kamereon Key: %{public}s", log: serviceLog, type: .debug, kamereon!)
+            context.apiKeysAndUrls!.servers.wiredProd.apikey = kamereon!
+        }
+        
+        // Fetch session key from the previously learned URL using the retreived API key
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.login")!
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+        components.queryItems = [
+            URLQueryItem(name: "apiKey", value: context.apiKeysAndUrls!.servers.gigyaProd.apikey),
+            URLQueryItem(name: "loginID", value: username),
+            URLQueryItem(name: "password", value: password),
+            URLQueryItem(name: "sessionExpiration",value: "900") // try to set it myself, so I know the value
+            // see https://developers.gigya.com/display/GD/accounts.login+REST
+        ]
+        let result:SessionInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .POST, withComponents: components, withHeaders: nil)
+        if result != nil {
+            os_log("Successfully retrieved session key, Cookie value: %{public}s", log: serviceLog, type: .debug,result!.sessionInfo.cookieValue)
             
-            // override Kamereon if a key is specified in user preferences:
-            if self.kamereon! != "" {
-                os_log("Override Kamereon Key: %{public}s", log: self.serviceLog, type: .debug, self.kamereon!)
-                self.context.apiKeysAndUrls!.servers.wiredProd.apikey = self.kamereon!
-            }
+            context.sessionInfo = result // save for later use.
+            // do not know how to decode the cookie.
             
-            // Fetch session key from the previously learned URL using the retreived API key
-            let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.login")!
+            let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getAccountInfo")!
             var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
             components.queryItems = [
-                URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey),
-                URLQueryItem(name: "loginID", value: self.username),
-                URLQueryItem(name: "password", value: self.password),
-                URLQueryItem(name: "sessionExpiration",value: "900") // try to set it myself, so I know the value
-                // see https://developers.gigya.com/display/GD/accounts.login+REST
+                /* old style */
+                URLQueryItem(name: "oauth_token", value: context.sessionInfo!.sessionInfo.cookieValue),
+                /* new style */
+                URLQueryItem(name: "login_token", value: context.sessionInfo!.sessionInfo.cookieValue),
+                URLQueryItem(name: "apiKey", value: context.apiKeysAndUrls!.servers.gigyaProd.apikey)
             ]
-            self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:SessionInfo?) -> Void in
+            
+            // Fetch person ID from the same URL using the retrieved session key
+            let result:AccountInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .POST, withComponents: components, withHeaders: nil)
+            if result != nil {
+                os_log("Successfully retrieved account info, person ID: %{public}s", log: serviceLog, type: .debug, result!.data.personId)
+                
+                context.accountInfo = result // save for later use
+                
+                let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getJWT")!
+                var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+                components.queryItems = [
+                    /* old style */
+                    URLQueryItem(name: "oauth_token", value: context.sessionInfo!.sessionInfo.cookieValue),
+                    /* new style */
+                    URLQueryItem(name: "login_token", value: context.sessionInfo!.sessionInfo.cookieValue),
+                    URLQueryItem(name: "apiKey", value: context.apiKeysAndUrls!.servers.gigyaProd.apikey),
+                    /* other fields */
+                    URLQueryItem(name: "fields", value: "data.personId,data.gigyaDataCenter"),
+                    URLQueryItem(name: "expiration", value: "900")
+                ]
+                
+                // Fetch Gigya JWT token from the same URL using the retrieved session key
+                let result:TokenInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .POST, withComponents: components, withHeaders: nil)
                 if result != nil {
-                    os_log("Successfully retrieved session key, Cookie value: %{public}s", log: self.serviceLog, type: .debug,result!.sessionInfo.cookieValue)
+                    os_log("Successfully retrieved Gigya JWT token", log: serviceLog, type: .debug)
+                    context.tokenInfo = result // save for later use
+                    decodeToken(token:result!.id_token) // "exp" fields contains timestamp 900s in the future
                     
-                    self.context.sessionInfo = result // save for later use.
-                    // do not know how to decode the cookie.
-                    
-                    let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getAccountInfo")!
+                    let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/persons/"+context.accountInfo!.data.personId)!
                     var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                     components.queryItems = [
-                        /* old style */
-                        URLQueryItem(name: "oauth_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
-                        /* new style */
-                        URLQueryItem(name: "login_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
-                        URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey)
+                        URLQueryItem(name: "country", value: country)
                     ]
-                    
-                    // Fetch person ID from the same URL using the retrieved session key
-                    self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:AccountInfo?) -> Void in
+                    let headers = [
+                        "x-gigya-id_token":context.tokenInfo!.id_token,
+                        "apikey":context.apiKeysAndUrls!.servers.wiredProd.apikey
+                    ]
+                    // Fetch Kamereon account ID from the person-id dependent URL using the retrieved Gigya JWT token
+                    let result:KamereonAccountInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers)
+                    if result != nil {
+                        os_log("Successfully retrieved Kamereon accounts, Account id 0: %{public}s", log: serviceLog, type: .debug, result!.accounts[0].accountId)
+                        
+                        context.kamereonAccountInfo = result // save for later use
+                        
+                        
+                        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/token")!
+                        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+                        components.queryItems = [
+                            URLQueryItem(name: "country", value: country)
+                        ]
+                        let headers = [
+                            "x-gigya-id_token":context.tokenInfo!.id_token,
+                            "apikey":context.apiKeysAndUrls!.servers.wiredProd.apikey
+                        ]
+                        // Fetch Kamereon accessToken from the account dependent URL using the retrieved Gigya JWT token
+                        let result:KamereonTokenInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers)
                         if result != nil {
-                            os_log("Successfully retrieved account info, person ID: %{public}s", log: self.serviceLog, type: .debug, result!.data.personId)
+                            os_log("Successfully retrieved Kamereon accessToken", log: serviceLog, type: .debug)
+                            context.kamereonTokenInfo = result // save for later use
+                            decodeToken(token:result!.accessToken) // "expires_in":3600000 = 1h ?
+                            // not used, just investigating:
+                            //                                                        print("refreshToken:")
+                            //                                                        decodeToken(token: result!.refreshToken)
+                            //                                                        print("idToken:")
+                            //                                                        decodeToken(token: result!.idToken)
                             
-                            self.context.accountInfo = result // save for later use
-                            
-                            let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.gigyaProd.target + "/accounts.getJWT")!
+                            let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
                             var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                             components.queryItems = [
-                                /* old style */
-                                URLQueryItem(name: "oauth_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
-                                /* new style */
-                                URLQueryItem(name: "login_token", value: self.context.sessionInfo!.sessionInfo.cookieValue),
-                                URLQueryItem(name: "apiKey", value: self.context.apiKeysAndUrls!.servers.gigyaProd.apikey),
-                                /* other fields */
-                                URLQueryItem(name: "fields", value: "data.personId,data.gigyaDataCenter"),
-                                URLQueryItem(name: "expiration", value: "900")
+                                URLQueryItem(name: "country", value: country)
                             ]
-                            
-                            // Fetch Gigya JWT token from the same URL using the retrieved session key
-                            self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: nil) { (result:TokenInfo?) -> Void in
-                                if result != nil {
-                                    os_log("Successfully retrieved Gigya JWT token", log: self.serviceLog, type: .debug)
-                                    self.context.tokenInfo = result // save for later use
-                                    self.decodeToken(token:result!.id_token) // "exp" fields contains timestamp 900s in the future
-                                    
-                                    let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/persons/"+self.context.accountInfo!.data.personId)!
-                                    var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-                                    components.queryItems = [
-                                        URLQueryItem(name: "country", value: self.country)
-                                    ]
-                                    let headers = [
-                                        "x-gigya-id_token":self.context.tokenInfo!.id_token,
-                                        "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey
-                                    ]
-                                    // Fetch Kamereon account ID from the person-id dependent URL using the retrieved Gigya JWT token
-                                    self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:KamereonAccountInfo?) -> Void in
-                                        if result != nil {
-                                            os_log("Successfully retrieved Kamereon accounts, Account id 0: %{public}s", log: self.serviceLog, type: .debug, result!.accounts[0].accountId)
-                                            
-                                            self.context.kamereonAccountInfo = result // save for later use
-                                            
-                                            
-                                            let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/token")!
-                                            var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-                                            components.queryItems = [
-                                                URLQueryItem(name: "country", value: self.country)
-                                            ]
-                                            let headers = [
-                                                "x-gigya-id_token":self.context.tokenInfo!.id_token,
-                                                "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey
-                                            ]
-                                            // Fetch Kamereon accessToken from the account dependent URL using the retrieved Gigya JWT token
-                                            self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:KamereonTokenInfo?) -> Void in
-                                                if result != nil {
-                                                    os_log("Successfully retrieved Kamereon accessToken", log: self.serviceLog, type: .debug)
-                                                    self.context.kamereonTokenInfo = result // save for later use
-                                                    self.decodeToken(token:result!.accessToken) // "expires_in":3600000 = 1h ?
-                                                    // not used, just investigating:
-                                                    //                                                        print("refreshToken:")
-                                                    //                                                        self.decodeToken(token: result!.refreshToken)
-                                                    //                                                        print("idToken:")
-                                                    //                                                        self.decodeToken(token: result!.idToken)
-                                                    
-                                                    let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
-                                                    var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-                                                    components.queryItems = [
-                                                        URLQueryItem(name: "country", value: self.country)
-                                                    ]
-                                                    let headers = [
-                                                        "x-gigya-id_token": self.context.tokenInfo!.id_token,
-                                                        "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey,
-                                                        "x-kamereon-authorization": "Bearer " + self.context.kamereonTokenInfo!.accessToken
-                                                    ]
-                                                    // Fetch VIN using the retrieved access token
-                                                    self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
-                                                        if result != nil {
-                                                            os_log("Successfully retrieved vehicles with Kamereon token, Number of vehicles in account: %{public}d", log: self.serviceLog, type: .debug, result!.vehicleLinks.count)
-                                                            
-                                                            if self.vehicle >= result!.vehicleLinks.count {
-                                                                errorCode("VIN index not found.")
-                                                            } else {
-                                                                os_log("VIN[%{public}d]: %{public}s", log: self.serviceLog, type: .debug, self.vehicle, result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)
-                                                                
-                                                                self.context.vehiclesInfo = result // save for later use
-                                                                
-                                                                // must explicitly pass results, because the actionCode closure would use older captured values otherwise
-                                                                actionCode(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
-                                                            }
-                                                        } else {
-                                                            errorCode("Error retrieving vehicles with Kamereon token")
-                                                        }
-                                                    } // end of closure
-                                                } else {
-                                                    os_log("Could not retrieve Kamereon token - trying without anyway", log: self.serviceLog, type: .debug)
-                                                    
-                                                    let endpointUrl = URL(string: self.context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+self.context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
-                                                    var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-                                                    components.queryItems = [
-                                                        URLQueryItem(name: "country", value: self.country)
-                                                    ]
-                                                    let headers = [
-                                                        "x-gigya-id_token": self.context.tokenInfo!.id_token,
-                                                        "apikey":self.context.apiKeysAndUrls!.servers.wiredProd.apikey
-                                                    ]
-                                                    // Fetch VIN using the retrieved access token
-                                                    self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:VehiclesInfo?) -> Void in
-                                                        if result != nil {
-                                                            os_log("Successfully retrieved vehicles without Kamereon token, Number of vehicles in account: %{public}d", log: self.serviceLog, type: .debug, result!.vehicleLinks.count)
-                                                            
-                                                            if self.vehicle >= result!.vehicleLinks.count {
-                                                                errorCode("VIN index not found.")
-                                                            } else {
-                                                                os_log("VIN[%{public}d]: %{public}s", log: self.serviceLog, type: .debug, self.vehicle, result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin)
-                                                                
-                                                                self.context.vehiclesInfo = result // save for later use
-                                                                
-                                                                // must explicitly pass results, because the actionCode closure would use older captured values otherwise
-                                                                actionCode(result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin, self.context.tokenInfo!.id_token, self.context)
-                                                            }
-                                                        } else {
-                                                            errorCode("Error retrieving vehicles without Kamereon token")
-                                                        }
-                                                    } // end of closure
-                                                }
-                                            } // end of closure
-                                        } else {
-                                            errorCode("Error retrieving Kamereon accounts")
-                                        }
-                                    } // end of closure
+                            let headers = [
+                                "x-gigya-id_token": context.tokenInfo!.id_token,
+                                "apikey":context.apiKeysAndUrls!.servers.wiredProd.apikey,
+                                "x-kamereon-authorization": "Bearer " + context.kamereonTokenInfo!.accessToken
+                            ]
+                            // Fetch VIN using the retrieved access token
+                            let  result:VehiclesInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers)
+                            if result != nil {
+                                os_log("Successfully retrieved vehicles with Kamereon token, Number of vehicles in account: %{public}d", log: serviceLog, type: .debug, result!.vehicleLinks.count)
+                                
+                                if vehicle >= result!.vehicleLinks.count {
+                                    return (vin:nil, token: nil, context: context, errorMessage: "VIN index not found.")
                                 } else {
-                                    errorCode("Error retrieving Gigya JWT token")
+                                    os_log("VIN[%{public}d]: %{public}s", log: serviceLog, type: .debug, vehicle, result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin)
+                                    
+                                    context.vehiclesInfo = result // save for later use
+                                    
+                                    // must explicitly pass results, because the actionCode closure would use older captured values otherwise
+                                    return (vin: result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin, token: context.tokenInfo!.id_token, context: context, errorMessage: nil)
                                 }
-                            } // end of closure
+                            } else {
+                                return (vin:nil, token: nil, context: context, errorMessage: "Error retrieving vehicles with Kamereon token")
+                            }
                         } else {
-                            errorCode("Error retrieving account info")
+                            os_log("Could not retrieve Kamereon token - trying without anyway", log: serviceLog, type: .debug)
+                            
+                            let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
+                            var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+                            components.queryItems = [
+                                URLQueryItem(name: "country", value: country)
+                            ]
+                            let headers = [
+                                "x-gigya-id_token": context.tokenInfo!.id_token,
+                                "apikey":context.apiKeysAndUrls!.servers.wiredProd.apikey
+                            ]
+                            // Fetch VIN using the retrieved access token
+                            let result:VehiclesInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers)
+                            if result != nil {
+                                os_log("Successfully retrieved vehicles without Kamereon token, Number of vehicles in account: %{public}d", log: serviceLog, type: .debug, result!.vehicleLinks.count)
+                                
+                                if vehicle >= result!.vehicleLinks.count {
+                                    return (vin:nil, token: nil, context: context, errorMessage: "VIN index not found.")
+                                } else {
+                                    os_log("VIN[%{public}d]: %{public}s", log: serviceLog, type: .debug, vehicle, result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin)
+                                    
+                                    context.vehiclesInfo = result // save for later use
+                                    
+                                    // must explicitly pass results, because the actionCode closure would use older captured values otherwise
+                                    return (vin: result!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin, token: context.tokenInfo!.id_token, context: context, errorMessage: nil)
+                                }
+                            } else {
+                                return (vin:nil, token: nil, context: context, errorMessage:"Error retrieving vehicles without Kamereon token")
+                            }
                         }
-                    } // end of closure
+                    } else {
+                        return (vin:nil, token: nil, context: context, errorMessage: "Error retrieving Kamereon accounts")
+                    }
                 } else {
-                    errorCode("Error retrieving session key")
+                    return (vin:nil, token: nil, context: context, errorMessage: "Error retrieving Gigya JWT token")
                 }
-            } // end of closure
-            //} else {
-            //  errorCode("Error retrieving targets and api keys")
-            //}
-        } // end of closure
+            } else {
+                return (vin:nil, token: nil, context: context, errorMessage: "Error retrieving account info")
+            }
+        } else {
+            return (vin:nil, token: nil, context: context, errorMessage: "Error retrieving session key")
+        }
+        //} else {
+        //    return (vin:nil, token: nil, context: context, errorMessage: "Error retrieving targets and api keys")
+        //}
     }
     
     func getHeaders()->[String:String] {
@@ -340,7 +335,7 @@ class MyR {
  
     }
     
-    func batteryState(callback:@escaping  (Bool, Bool, Bool, UInt8, Float, UInt64, String?, Int?, Int?, String?) -> ()) {
+    func batteryStateAsync() async -> (error:Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?, battery_temperature:Int?, vehicle_id:String?) {
         
         let version: Version = .v2
         
@@ -366,21 +361,21 @@ class MyR {
         }
         
         /*
-            not plugged, not charging:
+         not plugged, not charging:
          {"data":{"type":"Car","id":"...","attributes":{"timestamp":"2020-02-07T19:06:03+01:00","batteryLevel":63,"batteryTemperature":9,"batteryAutonomy":71,"batteryCapacity":0,"batteryAvailableEnergy":0,"plugStatus":0,"chargingStatus":-1.0}}}
          
-        
-        plugged and charging:
+         
+         plugged and charging:
          {"data":{"type":"Car","id":"...","attributes":{"timestamp":"2020-02-07T21:17:35+01:00","batteryLevel":62,"batteryTemperature":9,"batteryAutonomy":70,"batteryCapacity":0,"batteryAvailableEnergy":0,"plugStatus":1,"chargingStatus":1.0}}}
          
          2020-02-07 21:22:04.731187+0100 ZoeStatus[43997:3264106] [ZOE-MYR] raw JSON data: {"data":{"type":"Car","id":"...","attributes":{"timestamp":"2020-02-07T21:21:26+01:00","batteryLevel":63,"batteryTemperature":9,"batteryAutonomy":71,"batteryCapacity":0,"batteryAvailableEnergy":0,"plugStatus":1,"chargingStatus":1.0,"chargingRemainingTime":300,"chargingInstantaneousPower":2300.0}}}
-
+         
          
          
          With errors:
          
          raw JSON data: {"data":{"id":"...","attributes":{"timestamp":"2024-05-31T15:59:12Z","batteryAutonomy":108,"plugStatus":0,"chargingStatus":-1.1}}}
-
+         
          
          */
         
@@ -448,244 +443,221 @@ class MyR {
          */
         // print ("\(context.apiKeysAndUrls!)")
         // print ("\(context.vehiclesInfo!)")
-        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/battery-status")!
-                
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/battery-status")!
+        
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         components.queryItems = [
-            URLQueryItem(name: "country", value: self.country)
+            URLQueryItem(name: "country", value: country)
         ]
         let headers = getHeaders()
-
+        
         // Fetch info using the retrieved access token
         
         switch version {
         case .v1:
-            self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:BatteryInfo?) -> Void in
-                if result != nil {
-                    os_log("Successfully retrieved battery state V1:\n level: %d\n battery temperature: %d", log: self.serviceLog, type: .debug, result!.data.attributes.batteryLevel ?? "N/A", result!.data.attributes.batteryTemperature ?? "N/A")
-
-                    var charging_point: String?
-                    if let power=result!.data.attributes.chargePower {
-                        switch power {
-                        case 0:
-                            charging_point = "INVALID"
-                        case 1:
-                            charging_point = "SLOW"
-                        case 2:
-                            charging_point = "FAST"
-                        case 3:
-                            charging_point = "ACCELERATED"
-                        default:
-                            charging_point = "\(power)"
-                        }
-                    }
-
-                    // overwrite the above with power in kW if it is present
-                    if let power=result!.data.attributes.instantaneousPower {
-                        charging_point = "\(Float(power)/1000.0) kW"
-                    }
-                    
-                    
-                    let dateString = result!.data.attributes.lastUpdateTime // e.g. "2020-01-31T17:39:52+01:00"
-                    
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.locale = NSLocale.current
-                    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-                    let date = dateFormatter.date(from:dateString)!
-                    let unixMs = UInt64(date.timeIntervalSince1970) * 1000
-                    // print(date)
-                    
-                    // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
-                    DispatchQueue.main.async{
-                        callback(false,
-                                 result!.data.attributes.chargeStatus > 0,
-                                 result!.data.attributes.plugStatus > 0,
-                                 UInt8(result!.data.attributes.batteryLevel ?? 0),
-                                 result!.data.attributes.rangeHvacOff ?? -1.0,
-                                 unixMs,
-                                 charging_point,
-                                 result!.data.attributes.timeRequiredToFullSlow,
-                                 result!.data.attributes.batteryTemperature,
-                                 result!.data.id)
-                        
-                    }
-                } else {
-                    
-                    os_log("Error retrieving battery state V1", log: self.serviceLog, type: .debug)
-
-                    DispatchQueue.main.async{
-                        callback(true,
-                                 false,
-                                 false,
-                                 0,
-                                 0.0,
-                                 0,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil)
+            let result:BatteryInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers)
+            if result != nil {
+                os_log("Successfully retrieved battery state V1:\n level: %d\n battery temperature: %d", log: serviceLog, type: .debug, result!.data.attributes.batteryLevel ?? "N/A", result!.data.attributes.batteryTemperature ?? "N/A")
+                
+                var charging_point: String?
+                if let power=result!.data.attributes.chargePower {
+                    switch power {
+                    case 0:
+                        charging_point = "INVALID"
+                    case 1:
+                        charging_point = "SLOW"
+                    case 2:
+                        charging_point = "FAST"
+                    case 3:
+                        charging_point = "ACCELERATED"
+                    default:
+                        charging_point = "\(power)"
                     }
                 }
+                
+                // overwrite the above with power in kW if it is present
+                if let power=result!.data.attributes.instantaneousPower {
+                    charging_point = "\(Float(power)/1000.0) kW"
+                }
+                
+                
+                let dateString = result!.data.attributes.lastUpdateTime // e.g. "2020-01-31T17:39:52+01:00"
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.locale = NSLocale.current
+                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                let date = dateFormatter.date(from:dateString)!
+                let unixMs = UInt64(date.timeIntervalSince1970) * 1000
+                // print(date)
+                
+                // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
+                return (false,
+                        result!.data.attributes.chargeStatus > 0,
+                        result!.data.attributes.plugStatus > 0,
+                        UInt8(result!.data.attributes.batteryLevel ?? 0),
+                        result!.data.attributes.rangeHvacOff ?? -1.0,
+                        unixMs,
+                        charging_point,
+                        result!.data.attributes.timeRequiredToFullSlow,
+                        result!.data.attributes.batteryTemperature,
+                        result!.data.id)
+            } else {
+                
+                os_log("Error retrieving battery state V1", log: serviceLog, type: .debug)
+                return (true,
+                        false,
+                        false,
+                        0,
+                        0.0,
+                        0,
+                        nil,
+                        nil,
+                        nil,
+                        nil)
             }
             
+            
         case .v2:
-            self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:BatteryInfoV2?) -> Void in
-                if result != nil {
-                    os_log("Successfully retrieved battery state V2:\n level: %d\n battery temperature: %d", log: self.serviceLog, type: .debug, result!.data.attributes.batteryLevel ?? -128, result!.data.attributes.batteryTemperature ?? -128)
-
-                    var charging_point: String?
-                    if let power=result!.data.attributes.chargingInstantaneousPower {
-                        switch power {
-                        case -10...0:
-                            charging_point = "INVALID"
-/*
-                        case 0.1..<11000.0:
-                            charging_point = "SLOW"
-                        case 11000.0..<22000.0:
-                            charging_point = "FAST"
-                        case 22000.0..<100000.0:
-                            charging_point = "ACCELERATED"
-*/
-                        default:
-                            charging_point = "\(power/1000.0) kW"
-                        }
-                    }
-                    
-                    let dateString = result!.data.attributes.timestamp // e.g. "2020-01-31T17:39:52+01:00"
-                    
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.locale = NSLocale.current
-                    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-                    let date = dateFormatter.date(from:dateString)!
-                    let unixMs = UInt64(date.timeIntervalSince1970) * 1000
-                    //print(date)
-                    
-                    // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
-                    DispatchQueue.main.async{
-                        callback(false,
-                                 result!.data.attributes.chargingStatus == 1.0 || (result!.data.attributes.chargingRemainingTime ?? 0 > 0       ) /* see https://github.com/hacf-fr/renault-api/blob/main/src/renault_api/kamereon/enums.py */,
-                                 result!.data.attributes.plugStatus > 0,
-                                 UInt8(result!.data.attributes.batteryLevel ?? 0),
-                                 result!.data.attributes.batteryAutonomy ?? -1.0,
-                                 unixMs,
-                                 charging_point,
-                                 result!.data.attributes.chargingRemainingTime,
-                                 result!.data.attributes.batteryTemperature,
-                                 result!.data.id)
-                        
-                    }
-                } else {
-                    
-                    os_log("Error retrieving battery state V2", log: self.serviceLog, type: .debug)
-
-                    DispatchQueue.main.async{
-                        callback(true,
-                                 false,
-                                 false,
-                                 0,
-                                 0.0,
-                                 0,
-                                 nil,
-                                 nil,
-                                 nil,
-                                 nil)
+            let result:BatteryInfoV2? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers)
+            if result != nil {
+                os_log("Successfully retrieved battery state V2:\n level: %d\n battery temperature: %d", log: serviceLog, type: .debug, result!.data.attributes.batteryLevel ?? -128, result!.data.attributes.batteryTemperature ?? -128)
+                
+                var charging_point: String?
+                if let power=result!.data.attributes.chargingInstantaneousPower {
+                    switch power {
+                    case -10...0:
+                        charging_point = "INVALID"
+                        /*
+                         case 0.1..<11000.0:
+                         charging_point = "SLOW"
+                         case 11000.0..<22000.0:
+                         charging_point = "FAST"
+                         case 22000.0..<100000.0:
+                         charging_point = "ACCELERATED"
+                         */
+                    default:
+                        charging_point = "\(power/1000.0) kW"
                     }
                 }
+                
+                let dateString = result!.data.attributes.timestamp // e.g. "2020-01-31T17:39:52+01:00"
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.locale = NSLocale.current
+                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                let date = dateFormatter.date(from:dateString)!
+                let unixMs = UInt64(date.timeIntervalSince1970) * 1000
+                //print(date)
+                
+                // batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:)
+                
+                return (false,
+                        result!.data.attributes.chargingStatus == 1.0 || (result!.data.attributes.chargingRemainingTime ?? 0 > 0       ) /* see https://github.com/hacf-fr/renault-api/blob/main/src/renault_api/kamereon/enums.py */,
+                        result!.data.attributes.plugStatus > 0,
+                        UInt8(result!.data.attributes.batteryLevel ?? 0),
+                        result!.data.attributes.batteryAutonomy ?? -1.0,
+                        unixMs,
+                        charging_point,
+                        result!.data.attributes.chargingRemainingTime,
+                        result!.data.attributes.batteryTemperature,
+                        result!.data.id)
+            } else {
+                
+                os_log("Error retrieving battery state V2", log: serviceLog, type: .debug)
+                
+                return (true,
+                        false,
+                        false,
+                        0,
+                        0.0,
+                        0,
+                        nil,
+                        nil,
+                        nil,
+                        nil)
             }
         }
     }
-    
         
-    func cockpitState(callback:@escaping  (Bool, Float?) -> ()) {
+    
+    
+    func cockpitStateAsync() async -> (error:Bool, total_mileage:Float?){
+        
         
         let version:Version = .v1
         /*
          
-        v1:
-        Request: https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/xxxx/kamereon/kca/car-adapter/v1/cars/V.../cockpit?country=DE
-        {"data":{"type":"Car","id":"V...","attributes":{"totalMileage":55842}}}
-
+         v1:
+         Request: https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/xxxx/kamereon/kca/car-adapter/v1/cars/V.../cockpit?country=DE
+         {"data":{"type":"Car","id":"V...","attributes":{"totalMileage":55842}}}
          
-        v2:
-        Request: https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/xxxx/kamereon/kca/car-adapter/v2/cars/V.../cockpit?country=DE
-        {"data":{"type":"Car","id":"V...","attributes":{"totalMileage":55842.21}}}
-
+         
+         v2:
+         Request: https://api-wired-prod-1-euw1.wrd-aws.com/commerce/v1/accounts/xxxx/kamereon/kca/car-adapter/v2/cars/V.../cockpit?country=DE
+         {"data":{"type":"Car","id":"V...","attributes":{"totalMileage":55842.21}}}
+         
          */
         
         struct cockpitInfoV1: Codable {
-                    var data: Data
-                    struct Data: Codable {
-                        var type: String?
-                        var id: String
-                        var attributes: Attributes
-                        struct Attributes: Codable {
-                            var totalMileage: Int
-                        }
-                    }
-                }
-        
-        struct cockpitInfoV2: Codable {
-                var data: Data
-                struct Data: Codable {
-                    var type: String?
-                    var id: String
-                    var attributes: Attributes
-                    struct Attributes: Codable {
-                        var totalMileage: Float
-                    }
-                }
-            }
-        
-            let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/cockpit")!
-                    
-            var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
-            components.queryItems = [
-                URLQueryItem(name: "country", value: self.country)
-            ]
-            let headers = getHeaders()
-
-            // Fetch info using the retrieved access token
-            
-            switch version {
-            case .v1:
-                self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:cockpitInfoV1?) -> Void in
-                    if result != nil {
-                        os_log("Successfully retrieved cockpit state V1:\n total mileage: %d km", log: self.serviceLog, type: .debug, result!.data.attributes.totalMileage)
-
-                        DispatchQueue.main.async{
-                            callback(false, Float(result!.data.attributes.totalMileage))
-                        }
-                    } else {
-                        DispatchQueue.main.async{
-                            callback(true, nil)
-                        }
-                    }
-                }
-                
-            case .v2:
-                self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:cockpitInfoV2?) -> Void in
-                    if result != nil {
-                        os_log("Successfully retrieved cockpit state V2:\n total mileage: %d km", log: self.serviceLog, type: .debug, result!.data.attributes.totalMileage)
-
-                        DispatchQueue.main.async{
-                            callback(false, result!.data.attributes.totalMileage)
-                            
-                        }
-                    } else {
-                        DispatchQueue.main.async{
-                            callback(true, nil)
-                        }
-                    }
+            var data: Data
+            struct Data: Codable {
+                var type: String?
+                var id: String
+                var attributes: Attributes
+                struct Attributes: Codable {
+                    var totalMileage: Int
                 }
             }
         }
-    
-    
-    
-    
-    public func chargeNowRequest(callback:@escaping  (Bool) -> ()) {
         
-        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/actions/charging-start")!
+        struct cockpitInfoV2: Codable {
+            var data: Data
+            struct Data: Codable {
+                var type: String?
+                var id: String
+                var attributes: Attributes
+                struct Attributes: Codable {
+                    var totalMileage: Float
+                }
+            }
+        }
+        
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/cockpit")!
+        
+        var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
+        components.queryItems = [
+            URLQueryItem(name: "country", value: country)
+        ]
+        let headers = getHeaders()
+        
+        // Fetch info using the retrieved access token
+        
+        switch version {
+        case .v1:
+            let result:cockpitInfoV1? = await fetchJsonDataViaHttpAsync(usingMethod:.GET, withComponents: components, withHeaders: headers)
+            
+            if result != nil {
+                os_log("Successfully retrieved cockpit state V1:\n total mileage: %d km", log: serviceLog, type: .debug, result!.data.attributes.totalMileage)
+                return (error: false, total_mileage: Float(result!.data.attributes.totalMileage))
+            } else {
+                return (error: true, total_mileage: nil)
+            }
+            
+        case .v2:
+            let result:cockpitInfoV2? = await fetchJsonDataViaHttpAsync(usingMethod:.GET, withComponents: components, withHeaders: headers)
+            if result != nil {
+                os_log("Successfully retrieved cockpit state V2:\n total mileage: %d km", log: serviceLog, type: .debug, result!.data.attributes.totalMileage)
+                return (error: false, total_mileage: result!.data.attributes.totalMileage)
+            } else {
+                return (error: true, total_mileage: nil)
+            }
+        }
+    }
+    
+    
+    public func chargeNowRequestAsync() async -> (Bool) {
+        
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/actions/charging-start")!
 
         
         struct StartCharging: Codable {
@@ -703,32 +675,26 @@ class MyR {
         let startCharging = StartCharging(data: StartCharging.Data(type: "ChargingStart", attributes: StartCharging.Data.Attributes(action: "start")))
         
         guard let uploadData = try? JSONEncoder().encode(startCharging) else {
-            callback(false)
-            return
+            return (true)
         }
         
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         components.queryItems = [
-            URLQueryItem(name: "country", value: self.country)
+            URLQueryItem(name: "country", value: country)
         ]
         let headers = getHeaders()
                  
         // Fetch info using the retrieved access token
-        self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:    StartCharging?) -> Void in
-            if result != nil {
-                // print("Successfully sent request, got: \(result!.data)")
-                DispatchQueue.main.async{
-                    callback(false)
-                }
-            } else {
-                DispatchQueue.main.async{
-                    callback(true)
-                }
-            }
+        let result:StartCharging? = await fetchJsonDataViaHttpAsync(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData)
+        if result != nil {
+            // print("Successfully sent request, got: \(result!.data)")
+            return (false)
+        } else {
+            return (true)
         }
+        
     }
-    
-    
+
     
     
     /*
@@ -755,20 +721,22 @@ class MyR {
      preconditionCar(command: .now, date: nil)
      
         refresh status:
-     sc.precondition(command: .read, date: nil, callback: self.preconditionState)
+     sc.preconditionAsync(command: .read, date: nil)
 
 
      */
-    public func precondition(command:PreconditionCommand, date: Date?, callback:@escaping  (Bool, PreconditionCommand, Date?, Float?) -> ()) {
+
+    
+    public func preconditionAsync(command:PreconditionCommand, date: Date?) async -> (error: Bool, command:PreconditionCommand, date: Date?, externalTemperature: Float? ) {
         
         let endpointUrl:URL
         
         switch command {
         case .read:
-            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/hvac-status")!  // endpoint does no longer exist? error 404 -> missing time for next planned session and missing external temperature
+            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/hvac-status")!  // endpoint does no longer exist? error 404 -> missing time for next planned session and missing external temperature
 
         case .now, .later, .delete:
-            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/actions/hvac-start")!
+            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/actions/hvac-start")!
         }
         
         
@@ -840,8 +808,7 @@ class MyR {
         } else {
             uploadData = try? JSONEncoder().encode(precondition)
             if (uploadData == nil) {
-                callback(false, command, date, nil)
-                return
+                return (false, command, date, nil)
             } else {
                 // print(String(data: uploadData!, encoding: .utf8)!)
             }
@@ -849,13 +816,13 @@ class MyR {
         
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         components.queryItems = [
-            URLQueryItem(name: "country", value: self.country)
+            URLQueryItem(name: "country", value: country)
         ]
         let headers = getHeaders()
 
         if (command == .read) { // for .read GET status
-            self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:PreconditionInfo?) -> Void in
-                if result != nil {
+            let result:PreconditionInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers, withBody: uploadData)
+            if result != nil {
                     //print("Successfully sent GET request, got: \(result!.data)")
                     //print("External temperature: \(result!.data.attributes.externalTemperature)")
                     let date:Date?
@@ -868,35 +835,25 @@ class MyR {
                     } else {
                         date = nil
                     }
-                    DispatchQueue.main.async{
-                        callback(false, command, date, result!.data.attributes.externalTemperature)
-                    }
+                return (error: false, command: command, date: date, externalTemperature: result!.data.attributes.externalTemperature)
                 } else {
-                    DispatchQueue.main.async{
-                        callback(true, command, date, nil)
-                    }
+                    return (error: true, command: command, date: date, externalTemperature: nil)
                 }
-            }
         } else { // all other commands POST action
-            self.fetchJsonDataViaHttp(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData) { (result:Precondition?) -> Void in
+            let result:Precondition? = await fetchJsonDataViaHttpAsync(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData)
                 if result != nil {
                     // print("Successfully sent POST request, got: \(result!.data)")
-                    DispatchQueue.main.async{
-                        callback(false, command, date, nil)
-                    }
+                    return (error: false, command: command, date: date, externalTemperature: nil)
                 } else {
-                    DispatchQueue.main.async{
-                        callback(true, command, date, nil)
-                    }
+                    return (error: true, command: command, date: date, externalTemperature: nil)
                 }
-            }
         }
     }
     
+
     
     
-    
-    public func airConditioningLastState(callback:@escaping  (Bool, UInt64, String?, String?) -> ()) {
+    public func airConditioningLastStateAsync() async -> (error: Bool, date:UInt64, type:String?, result:String?){
         
         struct HvacSessions: Codable {
             var data: Data
@@ -919,7 +876,7 @@ class MyR {
          
          */
         
-        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[self.vehicle].vin + "/hvac-sessions")! // endpoint does no longer exist? error 404 -> missing status&time&date of last session
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/hvac-sessions")! // endpoint does no longer exist? error 404 -> missing status&time&date of last session
         
         let dateFormatter = DateFormatter()
         let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
@@ -933,66 +890,62 @@ class MyR {
         components.queryItems = [
             URLQueryItem(name: "start", value: startDate),
             URLQueryItem(name: "end", value: endDate),
-            URLQueryItem(name: "country", value: self.country)
+            URLQueryItem(name: "country", value: country)
         ]
         let headers = getHeaders()
-
+        
         // Fetch info using the retrieved access token
-        self.fetchJsonDataViaHttp(usingMethod: .GET, withComponents: components, withHeaders: headers) { (result:HvacSessions?) -> Void in
-            if result != nil {
-                os_log("Successfully retrieved AC sessions: %d sessions", log: self.serviceLog, type: .debug, result!.data.attributes.hvacSessions.count)
-
-                if (result!.data.attributes.hvacSessions.count > 0) { // array not empty  - never happens, HTTP 500 instead!
-                    os_log("AC last state:\n hvacSessionRequestDate: %{public}s\n hvacSessionStartDate: %{public}s\n hvacSessionEndStatus: %{public}s", log: self.serviceLog, type: .debug, result!.data.attributes.hvacSessions[0].hvacSessionRequestDate, result!.data.attributes.hvacSessions[0].hvacSessionStartDate, result!.data.attributes.hvacSessions[0].hvacSessionEndStatus)
-
-                    let dateString = result!.data.attributes.hvacSessions[0].hvacSessionStartDate
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.locale = NSLocale.current
-                    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-                    let date = dateFormatter.date(from:dateString)!
-                    let unixMs = UInt64(date.timeIntervalSince1970) * 1000
-                    
-                    let status = result!.data.attributes.hvacSessions[0].hvacSessionEndStatus
-                    
-                    let rStatus:String?
-                    switch status {
-                    case "error":
-                        rStatus = "ERROR"
-                    case "ok":
-                        rStatus = "SUCCESS"
-                    default:
-                        rStatus = nil
-                    }
-                    
-                    //print("A/C last state: \(date), \(rStatus ?? "-")")
-                    
-                    DispatchQueue.main.async {
-                        callback(false,
-                                 unixMs,
-                                 "USER_REQUEST",
-                                 rStatus)
-                    }
-                    
-                } else { // array empty, no data
-                    DispatchQueue.main.async {
-                        callback(false, // no error, but no data
-                                 0,
-                                 nil,
-                                 nil)
-                    }
+        let result:HvacSessions? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers)
+        if result != nil {
+            os_log("Successfully retrieved AC sessions: %d sessions", log: serviceLog, type: .debug, result!.data.attributes.hvacSessions.count)
+            
+            if (result!.data.attributes.hvacSessions.count > 0) { // array not empty  - never happens, HTTP 500 instead!
+                os_log("AC last state:\n hvacSessionRequestDate: %{public}s\n hvacSessionStartDate: %{public}s\n hvacSessionEndStatus: %{public}s", log: serviceLog, type: .debug, result!.data.attributes.hvacSessions[0].hvacSessionRequestDate, result!.data.attributes.hvacSessions[0].hvacSessionStartDate, result!.data.attributes.hvacSessions[0].hvacSessionEndStatus)
+                
+                let dateString = result!.data.attributes.hvacSessions[0].hvacSessionStartDate
+                let dateFormatter = DateFormatter()
+                dateFormatter.locale = NSLocale.current
+                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                let date = dateFormatter.date(from:dateString)!
+                let unixMs = UInt64(date.timeIntervalSince1970) * 1000
+                
+                let status = result!.data.attributes.hvacSessions[0].hvacSessionEndStatus
+                
+                let rStatus:String?
+                switch status {
+                case "error":
+                    rStatus = "ERROR"
+                case "ok":
+                    rStatus = "SUCCESS"
+                default:
+                    rStatus = nil
                 }
                 
-            
-            } else {
-                DispatchQueue.main.async {
-                    callback(false, // true = error getting data -> dialog
-                             0,
-                             nil,
-                             nil)
-                }
+                //print("A/C last state: \(date), \(rStatus ?? "-")")
+                
+                return (error:false,
+                        date:unixMs,
+                        type:"USER_REQUEST",
+                        result:rStatus)
+                
+            } else { // array empty, no data
+                return (error:false, // no error, but no data
+                        date:0,
+                        type:nil,
+                        result:nil)
             }
+            
+            
+        } else {
+            return (error:false, // true = error getting data -> dialog
+                    date:0,
+                    type:nil,
+                    result:nil)
         }
+        
     }
+
+    
     
     enum HttpMethod {
         case GET
@@ -1010,7 +963,7 @@ class MyR {
                }
            }
     }
-    
+#if false
     func fetchJsonDataViaHttp<T> (usingMethod method:HttpMethod, withComponents components:URLComponents, withHeaders headers:[String:String]?, withBody body: Data?=nil, callback:@escaping(T?)->Void) where T:Decodable {
     
         let query = components.url!.query
@@ -1065,5 +1018,68 @@ class MyR {
         task.resume()
         
     }
+#endif
+    
+    // variant which uses async URLSession.shared.data() function jut as is because it is async itself (i.e. must be called from Task), simply returns result and has no callback for that
+    func fetchJsonDataViaHttpAsync<T> (usingMethod method:HttpMethod, withComponents components:URLComponents, withHeaders headers:[String:String]?, withBody body: Data?=nil) async -> T? where T:Decodable {
+        
+        let query = components.url!.query
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = method.string
+        if (query != nil) && (method == .POST) {
+            request.httpBody = Data(query!.utf8) // must not be used for GET
+        }
+
+        if (body != nil) && (method == .POST) {
+            request.httpBody = body
+        }
+        request.allHTTPHeaderFields = headers
+        // request.setValue("...", forHTTPHeaderField: "...")
+
+        
+        // Perform the network request using async/await
+        do {
+
+            let (jsonData, response) = try await URLSession.shared.data(for: request)
+
+            os_log("Request: %{public}s", log: self.serviceLog, type: .debug, request.description)
+
+            if (request.httpBody != nil) {os_log("POST-Body: %{public}s", log: self.serviceLog, type: .debug, String(data: request.httpBody!, encoding: .utf8)!)
+            }
+
+            guard let resp = response as? HTTPURLResponse,
+                  (200...299).contains(resp.statusCode)
+                    
+            else {
+                os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
+                return nil
+            }
+            
+            os_log("raw JSON data: %{public}s", log: self.serviceLog, type: .debug, String(data: jsonData, encoding: .utf8)!)
+            let decoder = JSONDecoder()
+            let result = try? decoder.decode(T.self, from: jsonData)
+            return result
+            
+        } catch {
+            // Handle errors
+            os_log("URLSession error: %{public}s", log: self.serviceLog, type: .error, error.localizedDescription)
+            return nil
+            
+            
+        }
+    }
+#if false
+
+    // Wrapper for async variant which is a 1:1 replacement for fetchJsonDataViaHttp<>() (for testing the async variant only)
+    func fetchJsonDataViaHttpAsyncWrapper<T> (usingMethod method:HttpMethod, withComponents components:URLComponents, withHeaders headers:[String:String]?, withBody body: Data?=nil, callback:@escaping(T?)->Void) where T:Decodable {
+        Task {
+            let result:T? = await fetchJsonDataViaHttpAsync(usingMethod:method, withComponents: components, withHeaders: headers, withBody: body)
+            callback(result)
+        }
+    }
+
+#endif
+    
+    
 
 }

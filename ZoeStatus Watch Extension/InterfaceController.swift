@@ -219,48 +219,51 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     }
 
     
-    func handleLogin(onError errorCode:@escaping()->Void, onSuccess actionCode:@escaping()->Void) {
-               
-        if (sc.tokenExpiry == nil){ // never logged in successfully
+   
+    
+    func handleLoginAsync() async -> Bool {
         
+        if (sc.tokenExpiry == nil){ // never logged in successfully
+            
             updateActivity(type:.start)
-            sc.login(){(result:Bool, errorMessage:String?)->() in
-                if (result){
-                    actionCode()
-                } else {
-                    self.displayMessage(title: "Error", body:"Failed to login to MY.R. services."  + " (\(errorMessage!))")
-                    errorCode()
-                }
-                self.updateActivity(type:.stop)
+            let r = await sc.loginAsync()
+            updateActivity(type:.stop)
+            
+            if (r.result){
+                return true
+            } else {
+                displayMessage(title: "Error", body:"Failed to login to MY.R. services."  + " (\(r.errorMessage!))")
+                return false
             }
         } else {
             if sc.isTokenExpired() {
                 //print("Token expired or will expire too soon (or expiry date is nil), must renew")
                 updateActivity(type:.start)
-                sc.renewToken(){(result:Bool)->() in
-                    if result {
-                        print("renewed expired token!")
-                        actionCode()
+                let result = await sc.renewTokenAsync()
+                updateActivity(type:.stop)
+                
+                if result {
+                    print("renewed expired token!")
+                    return true
+                } else {
+                    //displayMessage(title: "Error", body:"Failed to renew expired token.")
+                    sc.tokenExpiry = nil // force new login next time
+                    print("expired token NOT renewed!")
+
+                    updateActivity(type:.start)
+                    let r = await sc.loginAsync()
+                    updateActivity(type:.stop)
+                    
+                    if (r.result){
+                        return true
                     } else {
-                        //self.displayMessage(title: "Error", body:"Failed to renew expired token.")
-                        self.sc.tokenExpiry = nil // force new login next time
-                        print("expired token NOT renewed!")
-                        self.updateActivity(type:.start)
-                        self.sc.login(){(result:Bool, errorMessage:String?)->() in
-                            if (result){
-                                actionCode()
-                            } else {
-                                self.displayMessage(title: "Error", body:"Failed to renew expired token and to login to MY.R. services." + " (\(errorMessage!))")
-                                errorCode()
-                            }
-                            self.updateActivity(type:.stop)
-                        }
+                        displayMessage(title: "Error", body:"Failed to renew expired token and to login to MY.R. services." + " (\(r.errorMessage!))")
+                        return false
                     }
-                    self.updateActivity(type:.stop)
                 }
             } else {
                 print("token still valid!")
-                actionCode()
+                return true
             }
         }
     }
@@ -310,9 +313,14 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
 
 
         } else {
-            handleLogin(onError: {}){
-                self.updateActivity(type:.start)
-                self.sc.batteryState(callback: self.batteryState(error:charging:plugged:charge_level:remaining_range:last_update:charging_point:remaining_time:battery_temperature:vehicle_id:))
+
+            Task {
+                if await handleLoginAsync() {
+                    updateActivity(type:.start)
+                    let bs = await sc.batteryStateAsync()
+                    batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
+                    // updateActivity(type:.stop)
+                }
             }
         }
     }
@@ -346,10 +354,16 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
             
             
         } else {
-            handleLogin(onError: {}){
-                self.updateActivity(type:.start)
-                
-                self.sc.precondition(command: .now, date: nil, callback: {_,_,_,_ in          self.updateActivity(type: .stop)})
+            
+
+            // async variant
+            
+            Task {
+                if await handleLoginAsync() {
+                    updateActivity(type: .start)
+                    _ = await sc.preconditionAsync (command: .read, date: nil)
+                    updateActivity(type:.stop)
+                }
             }
         }
         
