@@ -14,8 +14,9 @@ struct ContentView: View {
     
     let sc=ServiceConnection.shared
     @StateObject private var sessionDelegate = SessionDelegate()
+    @StateObject private var alertManager = AlertManager.shared
 
-    @State private var buttonText = "Menue"
+    @State private var buttonText = ". . ."
     @State private var showActionSheet = false
 
     @State private var showAlert = false
@@ -23,76 +24,112 @@ struct ContentView: View {
     @State private var alertTitle = ""
     @State private var alertButtonTitle = ""
     @State private var alertButtonFunction = {}
-    @State var levelString = "🔋 …\u{2009}%"
-    @State var rangeString = "🛣️ …\u{2009}km"
-    @State var dateString = "📅 …"
-    @State var timeString = "🕰 …"
-    @State var chargerString = "⛽️ …"
-    @State var chargingString = "⚡️ ❌"
-    @State var remainingString = "⏳ …"
-    @State var pluggedString = "🔌 ❌"
-    
+    @State private var levelString = "🔋 …\u{2009}%"
+    @State private var rangeString = "🛣️ …\u{2009}km"
+    @State private var dateString = "📅 …"
+    @State private var timeString = "🕰 …"
+    @State private var chargerString = "⛽️ …"
+    @State private var chargingString = "⚡️ ❌"
+    @State private var remainingString = "⏳ …"
+    @State private var pluggedString = "🔌 ❌"
+    @State private var activityState = false
+
     var body: some View {
-        ScrollView { // Wrap content in a ScrollView to enable scrolling
-            
-            VStack(alignment: .leading) { // Align text to the left in the VStack
-                Text(levelString)
-                Text(rangeString)
-                Text(dateString)
-                Text(timeString)
-                HStack {
-                    Text(chargerString)
-                    Text(chargingString)
-                }
-                HStack {
-                    Text(remainingString)
-                    Text(pluggedString)
-                }
+        ZStack {
+            GeometryReader { geometry in
+                let availableWidth = geometry.size.width
+                let fontSize = availableWidth * 0.25 // Calculate font size as a fraction of width
                 
-                Text("Scroll up 1!")
-                Text("Scroll up 2!")
-                Text("Scroll up 3!")
-                
-                Button(buttonText) {
-                    showActionSheet.toggle() // Trigger action sheet
-                }
-                .buttonStyle(.bordered)
-                .actionSheet(isPresented: $showActionSheet) {
-                    ActionSheet(
-                        title: Text("Choose an Option"),
-                        message: Text("Please select an action"),
-                        buttons: [
-                            .default(Text("􀊞 Request new credentials")) {
-                                requestNewCredentialsButtonPressed()
-                            },
-                            .default(Text("􀅈 Refresh")) {
-                                refreshStatus()
-                            },
-                            .default(Text("􀇦 Trigger A/C ❌")) {
-                                buttonText = "Option 1 Selected"
-                                call()
-                            },
-                            .cancel()
-                        ]
-                    )
-                }
+                ScrollView { // Wrap content in a ScrollView to enable scrolling
+                    
+                    VStack(alignment: .leading) { // Align text to the left in the VStack
+                        
+                        Text(levelString).font(.system(size: fontSize))
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                        Text(rangeString).font(.system(size: fontSize))
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                        Text(dateString)
+                        Text(timeString)
+                        HStack {
+                            Text(chargerString)
+                            Text(chargingString)
+                        }
+                        HStack {
+                            Text(remainingString)
+                            Text(pluggedString)
+                        }
+                        
+                        //  Text("Scroll up")
+                        
+                        Button(buttonText) {
+                            showActionSheet.toggle() // Trigger action sheet
+                        }
+                        .scaleEffect(0.5) // Shrinks the button
+                        .buttonStyle(.bordered)
+                        .actionSheet(isPresented: $showActionSheet) {
+                            ActionSheet(
+                                title: Text(""),
+                                message: nil, //Text("Please select an action"),
+                                buttons: [
+                                    .default(Text("Request new credentials")) {
+                                        requestNewCredentialsButtonPressed()
+                                    },
+                                    .default(Text("Refresh")) {
+                                        refreshStatus()
+                                    },
+                                    .default(Text("Trigger A/C")) {
+                                        triggerAirConditioning()
+                                    },
+                                    .cancel()
+                                ]
+                            )
+                        }
+                    }
+                    .padding()
+                }.onAppear(){
+                    print("onAppear")
+                    appear()
+                }.alert(alertTitle, isPresented: $showAlert) {
+                    Button(alertButtonTitle, role: .cancel) {alertButtonFunction()}
+                } message: {
+                    Text(alertMessage)
+                }.alert(alertManager.title, isPresented: $alertManager.showAlert) {
+                    Button(alertManager.buttonTitle, role: .cancel) {alertManager.buttonFunction()}
+                } message: {
+                    Text(alertManager.message)
+                }.disabled(activityState)
             }
-            .padding()
-        }.onAppear(){
-            print("onAppear")
-            appear()
-        }.alert(alertTitle, isPresented: $showAlert) {
-            Button(alertButtonTitle, role: .cancel) {alertButtonFunction()}
-        } message: {
-            Text(alertMessage)
+            
+            if activityState {
+                ZStack {
+                    Color.black.opacity(0.5) // Dimmed background
+                        .ignoresSafeArea()
+                    
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .scaleEffect(1.5) // Make it larger
+                        .foregroundColor(.white)
+                }
+                .transition(.opacity)
+            }
         }
 
     }
     
     
     
-    
+    @State private var firstRun = true
     func appear()->(){
+        print("Appear")
+
+        if firstRun { // necessary, because this method is called whenever the main screen re-appears
+            firstRun = false
+            print("First start")
+            refreshStatus()
+            
+        }
         var level: UInt8?
         var range: Float?
         var dateTime: UInt64?
@@ -187,6 +224,23 @@ struct ContentView: View {
         
     }
     
+    func triggerAirConditioning() {
+        
+        print("A/C trigger!")
+        if ((sc.userName == nil) || (sc.password == nil)){
+            displayMessage(title: "Error", body:"No user credentials present.", action: {requestNewCredentialsButtonPressed()})
+        } else {
+            // async variant
+            Task {
+                if await handleLoginAsync() {
+                    updateActivity(type: .start)
+                    _ = await sc.preconditionAsync (command: .read, date: nil)
+                    updateActivity(type:.stop)
+                }
+            }
+        }
+    }
+    
     func handleLoginAsync() async -> Bool {
         
         if (sc.tokenExpiry == nil){ // never logged in successfully
@@ -243,58 +297,39 @@ struct ContentView: View {
         alertButtonFunction = action
     }
 
+    
+    enum startStop {
+        case start, stop
+    }
+
+    @State var activityCount: Int = 0
+    func updateActivity(type:startStop){
+
+        switch type {
+        case .start:
+            activityState = true
+            activityCount+=1
+            break
+        case .stop:
+            activityCount-=1
+            if activityCount<=0 {
+                if activityCount<0 {
+                    activityCount = 0
+                }
+                activityState = false
+            }
+            break
+        }
+        print("Activity count = \(activityCount)")
+    }
+
 }
 
 #Preview {
     ContentView()
 }
 
-func call(){
-    print("called!")
-}
 
-
-
-
-enum startStop {
-    case start, stop
-}
-
-var activityCount: Int = 0
-func updateActivity(type:startStop){
-
-    switch type {
-    case .start:
-//        level.setAlpha(0.5)
-//        range.setAlpha(0.5)
-//        date.setAlpha(0.5)
-//        time.setAlpha(0.5)
-//        plugged.setAlpha(0.5)
-//        charger.setAlpha(0.5)
-//        remaining.setAlpha(0.5)
-//        charging.setAlpha(0.5)
-        activityCount+=1
-        break
-    case .stop:
-        activityCount-=1
-        if activityCount<=0 {
-            if activityCount<0 {
-                activityCount = 0
-            }
-//            level.setAlpha(1.0)
-//            range.setAlpha(1.0)
-//            date.setAlpha(1.0)
-//            time.setAlpha(1.0)
-//            plugged.setAlpha(1.0)
-//            charger.setAlpha(1.0)
-//            remaining.setAlpha(1.0)
-//            charging.setAlpha(1.0)
-
-        }
-        break
-    }
-    print("Activity count = \(activityCount)")
-}
 
 
 

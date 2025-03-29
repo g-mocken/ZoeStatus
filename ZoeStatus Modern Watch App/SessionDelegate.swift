@@ -38,9 +38,7 @@ class SessionDelegate: NSObject, WCSessionDelegate, ObservableObject {
     
     let sc=ServiceConnection.shared
 
-    fileprivate func displayMessage(title: String, body: String) {
-        print("\(title): \(body)")
-    }
+ 
 
   
     // MARK: - Watch Connectivity
@@ -75,15 +73,15 @@ class SessionDelegate: NSObject, WCSessionDelegate, ObservableObject {
         print("Received reply: \(reply)")
         extractCredentialsFromContext(reply)
         DispatchQueue.main.async{
-            self.displayMessage(title: "Success", body: "Credentials received and stored.")
-            self.sc.tokenExpiry = nil // require new login
-            // TODO self.refreshStatus()
+            AlertManager.shared.displayMessage(title: "Success", body: "Credentials received and stored.", action: {            self.sc.tokenExpiry = nil // require new login
+                // TODO: refreshStatus()
+            })
         }
     }
     
     func errorHandler(error: Error) -> Void{
         print("Received error: \(error)")
-        displayMessage(title: "Error", body: "There was a problem while receiving the credentials.")
+        AlertManager.shared.displayMessage(title: "Error", body: "There was a problem while receiving the credentials.")
     }
     
     func requestCredentials(_ session: WCSession){
@@ -102,4 +100,30 @@ class SessionDelegate: NSObject, WCSessionDelegate, ObservableObject {
     }
     
     
+}
+
+
+
+class AlertManager: ObservableObject {
+    static let shared = AlertManager() // Singleton
+    
+    @Published var showAlert = false
+    @Published var title = ""
+    @Published var message = ""
+    @Published var buttonTitle = ""
+    @Published var buttonFunction = {}
+
+    func displayMessage(title: String, body: String, button: String = "Dismiss",action:  @escaping  (() -> Void) = {}) {
+        print("\(title): \(body)")
+       
+        DispatchQueue.main.async {
+            
+            self.showAlert = true
+            self.title = title
+            self.message = body
+            self.buttonTitle = button
+            self.buttonFunction = action
+            
+        }
+    }
 }
