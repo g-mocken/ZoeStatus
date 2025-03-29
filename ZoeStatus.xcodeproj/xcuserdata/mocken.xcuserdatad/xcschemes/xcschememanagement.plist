@@ -7,17 +7,17 @@
 		<key>ZEServices Watchos.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>8</integer>
+			<integer>5</integer>
 		</dict>
 		<key>ZEServices.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>4</integer>
 		</dict>
 		<key>ZoeStatus Intents Extension.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>5</integer>
+			<integer>1</integer>
 		</dict>
 		<key>ZoeStatus Modern Watch App.xcscheme_^#shared#^_</key>
 		<dict>
@@ -32,22 +32,12 @@
 		<key>ZoeStatus Modern WidgetExtension.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>7</integer>
-		</dict>
-		<key>ZoeStatus Watch (Complication).xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>4</integer>
-		</dict>
-		<key>ZoeStatus Watch.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
 			<integer>3</integer>
 		</dict>
 		<key>ZoeStatus Widget.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>2</integer>
 		</dict>
 		<key>ZoeStatus.xcscheme_^#shared#^_</key>
 		<dict>
@@ -57,6 +47,11 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>9A23E4262D94B3B400256CDA</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>9A244443239473990001AF9B</key>
 		<dict>
 			<key>primary</key>
@@ -72,12 +67,22 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>9A4E5D0B2D03A39100D2C761</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>9A512FA021B2DDCB007EFAAB</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
 		<key>9AA73CBC23A020CE001A6234</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9AA73CEC23A154B2001A6234</key>
 		<dict>
 			<key>primary</key>
 			<true/>
