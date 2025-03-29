@@ -7,7 +7,7 @@
 		<key>ZEServices Watchos.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>7</integer>
+			<integer>8</integer>
 		</dict>
 		<key>ZEServices.xcscheme_^#shared#^_</key>
 		<dict>
@@ -19,10 +19,20 @@
 			<key>orderHint</key>
 			<integer>5</integer>
 		</dict>
-		<key>ZoeStatus Modern WidgetExtension.xcscheme_^#shared#^_</key>
+		<key>ZoeStatus Modern Watch App.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>6</integer>
+		</dict>
+		<key>ZoeStatus Modern Watch Watch App.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>8</integer>
+		</dict>
+		<key>ZoeStatus Modern WidgetExtension.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>7</integer>
 		</dict>
 		<key>ZoeStatus Watch (Complication).xcscheme_^#shared#^_</key>
 		<dict>

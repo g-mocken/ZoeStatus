@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9A23E4342D94B3B500256CDA /* ZoeStatus Modern Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 9A23E4272D94B3B400256CDA /* ZoeStatus Modern Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9A244448239473990001AF9B /* ZEServices.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A244446239473990001AF9B /* ZEServices.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9A24444B239473990001AF9B /* ZEServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A244444239473990001AF9B /* ZEServices.framework */; };
 		9A24444C239473990001AF9B /* ZEServices.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9A244444239473990001AF9B /* ZEServices.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -47,12 +48,21 @@
 		9AA73CF523A154B2001A6234 /* ZEServices_Watchos.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA73CED23A154B2001A6234 /* ZEServices_Watchos.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9AA73CFB23A15638001A6234 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A57C96323800D2B00A01C61 /* Utilities.swift */; };
 		9AA73CFC23A1563B001A6234 /* ServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A512FB621B3F74C007EFAAB /* ServiceConnection.swift */; };
+		9ABA877B2D976563003254CA /* ZEServices_Watchos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA73CED23A154B2001A6234 /* ZEServices_Watchos.framework */; };
+		9ABA877C2D976563003254CA /* ZEServices_Watchos.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA73CED23A154B2001A6234 /* ZEServices_Watchos.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9AC2BE9E28F0D5D500AACA6A /* Intents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC2BE8C28F0D56100AACA6A /* Intents.framework */; };
 		9AC2BEA128F0D5D500AACA6A /* IntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC2BEA028F0D5D500AACA6A /* IntentHandler.swift */; };
 		9AC2BEA528F0D5D500AACA6A /* ZoeStatus Intents Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9AC2BE9D28F0D5D500AACA6A /* ZoeStatus Intents Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		9A23E4322D94B3B500256CDA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9A512F9921B2DDCB007EFAAB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9A23E4262D94B3B400256CDA;
+			remoteInfo = "ZoeStatus Modern Watch Watch App";
+		};
 		9A244449239473990001AF9B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9A512F9921B2DDCB007EFAAB /* Project object */;
@@ -109,6 +119,13 @@
 			remoteGlobalIDString = 9AA73CEC23A154B2001A6234;
 			remoteInfo = "ZEServices Watchos";
 		};
+		9ABA877D2D976563003254CA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9A512F9921B2DDCB007EFAAB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9AA73CEC23A154B2001A6234;
+			remoteInfo = "ZEServices Watchos";
+		};
 		9AC2BEA328F0D5D500AACA6A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9A512F9921B2DDCB007EFAAB /* Project object */;
@@ -150,6 +167,7 @@
 			dstSubfolderSpec = 16;
 			files = (
 				9AA73CDC23A020CF001A6234 /* ZoeStatus Watch.app in Embed Watch Content */,
+				9A23E4342D94B3B500256CDA /* ZoeStatus Modern Watch App.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,9 +194,21 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9ABA877F2D976563003254CA /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				9ABA877C2D976563003254CA /* ZEServices_Watchos.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9A23E4272D94B3B400256CDA /* ZoeStatus Modern Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ZoeStatus Modern Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A244444239473990001AF9B /* ZEServices.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ZEServices.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A244446239473990001AF9B /* ZEServices.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZEServices.h; sourceTree = "<group>"; };
 		9A244447239473990001AF9B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -240,10 +270,19 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		9A23E4282D94B3B400256CDA /* ZoeStatus Modern Watch App */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "ZoeStatus Modern Watch App"; sourceTree = "<group>"; };
 		9A4E5D0F2D03A39100D2C761 /* ZoeStatus Modern Widget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (9A4E5D1B2D03A39200D2C761 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = "ZoeStatus Modern Widget"; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		9A23E4242D94B3B400256CDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9ABA877B2D976563003254CA /* ZEServices_Watchos.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9A244441239473990001AF9B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -338,6 +377,7 @@
 				9AA73CCD23A020CE001A6234 /* ZoeStatus Watch Extension */,
 				9AC2BE9F28F0D5D500AACA6A /* ZoeStatus Intents Extension */,
 				9A4E5D0F2D03A39100D2C761 /* ZoeStatus Modern Widget */,
+				9A23E4282D94B3B400256CDA /* ZoeStatus Modern Watch App */,
 				9A512FA221B2DDCB007EFAAB /* Products */,
 				9AA98C41220F912C00A9F8ED /* Frameworks */,
 			);
@@ -354,6 +394,7 @@
 				9AA73CED23A154B2001A6234 /* ZEServices_Watchos.framework */,
 				9AC2BE9D28F0D5D500AACA6A /* ZoeStatus Intents Extension.appex */,
 				9A4E5D0C2D03A39100D2C761 /* ZoeStatus Modern WidgetExtension.appex */,
+				9A23E4272D94B3B400256CDA /* ZoeStatus Modern Watch App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -461,6 +502,30 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		9A23E4262D94B3B400256CDA /* ZoeStatus Modern Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A23E4372D94B3B500256CDA /* Build configuration list for PBXNativeTarget "ZoeStatus Modern Watch App" */;
+			buildPhases = (
+				9A23E4232D94B3B400256CDA /* Sources */,
+				9A23E4242D94B3B400256CDA /* Frameworks */,
+				9A23E4252D94B3B400256CDA /* Resources */,
+				9ABA877F2D976563003254CA /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9ABA877E2D976563003254CA /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				9A23E4282D94B3B400256CDA /* ZoeStatus Modern Watch App */,
+			);
+			name = "ZoeStatus Modern Watch App";
+			packageProductDependencies = (
+			);
+			productName = "ZoeStatus Modern Watch Watch App";
+			productReference = 9A23E4272D94B3B400256CDA /* ZoeStatus Modern Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
 		9A244443239473990001AF9B /* ZEServices */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9A244450239473990001AF9B /* Build configuration list for PBXNativeTarget "ZEServices" */;
@@ -538,6 +603,7 @@
 				9AA73CDB23A020CF001A6234 /* PBXTargetDependency */,
 				9AC2BEA428F0D5D500AACA6A /* PBXTargetDependency */,
 				9A4E5D182D03A39200D2C761 /* PBXTargetDependency */,
+				9A23E4332D94B3B500256CDA /* PBXTargetDependency */,
 			);
 			name = ZoeStatus;
 			productName = ZoeStatus;
@@ -623,10 +689,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1610;
+				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				ORGANIZATIONNAME = "Dr. Guido Mocken";
 				TargetAttributes = {
+					9A23E4262D94B3B400256CDA = {
+						CreatedOnToolsVersion = 16.2;
+					};
 					9A244443239473990001AF9B = {
 						CreatedOnToolsVersion = 11.2.1;
 					};
@@ -683,11 +752,19 @@
 				9AA73CEC23A154B2001A6234 /* ZEServices Watchos */,
 				9AC2BE9C28F0D5D500AACA6A /* ZoeStatus Intents Extension */,
 				9A4E5D0B2D03A39100D2C761 /* ZoeStatus Modern WidgetExtension */,
+				9A23E4262D94B3B400256CDA /* ZoeStatus Modern Watch App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		9A23E4252D94B3B400256CDA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9A244442239473990001AF9B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -759,6 +836,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		9A23E4232D94B3B400256CDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9A244440239473990001AF9B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -825,6 +909,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		9A23E4332D94B3B500256CDA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9A23E4262D94B3B400256CDA /* ZoeStatus Modern Watch App */;
+			targetProxy = 9A23E4322D94B3B500256CDA /* PBXContainerItemProxy */;
+		};
 		9A24444A239473990001AF9B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9A244443239473990001AF9B /* ZEServices */;
@@ -866,6 +955,11 @@
 			isa = PBXTargetDependency;
 			target = 9AA73CEC23A154B2001A6234 /* ZEServices Watchos */;
 			targetProxy = 9AA73CF223A154B2001A6234 /* PBXContainerItemProxy */;
+		};
+		9ABA877E2D976563003254CA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9AA73CEC23A154B2001A6234 /* ZEServices Watchos */;
+			targetProxy = 9ABA877D2D976563003254CA /* PBXContainerItemProxy */;
 		};
 		9AC2BEA428F0D5D500AACA6A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -910,6 +1004,75 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		9A23E4352D94B3B500256CDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"ZoeStatus Modern Watch App/Preview Content\"";
+				DEVELOPMENT_TEAM = J6G8439DVH;
+				ENABLE_PREVIEWS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = ZoeStatus;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.grm.ZoeStatus;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.modernwatchapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 8.7;
+			};
+			name = Debug;
+		};
+		9A23E4362D94B3B500256CDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"ZoeStatus Modern Watch App/Preview Content\"";
+				DEVELOPMENT_TEAM = J6G8439DVH;
+				ENABLE_PREVIEWS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = ZoeStatus;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.grm.ZoeStatus;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.modernwatchapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 8.7;
+			};
+			name = Release;
+		};
 		9A24444E239473990001AF9B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1512,6 +1675,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		9A23E4372D94B3B500256CDA /* Build configuration list for PBXNativeTarget "ZoeStatus Modern Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A23E4352D94B3B500256CDA /* Debug */,
+				9A23E4362D94B3B500256CDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9A244450239473990001AF9B /* Build configuration list for PBXNativeTarget "ZEServices" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
