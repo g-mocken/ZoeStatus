@@ -104,36 +104,27 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         case .modularSmall:
             
             // Construct a template that displays an image and a short line of text.
-            let template = CLKComplicationTemplateModularSmallRingText()
-            // Set the data providers.
-            template.fillFraction = Float(level ?? 0)/100
-            template.ringStyle = .closed
-            template.textProvider = CLKSimpleTextProvider(text: levelShortString)
-            // let myIcon = UIImage(systemName: "exclamationmark.triangle") //(named: "complication.png")
-            // template.line1ImageProvider = CLKImageProvider(onePieceImage: myIcon!)
-            // template.line2TextProvider = CLKSimpleTextProvider(text: "blabla")
-            //              template.highlightLine2 = true
-            
+            let template = CLKComplicationTemplateModularSmallRingText(textProvider: CLKSimpleTextProvider(text: levelShortString), fillFraction: Float(level ?? 0)/100, ringStyle: .closed)
+           
             genericTemplate = template
             
             // Handle other supported families here.
         case .modularLarge:
             
             // Construct a template that displays an image and a short line of text.
-            let template = CLKComplicationTemplateModularLargeColumns()
-            // Set the data providers.
-            template.row1Column1TextProvider = CLKSimpleTextProvider(text: levelString)
-            template.row1Column2TextProvider = CLKSimpleTextProvider(text: rangeString)
+            let template = CLKComplicationTemplateModularLargeColumns(
+                row1Column1TextProvider: CLKSimpleTextProvider(text: levelString),
+                row1Column2TextProvider: CLKSimpleTextProvider(text: rangeString),
+                row2Column1TextProvider: CLKSimpleTextProvider(text: chargerString),
+                row2Column2TextProvider: CLKSimpleTextProvider(text: chargingString),
+                row3Column1TextProvider: CLKSimpleTextProvider(text: remainingString),
+                row3Column2TextProvider: CLKSimpleTextProvider(text: pluggedString)
+            )
+            // alternate 2nd row:
             //template.row2Column1TextProvider = CLKSimpleTextProvider(text: date)
             //template.row2Column2TextProvider = CLKSimpleTextProvider(text: time)
-            template.row2Column1TextProvider = CLKSimpleTextProvider(text: chargerString)
-            template.row2Column2TextProvider = CLKSimpleTextProvider(text: chargingString)
-            template.row3Column1TextProvider = CLKSimpleTextProvider(text: remainingString)
-            template.row3Column2TextProvider = CLKSimpleTextProvider(text: pluggedString)
-            
+
             genericTemplate = template
-            
-            
             
             // Handle any non-supported families.
         default:
