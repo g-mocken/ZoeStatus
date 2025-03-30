@@ -34,6 +34,7 @@
 		9A512FB921B3FE71007EFAAB /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FB821B3FE71007EFAAB /* Settings.bundle */; };
 		9A57C9662380110800A01C61 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FAB21B2DDCD007EFAAB /* Assets.xcassets */; };
 		9A589BC12382F59500221376 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A589BC02382F59500221376 /* MapViewController.swift */; };
+		9A818BF82D9963B700A905E6 /* ClockKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A818BF72D9963B700A905E6 /* ClockKit.framework */; };
 		9A9C859421E40A640022EC47 /* defaultValues.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9A9C859321E409DB0022EC47 /* defaultValues.plist */; };
 		9AA73CF123A154B2001A6234 /* ZEServices_Watchos.h in Headers */ = {isa = PBXBuildFile; fileRef = 9AA73CEF23A154B2001A6234 /* ZEServices_Watchos.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9AA73CFB23A15638001A6234 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A57C96323800D2B00A01C61 /* Utilities.swift */; };
@@ -182,13 +183,13 @@
 		9A57C96323800D2B00A01C61 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		9A57C967238054AE00A01C61 /* ZoeStatusWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZoeStatusWidget.entitlements; sourceTree = "<group>"; };
 		9A589BC02382F59500221376 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
+		9A818BF72D9963B700A905E6 /* ClockKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ClockKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.2.sdk/System/Library/Frameworks/ClockKit.framework; sourceTree = DEVELOPER_DIR; };
 		9A9C859321E409DB0022EC47 /* defaultValues.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = defaultValues.plist; sourceTree = "<group>"; };
 		9AA73CC023A020CE001A6234 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
 		9AA73CC223A020CE001A6234 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9AA73CC423A020CE001A6234 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9AA73CCE23A020CE001A6234 /* InterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceController.swift; sourceTree = "<group>"; };
 		9AA73CD023A020CE001A6234 /* ExtensionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionDelegate.swift; sourceTree = "<group>"; };
-		9AA73CD423A020CE001A6234 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		9AA73CD623A020CF001A6234 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9AA73CD823A020CF001A6234 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9AA73CED23A154B2001A6234 /* ZEServices_Watchos.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ZEServices_Watchos.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -223,6 +224,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A818BF82D9963B700A905E6 /* ClockKit.framework in Frameworks */,
 				9ABA877B2D976563003254CA /* ZEServices_Watchos.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -365,7 +367,6 @@
 			children = (
 				9AA73CCE23A020CE001A6234 /* InterfaceController.swift */,
 				9AA73CD023A020CE001A6234 /* ExtensionDelegate.swift */,
-				9AA73CD423A020CE001A6234 /* ComplicationController.swift */,
 				9AA73CD623A020CF001A6234 /* Assets.xcassets */,
 				9AA73CD823A020CF001A6234 /* Info.plist */,
 			);
@@ -396,6 +397,7 @@
 		9AA98C41220F912C00A9F8ED /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9A818BF72D9963B700A905E6 /* ClockKit.framework */,
 				9A47C93F237F5E00006A5FDB /* NotificationCenter.framework */,
 				9AC2BE8C28F0D56100AACA6A /* Intents.framework */,
 				9A4E5CF22D039F2300D2C761 /* WidgetKit.framework */,
@@ -865,8 +867,10 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "ZOE Status";
+				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.grm.ZoeStatus;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -900,8 +904,10 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "ZOE Status";
+				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.grm.ZoeStatus;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

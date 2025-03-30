@@ -20,19 +20,18 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     }
     
     /*
-    func getTimelineStartDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
-        handler(nil)
-    }
-    
-    func getTimelineEndDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
-        handler(nil)
-    }
-   
-    
-    func getPrivacyBehavior(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationPrivacyBehavior) -> Void) {
-        handler(.showOnLockScreen)
-    }
-    */
+
+     // func timelineEndDate(for complication: CLKComplication) async -> Date?{}
+     func getTimelineEndDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
+     handler(nil)
+     }
+     
+    // func privacyBehavior(for complication: CLKComplication) async -> CLKComplicationPrivacyBehavior{}
+     func getPrivacyBehavior(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationPrivacyBehavior) -> Void) {
+     handler(.showOnLockScreen)
+     }
+     
+     */
     
     // MARK: - Timeline Population
     
@@ -52,7 +51,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         
         if simulation {
             timestamp = Date()
-
+            
             level = 100
             range = 234.5
             dateTime = 1550874142000
@@ -72,36 +71,36 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             chargingPoint = cache.charging_point
             charging = cache.charging
             remainingTime = cache.remaining_time
-
+            
         }
-
+        
         let levelString = (level != nil ? String(format: "🔋%3d %%", level!) : "🔋…")
         let levelShortString = (level != nil ? String(format: "%3d", level!) : "…")
         let rangeString = (range != nil ? String(format: "🛣️ %3.0f km", range!.rounded()) : "🛣️ …")
         let /*dateString*/ _ = timestampToDateOnlyNoYearString(timestamp: dateTime)
         let /*timeString*/ _ = timestampToTimeOnlyNoSecondsString(timestamp: dateTime)
         let chargerString = chargingPointToChargerString(plugged ?? false, chargingPoint)
-
+        
         var remainingString = remainingTimeToRemainingShortString(charging ?? false, remainingTime)
-
+        
         let dateFormatter = DateFormatter()
         let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
         dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
         dateFormatter.locale = NSLocale.current
         dateFormatter.dateFormat = "HH:mm:ss" //Specify your format that you want
-       
+        
         // for testing, overwrite it with cache timestamp:
-        remainingString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
-
-
-
+        // remainingString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
+        
+        
+        
         let pluggedString = (plugged != nil ? (plugged! ? "🔌 ✅" : "🔌 ❌") : "🔌 …")
         let chargingString = (charging != nil ? (charging! ? "⚡️ ✅" : "⚡️ ❌") : "⚡️ …")
-
+        
         // Determine the complication's family.
         switch(complication.family) {
             
-        // Handle the modular small family.
+            // Handle the modular small family.
         case .modularSmall:
             
             // Construct a template that displays an image and a short line of text.
@@ -117,7 +116,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             
             genericTemplate = template
             
-        // Handle other supported families here.
+            // Handle other supported families here.
         case .modularLarge:
             
             // Construct a template that displays an image and a short line of text.
@@ -136,7 +135,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             
             
             
-        // Handle any non-supported families.
+            // Handle any non-supported families.
         default:
             genericTemplate = nil
             
@@ -145,11 +144,12 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         return genericTemplate
     }
     
+    // func currentTimelineEntry(for complication: CLKComplication) async -> CLKComplicationTimelineEntry? {}
     func getCurrentTimelineEntry(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void) {
         // Call the handler with the current timeline entry
         //print("getCurrentTimelineEntry for \(complication.family.rawValue)")
         NSLog("getCurrentTimelineEntry for \(complication.family.rawValue)")
-
+        
         if let genericTemplate = createTemplate(for:complication, usingDummyValues: false) {
             // Create the timeline entry.
             let entry = CLKComplicationTimelineEntry(date: Date(),
@@ -160,25 +160,40 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         else {
             handler(nil)
         }
+        
+    }
     
-    }
-    /*
-    func getTimelineEntries(for complication: CLKComplication, before date: Date, limit: Int, withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void) {
-        // Call the handler with the timeline entries prior to the given date
-        handler(nil)
-    }
+    // func timelineEntries(for complication: CLKComplication, after date: Date, limit: Int) async -> [CLKComplicationTimelineEntry]?{}
     func getTimelineEntries(for complication: CLKComplication, after date: Date, limit: Int, withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void) {
         // Call the handler with the timeline entries after to the given date
         handler(nil)
     }
-    */
-
+    
+    
     // MARK: - Placeholder Templates
     
+    // localizableSampleTemplate(for complication: CLKComplication) async -> CLKComplicationTemplate?
     func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTemplate?) -> Void) {
         handler(createTemplate(for:complication, usingDummyValues: true))
     }
-        
-}
     
+    
+    
+    // The following function plus an entry in Target -> Info -> $(PRODUCT_MODULE_NAME).ComplicationController
+    // are required for a watch app without its own Info.plist file
+
+    //func complicationDescriptors() async -> [CLKComplicationDescriptor]{}
+    func getComplicationDescriptors(handler: @escaping ([CLKComplicationDescriptor]) -> Void) {
+        
+        let descriptors = [
+            CLKComplicationDescriptor(
+                identifier: "com.grm.ZoeStatus.watchcomplication",
+                displayName: "ZOE Status",
+                supportedFamilies: [.modularSmall, .modularLarge]
+            )
+        ]
+        handler(descriptors)
+    }
+    
+}
 
