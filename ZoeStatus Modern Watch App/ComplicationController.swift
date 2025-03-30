@@ -15,23 +15,16 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     
     // MARK: - Timeline Configuration
     
-    func getSupportedTimeTravelDirections(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimeTravelDirections) -> Void) {
-        handler([]/*[.forward, .backward]*/) // only current
+    
+    func timelineEndDate(for complication: CLKComplication) async -> Date?{
+        return nil // The end date for your data. If you specify nil, ClockKit doesn’t ask for any more future data.
     }
     
-    /*
-
-     // func timelineEndDate(for complication: CLKComplication) async -> Date?{}
-     func getTimelineEndDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
-     handler(nil)
-     }
+    func privacyBehavior(for complication: CLKComplication) async -> CLKComplicationPrivacyBehavior{
+        return .showOnLockScreen
+    }
+    
      
-    // func privacyBehavior(for complication: CLKComplication) async -> CLKComplicationPrivacyBehavior{}
-     func getPrivacyBehavior(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationPrivacyBehavior) -> Void) {
-     handler(.showOnLockScreen)
-     }
-     
-     */
     
     // MARK: - Timeline Population
     
@@ -81,7 +74,10 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         let /*timeString*/ _ = timestampToTimeOnlyNoSecondsString(timestamp: dateTime)
         let chargerString = chargingPointToChargerString(plugged ?? false, chargingPoint)
         
-        var remainingString = remainingTimeToRemainingShortString(charging ?? false, remainingTime)
+        let remainingString = remainingTimeToRemainingShortString(charging ?? false, remainingTime)
+        // for testing, replace it with cache timestamp:
+        // let remainingString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
+        NSLog ("timestamp = \(timestamp!)")
         
         let dateFormatter = DateFormatter()
         let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
@@ -89,8 +85,6 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         dateFormatter.locale = NSLocale.current
         dateFormatter.dateFormat = "HH:mm:ss" //Specify your format that you want
         
-        // for testing, overwrite it with cache timestamp:
-        // remainingString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
         
         
         
@@ -135,9 +129,8 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         return genericTemplate
     }
     
-    // func currentTimelineEntry(for complication: CLKComplication) async -> CLKComplicationTimelineEntry? {}
-    func getCurrentTimelineEntry(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void) {
-        // Call the handler with the current timeline entry
+    func currentTimelineEntry(for complication: CLKComplication) async -> CLKComplicationTimelineEntry? {
+        // return the current timeline entry
         //print("getCurrentTimelineEntry for \(complication.family.rawValue)")
         NSLog("getCurrentTimelineEntry for \(complication.family.rawValue)")
         
@@ -145,27 +138,25 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             // Create the timeline entry.
             let entry = CLKComplicationTimelineEntry(date: Date(),
                                                      complicationTemplate: genericTemplate)
-            // Pass the timeline entry to the handler.
-            handler(entry)
+            // return the timeline entry
+            return entry
         }
         else {
-            handler(nil)
+            return nil
         }
         
     }
     
-    // func timelineEntries(for complication: CLKComplication, after date: Date, limit: Int) async -> [CLKComplicationTimelineEntry]?{}
-    func getTimelineEntries(for complication: CLKComplication, after date: Date, limit: Int, withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void) {
-        // Call the handler with the timeline entries after to the given date
-        handler(nil)
+    func timelineEntries(for complication: CLKComplication, after date: Date, limit: Int) async -> [CLKComplicationTimelineEntry]?{
+        // return the timeline entries after to the given date
+        return nil
     }
     
     
     // MARK: - Placeholder Templates
     
-    // localizableSampleTemplate(for complication: CLKComplication) async -> CLKComplicationTemplate?
-    func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTemplate?) -> Void) {
-        handler(createTemplate(for:complication, usingDummyValues: true))
+    func localizableSampleTemplate(for complication: CLKComplication) async -> CLKComplicationTemplate? {
+        return createTemplate(for:complication, usingDummyValues: true)
     }
     
     
@@ -173,8 +164,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     // The following function plus an entry in Target -> Info -> $(PRODUCT_MODULE_NAME).ComplicationController
     // are required for a watch app without its own Info.plist file
 
-    //func complicationDescriptors() async -> [CLKComplicationDescriptor]{}
-    func getComplicationDescriptors(handler: @escaping ([CLKComplicationDescriptor]) -> Void) {
+    func complicationDescriptors() async -> [CLKComplicationDescriptor]{
         
         let descriptors = [
             CLKComplicationDescriptor(
@@ -183,7 +173,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
                 supportedFamilies: [.modularSmall, .modularLarge]
             )
         ]
-        handler(descriptors)
+        return descriptors
     }
     
 }
