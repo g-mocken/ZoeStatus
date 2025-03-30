@@ -11,15 +11,15 @@ import WatchConnectivity
 import ZEServices_Watchos
 import ClockKit
 
-class ExtensionDelegate: NSObject, WKExtensionDelegate {
+class ExtensionDelegate: NSObject, WKApplicationDelegate {
     let sc=ServiceConnection.shared
     var previous_last_update:UInt64?
-    let refreshInterval:TimeInterval = 1.0 * 60
+    let refreshInterval:TimeInterval = 15 * 60
 
 
     
     
-    func handleLoginAsync() async -> Bool {
+    fileprivate func handleLoginAsync() async -> Bool {
         
         if (sc.tokenExpiry == nil){ // never logged in successfully
             
@@ -41,8 +41,13 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                     return true
                 } else {
                     print("Failed to renew expired token.")
-                    print("expired token NOT renewed!")
-                    return false
+                    let r = await sc.loginAsync()
+                    if (r.result){
+                        return true
+                    }
+                    else {
+                        return false
+                    }
                 }
             } else {
                 print("token still valid!")
@@ -51,7 +56,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         }
     }
     
-    func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?, battery_temperature:Int?, vehicle_id:String?)->(){
+    fileprivate func batteryState(error: Bool, charging:Bool, plugged:Bool, charge_level:UInt8, remaining_range:Float, last_update:UInt64, charging_point:String?, remaining_time:Int?, battery_temperature:Int?, vehicle_id:String?)->(){
         
         if (error){
             print("Could not obtain battery state.")
@@ -59,44 +64,45 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         } else {
             
             print("Did obtain battery state.")
-            // do not use the values just retrieved here, but rely on sc.cache is updated
+            // do not use the values just retrieved here, but rely on the fact that sc.cache is updated and will be used when reloading time lines
         
-            if (previous_last_update == nil) || (previous_last_update! != last_update){
-                print("Reload required.")
-                let complicationServer = CLKComplicationServer.sharedInstance()
-                for complication in complicationServer.activeComplications! {
+//            if (previous_last_update == nil) || (previous_last_update! != last_update){
+//                print("Reload required.")
+            let complicationServer = CLKComplicationServer.sharedInstance()
+            for complication in complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" }) {
                     //print("reloadTimeline for complication \(complication)")
                     complicationServer.reloadTimeline(for: complication)
-                    NSLog("reloadTimeline for complication \(complication.family.rawValue)")
+                    NSLog("reloadTimeline for ZOE complication \(complication.family.rawValue) after refresh")
                     
                    // let customLog = OSLog(subsystem: "com.grm.zoestatus", category: "ZOE")
                    // os_log("Log default.", log: customLog, type: .default)
 
                 }
-            } else {
-                print("No reload required.")
-            }
+//            } else {
+//                print("No reload required.")
+//            }
             
             previous_last_update = last_update
         }
     }
     
+    fileprivate func refreshDebug(){
+        
+        print("Refresh Debug triggered")
 
-    
-    func refreshTask(){
-        // refresh
-        print("Refresh triggered")
-
-        sc.updateCacheTimestamp() // is called at the scheduled time!
-        print("Reload required.")
         let complicationServer = CLKComplicationServer.sharedInstance()
-        for complication in complicationServer.activeComplications! {
+        for complication in complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" } ) {
             //print("reloadTimeline for complication \(complication)")
             complicationServer.reloadTimeline(for: complication) // maybe is called, but is ignored?
-            NSLog("reloadTimeline for complication \(complication.family.rawValue)")
+            NSLog("reloadTimeline for debug complication \(complication.family.rawValue) before refresh")
         }
         
-        /*
+    }
+    
+    fileprivate func refreshTask(){
+        // refresh
+        print("Refresh triggered")
+        
         if ((sc.userName == nil) || (sc.password == nil)){
             
            print("No user credentials present.")
@@ -110,20 +116,18 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
                 }
             }
         }
-         */
-        
-
     }
 
-    func nextScheduleTime()->Date{
-        //let date = Date(timeIntervalSinceNow: refreshInterval)
+    fileprivate func nextScheduleTime()->Date{
+        let date = Date(timeIntervalSinceNow: refreshInterval)
+        /*
         let now = Date() // current time
         let calendar = Calendar(identifier: .gregorian)
       //  let targetMinutes = DateComponents(minute: 0) // at every full hour
         let targetSeconds = DateComponents(second: 0) // at every full minute
 
         let date = calendar.nextDate(after: now, matching: targetSeconds, matchingPolicy: .nextTime)!
-        
+        */
         let formatter = DateFormatter()
         formatter.timeZone = TimeZone.current
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -134,7 +138,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         return date
     }
     
-    func rescheduleTask(){
+    fileprivate func rescheduleTask(){
         
         NSLog("Scheduling next background refresh.")
 
@@ -148,8 +152,13 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         }
     }
     
+    // MARK: - App lifecycle callbacks
+
+    
+    
     func applicationDidFinishLaunching() {
         // Perform any final initialization of your application.
+        print("applicationDidFinishLaunching")
 
         // for debugging:
 //        print("clearing credentials")
@@ -168,39 +177,44 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     
     func applicationDidEnterBackground() {
         print("applicationDidEnterBackground")
-        /*
+        
+        ComplicationController.counter = 0 // reset Debug counter
+        
         // do instant update of complication, if necessary
         let cache = sc.getCache()
-        if cache.charging != nil, cache.plugged != nil, cache.charge_level != nil, cache.remaining_range != nil, cache.last_update != nil, cache.charging_point != nil, cache.remaining_time != nil, cache.battery_temperature != nil, cache.vehicleId != nil {
-        
+        if cache.timestamp != nil /* cache ever updated? */ , cache.charging != nil, cache.plugged != nil, cache.charge_level != nil, cache.remaining_range != nil, cache.last_update != nil {
+            
             print("Updating from cache")
-            batteryState(error: false, charging: cache.charging!, plugged: cache.plugged!, charge_level: cache.charge_level!, remaining_range: cache.remaining_range!, last_update: cache.last_update!, charging_point: cache.charging_point!, remaining_time: cache.remaining_time!, battery_temperature: cache.battery_temperature!,vehicle_id: cache.vehicleId!)
+            batteryState(error: false, charging: cache.charging!, plugged: cache.plugged!, charge_level: cache.charge_level!, remaining_range: cache.remaining_range!, last_update: cache.last_update!, charging_point: cache.charging_point, remaining_time: cache.remaining_time, battery_temperature: cache.battery_temperature,vehicle_id: cache.vehicleId)
         } else {
-            //refreshTask() // refresh from network, if no cache is present
+            print("Updating from network")
+            refreshTask() // refresh from network, if no cache is present
         }
-        */
         
-        /*
-        print("Reload forced.")
         let complicationServer = CLKComplicationServer.sharedInstance()
+
+        
+        print("Reload forced.")
         for complication in complicationServer.activeComplications! {
             //print("reloadTimeline for complication \(complication)")
             complicationServer.reloadTimeline(for: complication)
             NSLog("reloadTimeline for complication \(complication.family.rawValue)")
         }
-
-
+   
         if complicationServer.activeComplications != nil && complicationServer.activeComplications!.count != 0 {
             rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is active
         }
-         */
+        
     }
 
     func applicationDidBecomeActive() {
+        print("applicationDidBecomeActive")
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
 
     func applicationWillResignActive() {
+        print("applicationWillResignActive")
+
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, etc.
    
@@ -208,6 +222,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
 
     func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
+        NSLog("handle background tasks: \(backgroundTasks)")
         // Sent when the system needs to launch the application in the background to process tasks. Tasks arrive in a set, so loop through and process each one.
         for task in backgroundTasks {
             // Use a switch statement to check the task type
@@ -215,6 +230,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
                 // Be sure to complete the background task once you’re done.
 
+                refreshDebug()
                 refreshTask() // refresh from network
                 // "If you have a complication on the active watch face, you can safely schedule four refresh tasks an hour."
                 

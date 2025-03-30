@@ -28,12 +28,13 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     
     // MARK: - Timeline Population
     
+    static var counter:UInt = 0
+
     fileprivate func createTemplate(for complication: CLKComplication, usingDummyValues simulation:Bool) -> CLKComplicationTemplate? {
         
         var genericTemplate:CLKComplicationTemplate?
         
         var timestamp:Date?
-        
         var level: UInt8?
         var range: Float?
         var dateTime: UInt64?
@@ -75,16 +76,18 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         let chargerString = chargingPointToChargerString(plugged ?? false, chargingPoint)
         
         let remainingString = remainingTimeToRemainingShortString(charging ?? false, remainingTime)
-        // for testing, replace it with cache timestamp:
-        // let remainingString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
-        NSLog ("timestamp = \(timestamp!)")
-        
+      
         let dateFormatter = DateFormatter()
         let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
         dateFormatter.timeZone = TimeZone(abbreviation: timezone) //Set timezone that you want
         dateFormatter.locale = NSLocale.current
         dateFormatter.dateFormat = "HH:mm:ss" //Specify your format that you want
-        
+    
+        // for testing, replace it with cache timestamp:
+        // let remainingString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
+        NSLog ("timestamp = \(timestamp!)")
+        let timestampString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
+          
         
         
         
@@ -104,22 +107,36 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             
             // Handle other supported families here.
         case .modularLarge:
-            
-            // Construct a template that displays an image and a short line of text.
-            let template = CLKComplicationTemplateModularLargeColumns(
-                row1Column1TextProvider: CLKSimpleTextProvider(text: levelString),
-                row1Column2TextProvider: CLKSimpleTextProvider(text: rangeString),
-                row2Column1TextProvider: CLKSimpleTextProvider(text: chargerString),
-                row2Column2TextProvider: CLKSimpleTextProvider(text: chargingString),
-                row3Column1TextProvider: CLKSimpleTextProvider(text: remainingString),
-                row3Column2TextProvider: CLKSimpleTextProvider(text: pluggedString)
-            )
-            // alternate 2nd row:
-            //template.row2Column1TextProvider = CLKSimpleTextProvider(text: date)
-            //template.row2Column2TextProvider = CLKSimpleTextProvider(text: time)
-
-            genericTemplate = template
-            
+            if (complication.identifier == "com.grm.ZoeStatus.watchComplicationDebug"){
+                // Construct a template that displays an image and a short line of text.
+                let template = CLKComplicationTemplateModularLargeColumns(
+                    row1Column1TextProvider: CLKSimpleTextProvider(text: "C:\(timestampString)"), // cache update
+                    row1Column2TextProvider: CLKSimpleTextProvider(text: "Debug"),
+                    row2Column1TextProvider: CLKSimpleTextProvider(text: "U:\(dateFormatter.string(from: Date() ))"), // conmplication update
+                    row2Column2TextProvider: CLKSimpleTextProvider(text: "#\(ComplicationController.counter)"),
+                    row3Column1TextProvider: CLKSimpleTextProvider(text: "Debug"),
+                    row3Column2TextProvider: CLKSimpleTextProvider(text: "Debug")
+                )
+                ComplicationController.counter+=1
+                genericTemplate = template
+            } else {
+                
+                
+                // Construct a template that displays an image and a short line of text.
+                let template = CLKComplicationTemplateModularLargeColumns(
+                    row1Column1TextProvider: CLKSimpleTextProvider(text: levelString),
+                    row1Column2TextProvider: CLKSimpleTextProvider(text: rangeString),
+                    row2Column1TextProvider: CLKSimpleTextProvider(text: chargerString),
+                    row2Column2TextProvider: CLKSimpleTextProvider(text: chargingString),
+                    row3Column1TextProvider: CLKSimpleTextProvider(text: remainingString),
+                    row3Column2TextProvider: CLKSimpleTextProvider(text: pluggedString)
+                )
+                // alternate 2nd row:
+                //template.row2Column1TextProvider = CLKSimpleTextProvider(text: date)
+                //template.row2Column2TextProvider = CLKSimpleTextProvider(text: time)
+                
+                genericTemplate = template
+            }
             // Handle any non-supported families.
         default:
             genericTemplate = nil
@@ -168,9 +185,14 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         
         let descriptors = [
             CLKComplicationDescriptor(
-                identifier: "com.grm.ZoeStatus.watchcomplication",
+                identifier: "com.grm.ZoeStatus.watchComplication",
                 displayName: "ZOE Status",
                 supportedFamilies: [.modularSmall, .modularLarge]
+            ),
+            CLKComplicationDescriptor(
+                identifier: "com.grm.ZoeStatus.watchComplicationDebug",
+                displayName: "ZOE Debug",
+                supportedFamilies: [.modularLarge]
             )
         ]
         return descriptors

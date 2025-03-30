@@ -189,7 +189,6 @@
 		9AA73CC223A020CE001A6234 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9AA73CC423A020CE001A6234 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9AA73CCE23A020CE001A6234 /* InterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceController.swift; sourceTree = "<group>"; };
-		9AA73CD023A020CE001A6234 /* ExtensionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionDelegate.swift; sourceTree = "<group>"; };
 		9AA73CD623A020CF001A6234 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9AA73CD823A020CF001A6234 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9AA73CED23A154B2001A6234 /* ZEServices_Watchos.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ZEServices_Watchos.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -366,7 +365,6 @@
 			isa = PBXGroup;
 			children = (
 				9AA73CCE23A020CE001A6234 /* InterfaceController.swift */,
-				9AA73CD023A020CE001A6234 /* ExtensionDelegate.swift */,
 				9AA73CD623A020CF001A6234 /* Assets.xcassets */,
 				9AA73CD823A020CF001A6234 /* Info.plist */,
 			);
