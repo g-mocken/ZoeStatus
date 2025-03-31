@@ -29,6 +29,9 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     // MARK: - Timeline Population
     
     static var counter:UInt = 0
+    static var msg1 = "…"
+    static var msg2 = "…"
+    static var msg3 = "…"
 
     fileprivate func createTemplate(for complication: CLKComplication, usingDummyValues simulation:Bool) -> CLKComplicationTemplate? {
         
@@ -85,7 +88,6 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     
         // for testing, replace it with cache timestamp:
         // let remainingString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
-        NSLog ("timestamp = \(timestamp!)")
         let timestampString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
           
         
@@ -94,6 +96,8 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         let pluggedString = (plugged != nil ? (plugged! ? "🔌 ✅" : "🔌 ❌") : "🔌 …")
         let chargingString = (charging != nil ? (charging! ? "⚡️ ✅" : "⚡️ ❌") : "⚡️ …")
         
+        NSLog("createTemplate for complication \(complication.family.rawValue)")
+
         // Determine the complication's family.
         switch(complication.family) {
             
@@ -111,11 +115,11 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
                 // Construct a template that displays an image and a short line of text.
                 let template = CLKComplicationTemplateModularLargeColumns(
                     row1Column1TextProvider: CLKSimpleTextProvider(text: "C:\(timestampString)"), // cache update
-                    row1Column2TextProvider: CLKSimpleTextProvider(text: "Debug"),
+                    row1Column2TextProvider: CLKSimpleTextProvider(text: ComplicationController.msg3),
                     row2Column1TextProvider: CLKSimpleTextProvider(text: "U:\(dateFormatter.string(from: Date() ))"), // conmplication update
                     row2Column2TextProvider: CLKSimpleTextProvider(text: "#\(ComplicationController.counter)"),
-                    row3Column1TextProvider: CLKSimpleTextProvider(text: "Debug"),
-                    row3Column2TextProvider: CLKSimpleTextProvider(text: "Debug")
+                    row3Column1TextProvider: CLKSimpleTextProvider(text: ComplicationController.msg1),
+                    row3Column2TextProvider: CLKSimpleTextProvider(text: ComplicationController.msg2)
                 )
                 ComplicationController.counter+=1
                 genericTemplate = template

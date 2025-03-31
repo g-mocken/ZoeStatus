@@ -60,9 +60,10 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
         
         if (error){
             print("Could not obtain battery state.")
-            
+            ComplicationController.msg3 = "NoBatt"
         } else {
-            
+            ComplicationController.msg3 = "OkBatt"
+
             print("Did obtain battery state.")
             // do not use the values just retrieved here, but rely on the fact that sc.cache is updated and will be used when reloading time lines
         
@@ -102,20 +103,28 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
     fileprivate func refreshTask(){
         // refresh
         print("Refresh triggered")
-        
-        if ((sc.userName == nil) || (sc.password == nil)){
-            
-           print("No user credentials present.")
-            
-        } else {
-          
-            Task {
+        Task {
+            if ((sc.userName == nil) || (sc.password == nil)){
+                
+                print("No user credentials present.")
+                ComplicationController.msg1 = "NoCred"
+            } else {
+                ComplicationController.msg1 = "OkCred"
+                
+                
                 if await handleLoginAsync() {
+                    ComplicationController.msg2 = "OkLogin"
                     let bs = await sc.batteryStateAsync()
                     batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
+                } else {
+                    ComplicationController.msg2 = "NoLogin"
                 }
+                
+                
             }
-        }
+            refreshDebug()
+            
+        } // Task
     }
 
     fileprivate func nextScheduleTime()->Date{
@@ -178,7 +187,6 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
     func applicationDidEnterBackground() {
         print("applicationDidEnterBackground")
         
-        ComplicationController.counter = 0 // reset Debug counter
         
         // do instant update of complication, if necessary
         let cache = sc.getCache()
@@ -194,9 +202,10 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
         let complicationServer = CLKComplicationServer.sharedInstance()
 
         
-        print("Reload forced.")
+        print("Reset counter, reload all timelines...")
+        ComplicationController.counter = 0 // reset Debug counter
+
         for complication in complicationServer.activeComplications! {
-            //print("reloadTimeline for complication \(complication)")
             complicationServer.reloadTimeline(for: complication)
             NSLog("reloadTimeline for complication \(complication.family.rawValue)")
         }
@@ -230,7 +239,6 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
                 // Be sure to complete the background task once you’re done.
 
-                refreshDebug()
                 refreshTask() // refresh from network
                 // "If you have a complication on the active watch face, you can safely schedule four refresh tasks an hour."
                 
