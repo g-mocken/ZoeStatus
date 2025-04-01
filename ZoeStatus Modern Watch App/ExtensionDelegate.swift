@@ -29,6 +29,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
                 return true
             } else {
                 print("Failed to login to MY.R. services."  + " (\(r.errorMessage!))")
+                ComplicationController.msg1 = r.errorMessage!
                 return false
             }
         } else {
@@ -46,6 +47,8 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
                         return true
                     }
                     else {
+                        print("Failed to login to MY.R. services."  + " (\(r.errorMessage!))")
+                        ComplicationController.msg1 = r.errorMessage!
                         return false
                     }
                 }
@@ -60,9 +63,9 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
         
         if (error){
             print("Could not obtain battery state.")
-            ComplicationController.msg3 = "NoBatt"
+            ComplicationController.msg1 = "NoBatt"
         } else {
-            ComplicationController.msg3 = "OkBatt"
+            ComplicationController.msg1 = "OkBatt"
 
             print("Did obtain battery state.")
             // do not use the values just retrieved here, but rely on the fact that sc.cache is updated and will be used when reloading time lines
@@ -107,17 +110,15 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
             if ((sc.userName == nil) || (sc.password == nil)){
                 
                 print("No user credentials present.")
-                ComplicationController.msg1 = "NoCred"
             } else {
-                ComplicationController.msg1 = "OkCred"
-                
-                
+                ComplicationController.msg1 = "…"
+
                 if await handleLoginAsync() {
-                    ComplicationController.msg2 = "OkLogin"
+                    ComplicationController.msg2 = "OkLog"
                     let bs = await sc.batteryStateAsync()
                     batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
                 } else {
-                    ComplicationController.msg2 = "NoLogin"
+                    ComplicationController.msg2 = "NoLog"
                 }
                 
                 
@@ -150,13 +151,19 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
     fileprivate func rescheduleTask(){
         
         NSLog("Scheduling next background refresh.")
-
+        let next = nextScheduleTime()
         // schedule next background task a certain number of seconds into the future
-        WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: nextScheduleTime(), userInfo: nil) { (error: Error?) in
+        WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: next, userInfo: nil) { (error: Error?) in
             if let error = error {
                 NSLog("Error occured while scheduling background refresh: \(error.localizedDescription)")
+                ComplicationController.msg3 = "ERR"
             } else {
                 NSLog("No error occured while scheduling background refresh.")
+                let formatter = DateFormatter()
+                formatter.timeZone = TimeZone.current
+                formatter.dateFormat = "HH:mm"
+                let dateString = formatter.string(from: next)
+                ComplicationController.msg3 = dateString
             }
         }
     }
@@ -205,12 +212,12 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
         print("Reset counter, reload all timelines...")
         ComplicationController.counter = 0 // reset Debug counter
 
-        for complication in complicationServer.activeComplications! {
+        for complication in complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" || $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" }) {
             complicationServer.reloadTimeline(for: complication)
             NSLog("reloadTimeline for complication \(complication.family.rawValue)")
         }
    
-        if complicationServer.activeComplications != nil && complicationServer.activeComplications!.count != 0 {
+        if complicationServer.activeComplications != nil && complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" || $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" }).count != 0 {
             rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is active
         }
         
@@ -239,13 +246,14 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
                 // Be sure to complete the background task once you’re done.
 
-                refreshTask() // refresh from network
-                // "If you have a complication on the active watch face, you can safely schedule four refresh tasks an hour."
                 
                 let complicationServer = CLKComplicationServer.sharedInstance()
-                if complicationServer.activeComplications != nil && complicationServer.activeComplications!.count != 0 {
+                if complicationServer.activeComplications != nil && complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" || $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" }).count != 0 {
                     rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is (still) active
                 }
+
+                refreshTask() // refresh from network
+                // "If you have a complication on the active watch face, you can safely schedule four refresh tasks an hour."
 
                 backgroundTask.setTaskCompletedWithSnapshot(false)
                 
