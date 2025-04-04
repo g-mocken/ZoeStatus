@@ -45,6 +45,11 @@ public class ServiceConnection {
     public func getCache()->Cache{
         return cache
     }
+    
+    public func getError()->Int{
+        return myR.lastHttpStatusCode
+    }
+    
     private init(){
         os_log("ServiceConnection log started.", log: serviceLog, type: .default)
     }

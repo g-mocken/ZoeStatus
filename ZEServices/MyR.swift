@@ -10,8 +10,10 @@ import Foundation
 import os
 
 
+public class MyR {
+    
+    var lastHttpStatusCode: Int = 999
 
-class MyR {
     struct ApiKeyResult: Codable {
         var servers: Servers
         struct Servers: Codable {
@@ -1052,6 +1054,7 @@ class MyR {
                     
             else {
                 os_log("server error, statusCode = %{public}d", log: self.serviceLog, type: .error, (response as? HTTPURLResponse)?.statusCode ?? 0)
+                lastHttpStatusCode = (response as? HTTPURLResponse)?.statusCode ?? 888
                 return nil
             }
             

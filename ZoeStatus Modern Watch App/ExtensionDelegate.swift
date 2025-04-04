@@ -118,7 +118,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
                     let bs = await sc.batteryStateAsync()
                     batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
                 } else {
-                    ComplicationController.msg2 = "NoLog"
+                    ComplicationController.msg2 = "\(sc.getError())" //"NoLog"
                 }
                 
                 
