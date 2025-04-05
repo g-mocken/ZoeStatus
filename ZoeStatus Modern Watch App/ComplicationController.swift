@@ -242,6 +242,8 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
         
         print("session didCompleteWithError \(error.debugDescription)") // also called when it completes without error!
         
+        backgroundTask = nil // allow new schedule
+        
         DispatchQueue.main.async {
             
             self.completionHandler?(error == nil) // if no error -> send true to indicate updateActiveComplications should be performed
@@ -284,6 +286,14 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
                 let bgTask = backgroundURLSession.downloadTask(with: url)
                 
                 bgTask.earliestBeginDate = Date().addingTimeInterval(first ? 60 : 15*60)
+                
+                
+                let formatter = DateFormatter()
+                formatter.timeZone = TimeZone.current
+                formatter.dateFormat = "HH:mm"
+                let dateString = formatter.string(from: bgTask.earliestBeginDate!)
+                ComplicationController.msg3 = dateString
+                
                 
                 bgTask.countOfBytesClientExpectsToSend = 200
                 bgTask.countOfBytesClientExpectsToReceive = 1024

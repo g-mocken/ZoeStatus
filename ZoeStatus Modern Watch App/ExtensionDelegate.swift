@@ -249,6 +249,9 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
     
     // https://developer.apple.com/documentation/watchkit/wkurlsessionrefreshbackgroundtask
   //   https://developer.apple.com/documentation/clockkit/creating-and-updating-a-complication-s-timeline
+    // https://developer.apple.com/videos/play/wwdc2021/10003/
+    // https://developer.apple.com/videos/play/wwdc2020/10049
+    
     
     
     func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
