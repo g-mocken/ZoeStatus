@@ -14,7 +14,7 @@ import ClockKit
 class ExtensionDelegate: NSObject, WKApplicationDelegate {
     let sc=ServiceConnection.shared
     var previous_last_update:UInt64?
-    let refreshInterval:TimeInterval = 15 * 60
+    let refreshInterval:TimeInterval = 1 * 60
 
 
     
@@ -63,9 +63,9 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
         
         if (error){
             print("Could not obtain battery state.")
-            ComplicationController.msg1 = "NoBatt"
+            //ComplicationController.msg1 = "NoBatt"
         } else {
-            ComplicationController.msg1 = "OkBatt"
+            //ComplicationController.msg1 = "OkBatt"
 
             print("Did obtain battery state.")
             // do not use the values just retrieved here, but rely on the fact that sc.cache is updated and will be used when reloading time lines
@@ -218,7 +218,11 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
         }
    
         if complicationServer.activeComplications != nil && complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" || $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" }).count != 0 {
-            rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is active
+          
+            //rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is active
+            complicationDataProvider.schedule(first: true)
+
+
         }
         
     }
@@ -237,6 +241,16 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
 
     }
 
+    var complicationDataProvider=ComplicationDataProvider.shared
+    
+    
+    
+    // https://developer.apple.com/documentation/SwiftUI/Scene/backgroundTask(_:action:)
+    
+    // https://developer.apple.com/documentation/watchkit/wkurlsessionrefreshbackgroundtask
+  //   https://developer.apple.com/documentation/clockkit/creating-and-updating-a-complication-s-timeline
+    
+    
     func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
         NSLog("handle background tasks: \(backgroundTasks)")
         // Sent when the system needs to launch the application in the background to process tasks. Tasks arrive in a set, so loop through and process each one.
@@ -246,13 +260,14 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
                 // Be sure to complete the background task once you’re done.
 
-                
-                let complicationServer = CLKComplicationServer.sharedInstance()
-                if complicationServer.activeComplications != nil && complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" || $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" }).count != 0 {
-                    rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is (still) active
-                }
 
-                refreshTask() // refresh from network
+                
+//                let complicationServer = CLKComplicationServer.sharedInstance()
+//                if complicationServer.activeComplications != nil && complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" || $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" }).count != 0 {
+//                    rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is (still) active
+//                }
+
+//                refreshTask() // refresh from network
                 // "If you have a complication on the active watch face, you can safely schedule four refresh tasks an hour."
 
                 backgroundTask.setTaskCompletedWithSnapshot(false)
@@ -263,15 +278,34 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
             case let connectivityTask as WKWatchConnectivityRefreshBackgroundTask:
                 // Be sure to complete the connectivity task once you’re done.
                 connectivityTask.setTaskCompletedWithSnapshot(false)
-            case let urlSessionTask as WKURLSessionRefreshBackgroundTask:
-                // Be sure to complete the URL session task once you’re done.
-                urlSessionTask.setTaskCompletedWithSnapshot(false)
+//            case let urlSessionTask as WKURLSessionRefreshBackgroundTask:
+//                // Be sure to complete the URL session task once you’re done.
+//                urlSessionTask.setTaskCompletedWithSnapshot(false)
             case let relevantShortcutTask as WKRelevantShortcutRefreshBackgroundTask:
                 // Be sure to complete the relevant-shortcut task once you're done.
                 relevantShortcutTask.setTaskCompletedWithSnapshot(false)
             case let intentDidRunTask as WKIntentDidRunRefreshBackgroundTask:
                 // Be sure to complete the intent-did-run task once you're done.
                 intentDidRunTask.setTaskCompletedWithSnapshot(false)
+                
+                
+            case let urlSessionTask as WKURLSessionRefreshBackgroundTask:
+
+                NSLog("refresh completion handler reference")
+
+                complicationDataProvider.refresh() { (update: Bool) -> Void in
+                    
+                    // completionHandler:
+                    NSLog("completion handler is called, update = \(update ? "true": "false")")
+
+                    self.complicationDataProvider.schedule(first: false)
+                    if update {
+                        self.updateActiveComplications()
+                    }
+                    urlSessionTask.setTaskCompletedWithSnapshot(false)
+                }
+
+                
             default:
                 // make sure to complete unhandled task types
                 task.setTaskCompletedWithSnapshot(false)
@@ -280,5 +314,22 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
     }
 
     
+    // this is called after download is complete
+    func updateActiveComplications() {
 
+           let complicationServer = CLKComplicationServer.sharedInstance()
+
+            if let activeComplications = complicationServer.activeComplications {
+
+                for complication in activeComplications.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" } ) {
+                    //print("reloadTimeline for complication \(complication)")
+                    complicationServer.reloadTimeline(for: complication) // maybe is called, but is ignored?
+                    NSLog("reloadTimeline for debug complication \(complication.family.rawValue) before refresh")
+                }
+
+            }
+        }
+    
+
+    
 }

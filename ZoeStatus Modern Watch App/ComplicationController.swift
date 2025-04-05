@@ -8,6 +8,7 @@
 
 import ClockKit
 import ZEServices_Watchos
+import WatchKit
 
 class ComplicationController: NSObject, CLKComplicationDataSource {
     
@@ -202,5 +203,96 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         return descriptors
     }
     
+}
+
+
+
+class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
+
+    
+    public static let shared = ComplicationDataProvider() // Singleton!
+
+    var backgroundTask: URLSessionDownloadTask? // ??
+    
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask,
+                    didFinishDownloadingTo location: URL) {
+
+        print("state =  \(WKExtension.shared().applicationState)") //     case background = 2
+
+
+        print("location = \(location)")
+        if location.isFileURL {
+            do {
+
+                let jsonData = try Data(contentsOf: location)
+                print ("json data = \(jsonData)")
+                if let str = String(data: jsonData, encoding: .utf8) {
+                    print("Successfully decoded data as String: \(str)")
+                    ComplicationController.msg1 = str
+                }
+
+            } catch let error as NSError {
+                print("could not read data from \(location), error = \(error)")
+            }
+        }
+    }
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask,
+                    didCompleteWithError error: Error?) {
+        
+        print("session didCompleteWithError \(error.debugDescription)") // also called when it completes without error!
+        
+        DispatchQueue.main.async {
+            
+            self.completionHandler?(error == nil) // if no error -> send true to indicate updateActiveComplications should be performed
+            
+            self.completionHandler = nil
+            
+        }
+    }
+
+
+    
+    private lazy var backgroundURLSession: URLSession = {
+        let config = URLSessionConfiguration.background(withIdentifier: "com.grm.ZoeStatus.watchComplicationBackgroundSession")
+        config.isDiscretionary = false
+        config.sessionSendsLaunchEvents = true
+        return URLSession(configuration: config, delegate: self, delegateQueue: nil)
+    }()
+    
+    
+    
+    var completionHandler : ((_ update: Bool) -> Void)?
+    
+    func refresh(_ completionHandler: @escaping (_ update: Bool) -> Void) {
+        print ("refresh: storing completionHandler")
+
+        self.completionHandler = completionHandler
+        
+    }
+
+    
+    // THIS is the starting point (when called with first=true)
+    func schedule(first: Bool) {
+        // first = after 1min, others = every 15min
+        
+        if backgroundTask == nil {
+            print ("scheduling background url session …")
+            if let url = URL(string: "https://www.random.org/integers/?num=1&min=1000&max=9999&col=1&base=10&format=plain&rnd=new")
+                
+            {
+                let bgTask = backgroundURLSession.downloadTask(with: url)
+                
+                bgTask.earliestBeginDate = Date().addingTimeInterval(first ? 60 : 15*60)
+                
+                bgTask.countOfBytesClientExpectsToSend = 200
+                bgTask.countOfBytesClientExpectsToReceive = 1024
+                
+                bgTask.resume()
+                
+                backgroundTask = bgTask
+            }
+        }
+    }
 }
 
