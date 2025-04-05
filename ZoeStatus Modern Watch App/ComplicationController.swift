@@ -30,6 +30,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     // MARK: - Timeline Population
     
     static var counter:UInt = 0
+    static var date:Date?
     static var msg1 = "…"
     static var msg2 = "…"
     static var msg3 = "…"
@@ -89,7 +90,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     
         // for testing, replace it with cache timestamp:
         // let remainingString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
-        let timestampString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
+//        let timestampString = timestamp != nil ? dateFormatter.string(from: timestamp!) : "no time"
           
         
         
@@ -115,14 +116,13 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             if (complication.identifier == "com.grm.ZoeStatus.watchComplicationDebug"){
                 // Construct a template that displays an image and a short line of text.
                 let template = CLKComplicationTemplateModularLargeColumns(
-                    row1Column1TextProvider: CLKSimpleTextProvider(text: "C:\(timestampString)"), // cache update
+                    row1Column1TextProvider: CLKSimpleTextProvider(text: "C:\(timestamp?.formatted(date: .omitted, time: .shortened) ?? "…")"), // cache update
                     row1Column2TextProvider: CLKSimpleTextProvider(text: ComplicationController.msg3),
-                    row2Column1TextProvider: CLKSimpleTextProvider(text: "U:\(dateFormatter.string(from: Date() ))"), // conmplication update
+                    row2Column1TextProvider: CLKSimpleTextProvider(text: "U:\(ComplicationController.date?.formatted(date: .omitted, time: .shortened) ?? "…")"), // conmplication update
                     row2Column2TextProvider: CLKSimpleTextProvider(text: "#\(ComplicationController.counter)"),
                     row3Column1TextProvider: CLKSimpleTextProvider(text: ComplicationController.msg1),
                     row3Column2TextProvider: CLKSimpleTextProvider(text: ComplicationController.msg2)
                 )
-                ComplicationController.counter+=1
                 genericTemplate = template
             } else {
                 
@@ -209,7 +209,8 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
 
 class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
 
-    
+    let sc=ServiceConnection.shared
+
     public static let shared = ComplicationDataProvider() // Singleton!
 
     var backgroundTask: URLSessionDownloadTask? // ??
@@ -229,10 +230,54 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
                 if let str = String(data: jsonData, encoding: .utf8) {
                     print("Successfully decoded data as String: \(str)")
                     ComplicationController.msg1 = str
+                    ComplicationController.counter+=1
+                    ComplicationController.date=Date()
                 }
 
             } catch let error as NSError {
                 print("could not read data from \(location), error = \(error)")
+            }
+        }
+    }
+    
+    
+    
+    @MainActor fileprivate func handleLoginAsync() async -> Bool {
+        
+        if (sc.tokenExpiry == nil){ // never logged in successfully
+            
+            let r = await sc.loginAsync()
+            
+            if (r.result){
+                return true
+            } else {
+                print("Failed to login to MY.R. services."  + " (\(r.errorMessage!))")
+                ComplicationController.msg1 = r.errorMessage!
+                return false
+            }
+        } else {
+            if sc.isTokenExpired() {
+                //print("Token expired or will expire too soon (or expiry date is nil), must renew")
+                let result = await sc.renewTokenAsync()
+                
+                if result {
+                    print("renewed expired token!")
+                    return true
+                } else {
+                    print("Failed to renew expired token.")
+                    let r = await sc.loginAsync()
+                    if (r.result){
+                        return true
+                    }
+                    else {
+                        print("Failed to login to MY.R. services."  + " (\(r.errorMessage!))")
+                        ComplicationController.msg1 = r.errorMessage!
+                        return false
+                    }
+                }
+            } else {
+                print("token still valid!")
+                return true
             }
         }
     }
@@ -244,18 +289,62 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
         
         backgroundTask = nil // allow new schedule
         
-        DispatchQueue.main.async {
+        if let error = error as? URLError, error.code == .cancelled {
+            // The request was cancelled (e.g. by you calling task.cancel())
+            print("task was cancelled")
+        } else {
             
-            self.completionHandler?(error == nil) // if no error -> send true to indicate updateActiveComplications should be performed
             
-            self.completionHandler = nil
+            Task { @MainActor in
+                
+                if ((sc.userName == nil) || (sc.password == nil)){
+                    
+                    print("No user credentials present.")
+                } else {
+                    //ComplicationController.msg1 = "…"
+                    
+                    if await handleLoginAsync() {
+                        //ComplicationController.msg2 = "OkLog"
+                        let bs = await sc.batteryStateAsync()
+                        
+                        if (bs.error){
+                            print("Could not obtain battery state.")
+                            ComplicationController.msg1 = "NoBatt"
+                        } else {
+                            ComplicationController.msg1 = "OkBatt"
+                            
+                            print("Did obtain battery state.")
+                            // do not use the values just retrieved here, but rely on the fact that sc.cache is updated and will be used when reloading time lines
+                            let complicationServer = CLKComplicationServer.sharedInstance()
+                            for complication in complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" }) {
+                                //print("reloadTimeline for complication \(complication)")
+                                complicationServer.reloadTimeline(for: complication)
+                                NSLog("reloadTimeline for ZOE complication \(complication.family.rawValue) after refresh")
+                            }
+                        }
+                    } else {
+                        //ComplicationController.msg2 = "\(sc.getError())" //"NoLog"
+                    }
+                }
+                
+                //             no completion until all request are done!
+                DispatchQueue.main.async {
+                    self.completionHandler?(error == nil) // if no error -> send true to indicate updateActiveComplications should be performed
+                    self.completionHandler = nil
+                }
+                
+                
+                
+            } // Task
+            
             
         }
+        
     }
 
 
     
-    private lazy var backgroundURLSession: URLSession = {
+    lazy var backgroundURLSession: URLSession = {
         let config = URLSessionConfiguration.background(withIdentifier: "com.grm.ZoeStatus.watchComplicationBackgroundSession")
         config.isDiscretionary = false
         config.sessionSendsLaunchEvents = true

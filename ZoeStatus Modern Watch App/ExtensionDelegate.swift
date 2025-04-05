@@ -15,8 +15,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
     let sc=ServiceConnection.shared
     var previous_last_update:UInt64?
     let refreshInterval:TimeInterval = 1 * 60
-
-
+    
     
     
     fileprivate func handleLoginAsync() async -> Bool {
@@ -63,9 +62,9 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
         
         if (error){
             print("Could not obtain battery state.")
-            //ComplicationController.msg1 = "NoBatt"
+            ComplicationController.msg1 = "NoBatt"
         } else {
-            //ComplicationController.msg1 = "OkBatt"
+            ComplicationController.msg1 = "OkBatt"
 
             print("Did obtain battery state.")
             // do not use the values just retrieved here, but rely on the fact that sc.cache is updated and will be used when reloading time lines
@@ -111,14 +110,14 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
                 
                 print("No user credentials present.")
             } else {
-                ComplicationController.msg1 = "…"
+                //ComplicationController.msg1 = "…"
 
                 if await handleLoginAsync() {
-                    ComplicationController.msg2 = "OkLog"
+                    //ComplicationController.msg2 = "OkLog"
                     let bs = await sc.batteryStateAsync()
                     batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
                 } else {
-                    ComplicationController.msg2 = "\(sc.getError())" //"NoLog"
+                    //ComplicationController.msg2 = "\(sc.getError())" //"NoLog"
                 }
                 
                 
@@ -230,6 +229,14 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
     func applicationDidBecomeActive() {
         print("applicationDidBecomeActive")
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+       
+        complicationDataProvider.backgroundURLSession.getAllTasks { tasks in
+            for task in tasks {
+                task.cancel()
+            }
+        }
+
+        
     }
 
     func applicationWillResignActive() {
@@ -249,7 +256,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
     
     // https://developer.apple.com/documentation/watchkit/wkurlsessionrefreshbackgroundtask
   //   https://developer.apple.com/documentation/clockkit/creating-and-updating-a-complication-s-timeline
-    // https://developer.apple.com/videos/play/wwdc2021/10003/
+    // https://developer.apple.com/videos/play/wwdc2021/10003/ : multiple sessions (each with an id), each session has multiple tasks, but removes entire session when one task is finished and sets als tasks to complete, too?! see https://developer.apple.com/documentation/foundation/urlsession 
     // https://developer.apple.com/videos/play/wwdc2020/10049
     
     
@@ -326,7 +333,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
 
                 for complication in activeComplications.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" } ) {
                     //print("reloadTimeline for complication \(complication)")
-                    complicationServer.reloadTimeline(for: complication) // maybe is called, but is ignored?
+                    complicationServer.reloadTimeline(for: complication)
                     NSLog("reloadTimeline for debug complication \(complication.family.rawValue) before refresh")
                 }
 
