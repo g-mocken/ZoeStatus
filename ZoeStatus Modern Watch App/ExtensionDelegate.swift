@@ -186,6 +186,16 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
 //        let visibleInterfaceController = WKExtension.shared().visibleInterfaceController
 //        let appDelegate = WKExtension.shared().delegate as! ExtensionDelegate
 
+        
+        // experimental: schedule task here. It will be cancelled if the app becomes active, and scheduled agian when it goes to the background. But maybe the system will just start it after
+        let complicationServer = CLKComplicationServer.sharedInstance()
+        if complicationServer.activeComplications != nil && complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" || $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" }).count != 0 {
+          
+            //rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is active
+            complicationDataProvider.schedule(first: true)
+
+
+        }
 
 
     }
@@ -193,6 +203,12 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
     func applicationDidEnterBackground() {
         print("applicationDidEnterBackground")
         
+        // experimental: in case we go from not-running to inactive to background, cancel tasks before scheduling them again
+        complicationDataProvider.backgroundURLSession.getAllTasks { tasks in
+            for task in tasks {
+                task.cancel()
+            }
+        }
         
         // do instant update of complication, if necessary
         let cache = sc.getCache()
