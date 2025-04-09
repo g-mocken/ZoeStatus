@@ -103,6 +103,21 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         // Determine the complication's family.
         switch(complication.family) {
             
+            
+        case .utilitarianSmall:
+            // Construct a template that displays an image and a short line of text.
+            let template = CLKComplicationTemplateUtilitarianSmallRingText(textProvider: CLKSimpleTextProvider(text: levelShortString), fillFraction: Float(level ?? 0)/100, ringStyle: .closed)
+            genericTemplate = template
+
+        case .utilitarianSmallFlat:
+            let template = CLKComplicationTemplateUtilitarianSmallFlat(textProvider: CLKSimpleTextProvider(text: levelString))
+            genericTemplate = template
+
+        case .utilitarianLarge:
+            let template = CLKComplicationTemplateUtilitarianLargeFlat(textProvider: CLKSimpleTextProvider(text: levelString + "   " + rangeString))
+            genericTemplate = template
+
+            
             // Handle the modular small family.
         case .modularSmall:
             
@@ -178,6 +193,8 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     // MARK: - Placeholder Templates
     
     func localizableSampleTemplate(for complication: CLKComplication) async -> CLKComplicationTemplate? {
+        NSLog("localizableSampleTemplate for \(complication)")
+
         return createTemplate(for:complication, usingDummyValues: true)
     }
     
@@ -192,7 +209,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             CLKComplicationDescriptor(
                 identifier: "com.grm.ZoeStatus.watchComplication",
                 displayName: "ZOE Status",
-                supportedFamilies: [.modularSmall, .modularLarge]
+                supportedFamilies: [ .utilitarianSmall, .utilitarianSmallFlat, .utilitarianLarge, .modularSmall, .modularLarge]
             ),
             CLKComplicationDescriptor(
                 identifier: "com.grm.ZoeStatus.watchComplicationDebug",
