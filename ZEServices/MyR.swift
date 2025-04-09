@@ -142,6 +142,7 @@ public class MyR {
             os_log("Successfully retrieved targets and api keys:\nKamereon: %{public}s, key=%{public}s\nGigya: %{public}s, key=%{public}s", log: serviceLog, type: .debug, result1!.servers.wiredProd.target, result1!.servers.wiredProd.apikey, result1!.servers.gigyaProd.target, result1!.servers.gigyaProd.apikey)
             context.apiKeysAndUrls = result1 // save for later use
         } else {
+            // server error, statusCode = 403 (as of 2025)
             context.apiKeysAndUrls = ApiKeyResult(servers: ApiKeyResult.Servers(wiredProd: ApiKeyResult.Servers.ServerAndKey(target: "https://api-wired-prod-1-euw1.wrd-aws.com", apikey: "oF09WnKqvBDcrQzcW1rJNpjIuy7KdGaB"), gigyaProd: ApiKeyResult.Servers.ServerAndKey(target: "https://accounts.eu1.gigya.com", apikey: "3_7PLksOyBRkHv126x5WhHb-5pqC1qFR8pQjxSeLB6nhAnPERTUlwnYoznHSxwX668")))
         }
         
@@ -272,6 +273,7 @@ public class MyR {
                                 return (vin:nil, token: nil, context: context, errorMessage: "Error retrieving vehicles with Kamereon token")
                             }
                         } else {
+                            // server error, statusCode = 404 (as of 2025)
                             os_log("Could not retrieve Kamereon token - trying without anyway", log: serviceLog, type: .debug)
                             
                             let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
