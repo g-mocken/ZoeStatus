@@ -13,7 +13,8 @@ import WatchKit
 class ComplicationController: NSObject, CLKComplicationDataSource {
     
     let sc=ServiceConnection.shared
-    
+    var complicationDataProvider=ComplicationDataProvider.shared
+
     // MARK: - Timeline Configuration
     
     
@@ -131,9 +132,9 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             if (complication.identifier == "com.grm.ZoeStatus.watchComplicationDebug"){
                 // Construct a template that displays an image and a short line of text.
                 let template = CLKComplicationTemplateModularLargeColumns(
-                    row1Column1TextProvider: CLKSimpleTextProvider(text: "C:\(timestamp?.formatted(date: .omitted, time: .shortened) ?? "…")"), // cache update
+                    row1Column1TextProvider: CLKSimpleTextProvider(text: "C:\(timestamp?.formatted(date: .omitted, time: .shortened) ?? "…")"), // (C)ache timestamp
                     row1Column2TextProvider: CLKSimpleTextProvider(text: ComplicationController.msg3),
-                    row2Column1TextProvider: CLKSimpleTextProvider(text: "U:\(ComplicationController.date?.formatted(date: .omitted, time: .shortened) ?? "…")"), // conmplication update
+                    row2Column1TextProvider: CLKSimpleTextProvider(text: "U:\(ComplicationController.date?.formatted(date: .omitted, time: .shortened) ?? "…")"), // (U)pdate of complication
                     row2Column2TextProvider: CLKSimpleTextProvider(text: "#\(ComplicationController.counter)"),
                     row3Column1TextProvider: CLKSimpleTextProvider(text: ComplicationController.msg1),
                     row3Column2TextProvider: CLKSimpleTextProvider(text: ComplicationController.msg2)
@@ -186,6 +187,10 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     
     func timelineEntries(for complication: CLKComplication, after date: Date, limit: Int) async -> [CLKComplicationTimelineEntry]?{
         // return the timeline entries after to the given date
+        NSLog("getTimelineEntries for \(complication.family.rawValue)")
+        complicationDataProvider.schedule(first: true)
+
+        
         return nil
     }
     
@@ -237,24 +242,28 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
 
         print("state =  \(WKExtension.shared().applicationState)") //     case background = 2
 
+        ComplicationController.msg1 = "Trigger"
+        ComplicationController.counter+=1
+        ComplicationController.date=Date()
 
-        print("location = \(location)")
-        if location.isFileURL {
-            do {
 
-                let jsonData = try Data(contentsOf: location)
-                print ("json data = \(jsonData)")
-                if let str = String(data: jsonData, encoding: .utf8) {
-                    print("Successfully decoded data as String: \(str)")
-                    ComplicationController.msg1 = str
-                    ComplicationController.counter+=1
-                    ComplicationController.date=Date()
-                }
-
-            } catch let error as NSError {
-                print("could not read data from \(location), error = \(error)")
-            }
-        }
+//        print("location = \(location)")
+//        if location.isFileURL {
+//            do {
+//
+//                let jsonData = try Data(contentsOf: location)
+//                print ("json data = \(jsonData)")
+//                if let str = String(data: jsonData, encoding: .utf8) {
+//                    print("Successfully decoded data as String: \(str)")
+//                    ComplicationController.msg1 = str
+//                    ComplicationController.counter+=1
+//                    ComplicationController.date=Date()
+//                }
+//
+//            } catch let error as NSError {
+//                print("could not read data from \(location), error = \(error)")
+//            }
+//        }
     }
     
     
@@ -398,7 +407,7 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
                 formatter.timeZone = TimeZone.current
                 formatter.dateFormat = "HH:mm"
                 let dateString = formatter.string(from: bgTask.earliestBeginDate!)
-                ComplicationController.msg3 = dateString
+                ComplicationController.msg3 = "N:"+dateString // (N)ext
                 
                 
                 bgTask.countOfBytesClientExpectsToSend = 351 // measured for http (not https) request
