@@ -9,6 +9,9 @@
 import Foundation
 import os
 
+var apiKeysError = false
+var kamereonTokenError = false
+
 
 public class MyR {
     
@@ -94,7 +97,6 @@ public class MyR {
         kamereon = k
         vehicle = vid // index 0...4 for 1st...5th in GUI
     }
-    
     struct Context{
         var apiKeysAndUrls: ApiKeyResult?
         var sessionInfo: SessionInfo?
@@ -133,17 +135,25 @@ public class MyR {
     
     func handleLoginProcessAsync() async -> (vin:String?, token:String?, context:Context, errorMessage:String?)  {
         
-        // Fetch URLs and API keys from a fixed URL
-        let endpointUrl1 = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_" + language + ".json")!
-        let components1 = URLComponents(url: endpointUrl1, resolvingAgainstBaseURL: false)!
-        let result1:ApiKeyResult? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components1, withHeaders: nil)
-        //if result != nil {
+        let result1:ApiKeyResult?
+        if apiKeysError == false { // skip the attempt, if previous attempts failed
+            // Fetch URLs and API keys from a fixed URL
+            let endpointUrl1 = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_" + language + ".json")!
+            let components1 = URLComponents(url: endpointUrl1, resolvingAgainstBaseURL: false)!
+            result1 = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components1, withHeaders: nil)
+        } else {
+            result1 = nil
+            os_log("Skip retrieving targets and api keys", log: serviceLog, type: .debug)
+        }
+        
         if result1 != nil {
             os_log("Successfully retrieved targets and api keys:\nKamereon: %{public}s, key=%{public}s\nGigya: %{public}s, key=%{public}s", log: serviceLog, type: .debug, result1!.servers.wiredProd.target, result1!.servers.wiredProd.apikey, result1!.servers.gigyaProd.target, result1!.servers.gigyaProd.apikey)
             context.apiKeysAndUrls = result1 // save for later use
-        } else {
+            apiKeysError = false // keep doing attempts to fetch the keys
+        } else { // "Error retrieving targets and api keys"
             // server error, statusCode = 403 (as of 2025)
             context.apiKeysAndUrls = ApiKeyResult(servers: ApiKeyResult.Servers(wiredProd: ApiKeyResult.Servers.ServerAndKey(target: "https://api-wired-prod-1-euw1.wrd-aws.com", apikey: "oF09WnKqvBDcrQzcW1rJNpjIuy7KdGaB"), gigyaProd: ApiKeyResult.Servers.ServerAndKey(target: "https://accounts.eu1.gigya.com", apikey: "3_7PLksOyBRkHv126x5WhHb-5pqC1qFR8pQjxSeLB6nhAnPERTUlwnYoznHSxwX668")))
+            apiKeysError = true // do not try again (only after App restart)
         }
         
         // override Kamereon if a key is specified in user preferences:
@@ -232,9 +242,17 @@ public class MyR {
                             "x-gigya-id_token":context.tokenInfo!.id_token,
                             "apikey":context.apiKeysAndUrls!.servers.wiredProd.apikey
                         ]
+                        let result:KamereonTokenInfo?
+                        if kamereonTokenError == false {
+                            result = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers)
+                        } else {
+                            result = nil
+                            os_log("Skip retrieving Kamereon accessToken", log: serviceLog, type: .debug)
+                        }
+                        
                         // Fetch Kamereon accessToken from the account dependent URL using the retrieved Gigya JWT token
-                        let result:KamereonTokenInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers)
                         if result != nil {
+                            kamereonTokenError = false // keep doing this
                             os_log("Successfully retrieved Kamereon accessToken", log: serviceLog, type: .debug)
                             context.kamereonTokenInfo = result // save for later use
                             decodeToken(token:result!.accessToken) // "expires_in":3600000 = 1h ?
@@ -273,6 +291,7 @@ public class MyR {
                                 return (vin:nil, token: nil, context: context, errorMessage: "Error retrieving vehicles with Kamereon token")
                             }
                         } else {
+                            kamereonTokenError = true // do not try again
                             // server error, statusCode = 404 (as of 2025)
                             os_log("Could not retrieve Kamereon token - trying without anyway", log: serviceLog, type: .debug)
                             
@@ -316,9 +335,6 @@ public class MyR {
         } else {
             return (vin:nil, token: nil, context: context, errorMessage: "Error retrieving session key")
         }
-        //} else {
-        //    return (vin:nil, token: nil, context: context, errorMessage: "Error retrieving targets and api keys")
-        //}
     }
     
     func getHeaders()->[String:String] {
