@@ -386,7 +386,7 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
         
         if backgroundTask == nil {
             print ("scheduling background url session …")
-            if let url = URL(string: "https://www.random.org/integers/?num=1&min=1000&max=9999&col=1&base=10&format=plain&rnd=new")
+            if let url = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_de_DE.json") // usually 403, but tht should not matter - it is just the trigger for more meaningful accesses
                 
             {
                 let bgTask = backgroundURLSession.downloadTask(with: url)
@@ -401,8 +401,8 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
                 ComplicationController.msg3 = dateString
                 
                 
-                bgTask.countOfBytesClientExpectsToSend = 200
-                bgTask.countOfBytesClientExpectsToReceive = 1024
+                bgTask.countOfBytesClientExpectsToSend = 351 // measured for http (not https) request
+                bgTask.countOfBytesClientExpectsToReceive = 341 // and 403 error response
                 
                 bgTask.resume()
                 
