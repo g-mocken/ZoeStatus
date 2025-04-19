@@ -89,18 +89,6 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
         }
     }
     
-    fileprivate func refreshDebug(){
-        
-        print("Refresh Debug triggered")
-
-        let complicationServer = CLKComplicationServer.sharedInstance()
-        for complication in complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" } ) {
-            //print("reloadTimeline for complication \(complication)")
-            complicationServer.reloadTimeline(for: complication) // maybe is called, but is ignored?
-            NSLog("reloadTimeline for debug complication \(complication.family.rawValue) before refresh")
-        }
-        
-    }
     
     fileprivate func refreshTask(){
         // refresh
@@ -122,50 +110,11 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
                 
                 
             }
-            refreshDebug()
             
         } // Task
     }
 
-    fileprivate func nextScheduleTime()->Date{
-        let date = Date(timeIntervalSinceNow: refreshInterval)
-        /*
-        let now = Date() // current time
-        let calendar = Calendar(identifier: .gregorian)
-      //  let targetMinutes = DateComponents(minute: 0) // at every full hour
-        let targetSeconds = DateComponents(second: 0) // at every full minute
 
-        let date = calendar.nextDate(after: now, matching: targetSeconds, matchingPolicy: .nextTime)!
-        */
-        let formatter = DateFormatter()
-        formatter.timeZone = TimeZone.current
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        let dateString = formatter.string(from: date)
-
-        NSLog("Date/Time for next schuedule = \(date) = \(dateString).")
-
-        return date
-    }
-    
-    fileprivate func rescheduleTask(){
-        
-        NSLog("Scheduling next background refresh.")
-        let next = nextScheduleTime()
-        // schedule next background task a certain number of seconds into the future
-        WKExtension.shared().scheduleBackgroundRefresh(withPreferredDate: next, userInfo: nil) { (error: Error?) in
-            if let error = error {
-                NSLog("Error occured while scheduling background refresh: \(error.localizedDescription)")
-                ComplicationController.msg3 = "ERR"
-            } else {
-                NSLog("No error occured while scheduling background refresh.")
-                let formatter = DateFormatter()
-                formatter.timeZone = TimeZone.current
-                formatter.dateFormat = "HH:mm"
-                let dateString = formatter.string(from: next)
-                ComplicationController.msg3 = dateString
-            }
-        }
-    }
     
     // MARK: - App lifecycle callbacks
 
@@ -211,17 +160,16 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
         print("Reset counter, reload all timelines...")
         ComplicationController.counter = 0 // reset Debug counter
 
-        for complication in complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" || $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" }) {
-            complicationServer.reloadTimeline(for: complication)
-            NSLog("reloadTimeline for complication \(complication.family.rawValue)")
-        }
+       
    
         if complicationServer.activeComplications != nil && complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" || $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" }).count != 0 {
           
-            //rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is active
             complicationDataProvider.schedule(first: true)
-
-
+        }
+        
+        for complication in complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" || $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" }) {
+            complicationServer.reloadTimeline(for: complication)
+            NSLog("reloadTimeline for complication \(complication.family.rawValue)")
         }
         
     }
@@ -269,28 +217,13 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
             switch task {
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
                 // Be sure to complete the background task once you’re done.
-
-
-                
-//                let complicationServer = CLKComplicationServer.sharedInstance()
-//                if complicationServer.activeComplications != nil && complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" || $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" }).count != 0 {
-//                    rescheduleTask() // schedule next update (from network) afterwards only if at least one complication is (still) active
-//                }
-
-//                refreshTask() // refresh from network
-                // "If you have a complication on the active watch face, you can safely schedule four refresh tasks an hour."
-
                 backgroundTask.setTaskCompletedWithSnapshot(false)
-                
             case let snapshotTask as WKSnapshotRefreshBackgroundTask:
                 // Snapshot tasks have a unique completion call, make sure to set your expiration date
                 snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date.distantFuture, userInfo: nil)
             case let connectivityTask as WKWatchConnectivityRefreshBackgroundTask:
                 // Be sure to complete the connectivity task once you’re done.
                 connectivityTask.setTaskCompletedWithSnapshot(false)
-//            case let urlSessionTask as WKURLSessionRefreshBackgroundTask:
-//                // Be sure to complete the URL session task once you’re done.
-//                urlSessionTask.setTaskCompletedWithSnapshot(false)
             case let relevantShortcutTask as WKRelevantShortcutRefreshBackgroundTask:
                 // Be sure to complete the relevant-shortcut task once you're done.
                 relevantShortcutTask.setTaskCompletedWithSnapshot(false)
@@ -309,9 +242,10 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
                     NSLog("completion handler is called, update = \(update ? "true": "false")")
 
                     self.complicationDataProvider.schedule(first: false)
-                    if update {
+                    
+//                    if update {
                         self.updateActiveComplications()
-                    }
+//                    }
                     urlSessionTask.setTaskCompletedWithSnapshot(false)
                 }
 
@@ -324,14 +258,14 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate {
     }
 
     
-    // this is called after download is complete
+    // this is called after download is complete without error (from the completionhandler)
     func updateActiveComplications() {
 
            let complicationServer = CLKComplicationServer.sharedInstance()
 
             if let activeComplications = complicationServer.activeComplications {
 
-                for complication in activeComplications.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" } ) {
+                for complication in activeComplications.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplicationDebug" ||  $0.identifier == "com.grm.ZoeStatus.watchComplication"  } ) {
                     //print("reloadTimeline for complication \(complication)")
                     complicationServer.reloadTimeline(for: complication)
                     NSLog("reloadTimeline for debug complication \(complication.family.rawValue) before refresh")

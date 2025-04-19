@@ -188,8 +188,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     func timelineEntries(for complication: CLKComplication, after date: Date, limit: Int) async -> [CLKComplicationTimelineEntry]?{
         // return the timeline entries after to the given date
         NSLog("getTimelineEntries for \(complication.family.rawValue)")
-        complicationDataProvider.schedule(first: true)
-
+        complicationDataProvider.schedule(first: true) // will be ignored, if already scheduled
         
         return nil
     }
@@ -318,6 +317,13 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
         if let error = error as? URLError, error.code == .cancelled {
             // The request was cancelled (e.g. by you calling task.cancel())
             print("task was cancelled")
+            ComplicationController.msg1 = "Cancel"
+
+            DispatchQueue.main.async {
+                self.completionHandler?(false) // if no error -> send true to indicate updateActiveComplications should be performed
+                self.completionHandler = nil
+            }
+            
         } else {
             
             
@@ -326,6 +332,7 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
                 if ((sc.userName == nil) || (sc.password == nil)){
                     
                     print("No user credentials present.")
+                    ComplicationController.msg1 = "NoCred"
                 } else {
                     //ComplicationController.msg1 = "…"
                     
@@ -338,15 +345,8 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
                             ComplicationController.msg1 = "NoBatt"
                         } else {
                             ComplicationController.msg1 = "OkBatt"
-                            
                             print("Did obtain battery state.")
                             // do not use the values just retrieved here, but rely on the fact that sc.cache is updated and will be used when reloading time lines
-                            let complicationServer = CLKComplicationServer.sharedInstance()
-                            for complication in complicationServer.activeComplications!.filter({ $0.identifier == "com.grm.ZoeStatus.watchComplication" }) {
-                                //print("reloadTimeline for complication \(complication)")
-                                complicationServer.reloadTimeline(for: complication)
-                                NSLog("reloadTimeline for ZOE complication \(complication.family.rawValue) after refresh")
-                            }
                         }
                     } else {
                         //ComplicationController.msg2 = "\(sc.getError())" //"NoLog"
@@ -389,13 +389,13 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
     }
 
     
-    // THIS is the starting point (when called with first=true)
+    // THIS is the starting point (when called with first=true), and it is also called from the completion handler
     func schedule(first: Bool) {
         // first = after 1min, others = every 15min
         
         if backgroundTask == nil {
             print ("scheduling background url session …")
-            if let url = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_de_DE.json") // usually 403, but tht should not matter - it is just the trigger for more meaningful accesses
+            if let url = URL(string: "https://renault-wrd-prod-1-euw1-myrapp-one.s3-eu-west-1.amazonaws.com/configuration/android/config_de_DE.json") // usually 403, but that should not matter - it is just the trigger for more meaningful accesses
                 
             {
                 let bgTask = backgroundURLSession.downloadTask(with: url)
