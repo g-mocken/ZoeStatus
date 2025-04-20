@@ -99,7 +99,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         let pluggedString = (plugged != nil ? (plugged! ? "🔌 ✅" : "🔌 ❌") : "🔌 …")
         let chargingString = (charging != nil ? (charging! ? "⚡️ ✅" : "⚡️ ❌") : "⚡️ …")
         
-        NSLog("createTemplate for complication \(complication.family.rawValue)")
+        NSLog("createTemplate for complication family \(complication.family.rawValue)")
 
         // Determine the complication's family.
         switch(complication.family) {
@@ -170,7 +170,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     func currentTimelineEntry(for complication: CLKComplication) async -> CLKComplicationTimelineEntry? {
         // return the current timeline entry
         //print("getCurrentTimelineEntry for \(complication.family.rawValue)")
-        NSLog("getCurrentTimelineEntry for \(complication.family.rawValue)")
+        NSLog("getCurrentTimelineEntry for family \(complication.family.rawValue)") // called everytime when switching to a clock face with a complication
         
         if let genericTemplate = createTemplate(for:complication, usingDummyValues: false) {
             // Create the timeline entry.
@@ -187,7 +187,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     
     func timelineEntries(for complication: CLKComplication, after date: Date, limit: Int) async -> [CLKComplicationTimelineEntry]?{
         // return the timeline entries after to the given date
-        NSLog("getTimelineEntries for \(complication.family.rawValue)")
+        NSLog("getTimelineEntries for family \(complication.family.rawValue)") // called everytime when switching to a clock face with a complication
         complicationDataProvider.schedule(first: true) // will be ignored, if already scheduled
         
         return nil
@@ -328,6 +328,15 @@ class ComplicationDataProvider : NSObject, URLSessionDownloadDelegate {
             
             
             Task { @MainActor in
+                
+                let userDefaults = UserDefaults.standard
+                sc.userName = userDefaults.string(forKey: "userName_preference")
+                sc.password = userDefaults.string(forKey: "password_preference")
+                sc.api = ServiceConnection.ApiVersion(rawValue: userDefaults.integer(forKey: "api_preference"))
+                sc.units = ServiceConnection.Units(rawValue: userDefaults.integer(forKey: "units_preference"))
+                sc.kamereon = userDefaults.string(forKey: "kamereon_preference")
+                sc.vehicle = userDefaults.integer(forKey: "vehicle_preference")
+
                 
                 if ((sc.userName == nil) || (sc.password == nil)){
                     
