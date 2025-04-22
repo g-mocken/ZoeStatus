@@ -129,6 +129,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             
             // Handle other supported families here.
         case .modularLarge:
+#if DEBUG
             if (complication.identifier == "com.grm.ZoeStatus.watchComplicationDebug"){
                 // Construct a template that displays an image and a short line of text.
                 let template = CLKComplicationTemplateModularLargeColumns(
@@ -140,9 +141,9 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
                     row3Column2TextProvider: CLKSimpleTextProvider(text: ComplicationController.msg2)
                 )
                 genericTemplate = template
-            } else {
-                
-                
+            }
+#endif
+            if (complication.identifier == "com.grm.ZoeStatus.watchComplication"){
                 // Construct a template that displays an image and a short line of text.
                 let template = CLKComplicationTemplateModularLargeColumns(
                     row1Column1TextProvider: CLKSimpleTextProvider(text: levelString),
@@ -209,6 +210,8 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
 
     func complicationDescriptors() async -> [CLKComplicationDescriptor]{
         
+#if DEBUG
+        #warning("Debug build")
         let descriptors = [
             CLKComplicationDescriptor(
                 identifier: "com.grm.ZoeStatus.watchComplication",
@@ -221,6 +224,19 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
                 supportedFamilies: [.modularLarge]
             )
         ]
+#else
+        #warning("Release build")
+
+        let descriptors = [
+            CLKComplicationDescriptor(
+                identifier: "com.grm.ZoeStatus.watchComplication",
+                displayName: "ZOE Status",
+                supportedFamilies: [ .utilitarianSmall, .utilitarianSmallFlat, .utilitarianLarge, .modularSmall, .modularLarge]
+            )
+        ]
+
+#endif
+
         return descriptors
     }
     
