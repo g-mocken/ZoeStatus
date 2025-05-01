@@ -16,7 +16,7 @@ struct ContentView: View {
     @StateObject private var sessionDelegate = SessionDelegate()
     @StateObject private var alertManager = AlertManager.shared
 
-    @State private var buttonText = ". . ."
+    @State private var buttonText = "• • •"
     @State private var showActionSheet = false
 
     @State private var showAlert = false
@@ -66,7 +66,7 @@ struct ContentView: View {
                         Button(buttonText) {
                             showActionSheet.toggle() // Trigger action sheet
                         }
-                        .scaleEffect(0.5) // Shrinks the button
+                        .scaleEffect(1.0) // Shrinks the button
                         .buttonStyle(.bordered)
                         .actionSheet(isPresented: $showActionSheet) {
                             ActionSheet(
@@ -82,12 +82,19 @@ struct ContentView: View {
                                     .default(Text("Trigger A/C")) {
                                         triggerAirConditioning()
                                     },
-                                    .cancel()
+                                    .cancel(){
+                                        print("cancel menu")
+                                        showActionSheet = false
+                                    }
                                 ]
                             )
                         }
                     }
                     .padding()
+                    .onLongPressGesture {
+                        print("long press")
+                        showActionSheet.toggle()
+                    }
                 }.onAppear(){
                     print("onAppear")
                     appear()
