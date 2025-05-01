@@ -34,6 +34,9 @@
 		9A512FB921B3FE71007EFAAB /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FB821B3FE71007EFAAB /* Settings.bundle */; };
 		9A57C9662380110800A01C61 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A512FAB21B2DDCD007EFAAB /* Assets.xcassets */; };
 		9A589BC12382F59500221376 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A589BC02382F59500221376 /* MapViewController.swift */; };
+		9A5AAE942DC41F6000CACDBC /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4E5CF22D039F2300D2C761 /* WidgetKit.framework */; };
+		9A5AAE952DC41F6000CACDBC /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4E5CF42D039F2400D2C761 /* SwiftUI.framework */; };
+		9A5AAE9E2DC41F6200CACDBC /* ZoeStatus Modern Watch ComplicationsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9A5AAE932DC41F6000CACDBC /* ZoeStatus Modern Watch ComplicationsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9A8A4DE62D9DA0DE004963BA /* ClockKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A8A4DE52D9DA0DE004963BA /* ClockKit.framework */; };
 		9A9C859421E40A640022EC47 /* defaultValues.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9A9C859321E409DB0022EC47 /* defaultValues.plist */; };
 		9AA73CF123A154B2001A6234 /* ZEServices_Watchos.h in Headers */ = {isa = PBXBuildFile; fileRef = 9AA73CEF23A154B2001A6234 /* ZEServices_Watchos.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -89,6 +92,13 @@
 			remoteGlobalIDString = 9A244443239473990001AF9B;
 			remoteInfo = ZEServices;
 		};
+		9A5AAE9C2DC41F6200CACDBC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9A512F9921B2DDCB007EFAAB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9A5AAE922DC41F6000CACDBC;
+			remoteInfo = "ZoeStatus Modern Watch ComplicationsExtension";
+		};
 		9ABA877D2D976563003254CA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9A512F9921B2DDCB007EFAAB /* Project object */;
@@ -126,6 +136,17 @@
 				9A47C94A237F5E00006A5FDB /* Zoe.appex in Embed Foundation Extensions */,
 				9AC2BEA528F0D5D500AACA6A /* ZoeStatus Intents Extension.appex in Embed Foundation Extensions */,
 				9A4E5D192D03A39200D2C761 /* ZoeStatus Modern WidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A5AAE9F2DC41F6200CACDBC /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				9A5AAE9E2DC41F6200CACDBC /* ZoeStatus Modern Watch ComplicationsExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -183,6 +204,7 @@
 		9A57C96323800D2B00A01C61 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		9A57C967238054AE00A01C61 /* ZoeStatusWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZoeStatusWidget.entitlements; sourceTree = "<group>"; };
 		9A589BC02382F59500221376 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
+		9A5AAE932DC41F6000CACDBC /* ZoeStatus Modern Watch ComplicationsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ZoeStatus Modern Watch ComplicationsExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A8A4DE52D9DA0DE004963BA /* ClockKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ClockKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/ClockKit.framework; sourceTree = DEVELOPER_DIR; };
 		9A9C859321E409DB0022EC47 /* defaultValues.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = defaultValues.plist; sourceTree = "<group>"; };
 		9AA73CC023A020CE001A6234 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
@@ -211,11 +233,19 @@
 			);
 			target = 9A4E5D0B2D03A39100D2C761 /* ZoeStatus Modern WidgetExtension */;
 		};
+		9A5AAEA22DC41F6200CACDBC /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9A5AAE922DC41F6000CACDBC /* ZoeStatus Modern Watch ComplicationsExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9A23E4282D94B3B400256CDA /* ZoeStatus Modern Watch App */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "ZoeStatus Modern Watch App"; sourceTree = "<group>"; };
 		9A4E5D0F2D03A39100D2C761 /* ZoeStatus Modern Widget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (9A4E5D1B2D03A39200D2C761 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = "ZoeStatus Modern Widget"; sourceTree = "<group>"; };
+		9A5AAE962DC41F6000CACDBC /* ZoeStatus Modern Watch Complications */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (9A5AAEA22DC41F6200CACDBC /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = "ZoeStatus Modern Watch Complications"; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -259,6 +289,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A24444B239473990001AF9B /* ZEServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A5AAE902DC41F6000CACDBC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A5AAE952DC41F6000CACDBC /* SwiftUI.framework in Frameworks */,
+				9A5AAE942DC41F6000CACDBC /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,6 +354,7 @@
 				9AC2BE9F28F0D5D500AACA6A /* ZoeStatus Intents Extension */,
 				9A4E5D0F2D03A39100D2C761 /* ZoeStatus Modern Widget */,
 				9A23E4282D94B3B400256CDA /* ZoeStatus Modern Watch App */,
+				9A5AAE962DC41F6000CACDBC /* ZoeStatus Modern Watch Complications */,
 				9A512FA221B2DDCB007EFAAB /* Products */,
 				9AA98C41220F912C00A9F8ED /* Frameworks */,
 			);
@@ -330,6 +370,7 @@
 				9AC2BE9D28F0D5D500AACA6A /* ZoeStatus Intents Extension.appex */,
 				9A4E5D0C2D03A39100D2C761 /* ZoeStatus Modern WidgetExtension.appex */,
 				9A23E4272D94B3B400256CDA /* ZoeStatus Modern Watch App.app */,
+				9A5AAE932DC41F6000CACDBC /* ZoeStatus Modern Watch ComplicationsExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -444,11 +485,13 @@
 				9A23E4242D94B3B400256CDA /* Frameworks */,
 				9A23E4252D94B3B400256CDA /* Resources */,
 				9ABA877F2D976563003254CA /* Embed Frameworks */,
+				9A5AAE9F2DC41F6200CACDBC /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				9ABA877E2D976563003254CA /* PBXTargetDependency */,
+				9A5AAE9D2DC41F6200CACDBC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				9A23E4282D94B3B400256CDA /* ZoeStatus Modern Watch App */,
@@ -543,6 +586,28 @@
 			productReference = 9A512FA121B2DDCB007EFAAB /* ZoeStatus.app */;
 			productType = "com.apple.product-type.application";
 		};
+		9A5AAE922DC41F6000CACDBC /* ZoeStatus Modern Watch ComplicationsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A5AAEA32DC41F6200CACDBC /* Build configuration list for PBXNativeTarget "ZoeStatus Modern Watch ComplicationsExtension" */;
+			buildPhases = (
+				9A5AAE8F2DC41F6000CACDBC /* Sources */,
+				9A5AAE902DC41F6000CACDBC /* Frameworks */,
+				9A5AAE912DC41F6000CACDBC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				9A5AAE962DC41F6000CACDBC /* ZoeStatus Modern Watch Complications */,
+			);
+			name = "ZoeStatus Modern Watch ComplicationsExtension";
+			packageProductDependencies = (
+			);
+			productName = "ZoeStatus Modern Watch ComplicationsExtension";
+			productReference = 9A5AAE932DC41F6000CACDBC /* ZoeStatus Modern Watch ComplicationsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		9AA73CEC23A154B2001A6234 /* ZEServices Watchos */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9AA73CF623A154B2001A6234 /* Build configuration list for PBXNativeTarget "ZEServices Watchos" */;
@@ -586,7 +651,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 1630;
 				LastUpgradeCheck = 1630;
 				ORGANIZATIONNAME = "Dr. Guido Mocken";
 				TargetAttributes = {
@@ -613,6 +678,9 @@
 								enabled = 0;
 							};
 						};
+					};
+					9A5AAE922DC41F6000CACDBC = {
+						CreatedOnToolsVersion = 16.3;
 					};
 					9AA73CEC23A154B2001A6234 = {
 						CreatedOnToolsVersion = 11.2.1;
@@ -642,6 +710,7 @@
 				9AC2BE9C28F0D5D500AACA6A /* ZoeStatus Intents Extension */,
 				9A4E5D0B2D03A39100D2C761 /* ZoeStatus Modern WidgetExtension */,
 				9A23E4262D94B3B400256CDA /* ZoeStatus Modern Watch App */,
+				9A5AAE922DC41F6000CACDBC /* ZoeStatus Modern Watch ComplicationsExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -688,6 +757,13 @@
 				9A512FAF21B2DDCD007EFAAB /* LaunchScreen.storyboard in Resources */,
 				9A512FAC21B2DDCD007EFAAB /* Assets.xcassets in Resources */,
 				9A512FAA21B2DDCB007EFAAB /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A5AAE912DC41F6000CACDBC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -750,6 +826,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9A5AAE8F2DC41F6000CACDBC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9AA73CE923A154B2001A6234 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -801,6 +884,11 @@
 			isa = PBXTargetDependency;
 			target = 9A244443239473990001AF9B /* ZEServices */;
 			targetProxy = 9A4E5D212D03AB0900D2C761 /* PBXContainerItemProxy */;
+		};
+		9A5AAE9D2DC41F6200CACDBC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9A5AAE922DC41F6000CACDBC /* ZoeStatus Modern Watch ComplicationsExtension */;
+			targetProxy = 9A5AAE9C2DC41F6200CACDBC /* PBXContainerItemProxy */;
 		};
 		9ABA877E2D976563003254CA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1282,6 +1370,73 @@
 			};
 			name = Release;
 		};
+		9A5AAEA02DC41F6200CACDBC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "ZoeStatus Modern Watch Complications/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "ZoeStatus Modern Watch Complications";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Dr. Guido Mocken. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.grm.ZoeStatus.watchkitapp.ZoeStatus-Modern-Watch-Complications";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.4;
+			};
+			name = Debug;
+		};
+		9A5AAEA12DC41F6200CACDBC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "ZoeStatus Modern Watch Complications/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "ZoeStatus Modern Watch Complications";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Dr. Guido Mocken. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.grm.ZoeStatus.watchkitapp.ZoeStatus-Modern-Watch-Complications";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.4;
+			};
+			name = Release;
+		};
 		9AA73CF723A154B2001A6234 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1467,6 +1622,15 @@
 			buildConfigurations = (
 				9A512FB421B2DDCD007EFAAB /* Debug */,
 				9A512FB521B2DDCD007EFAAB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9A5AAEA32DC41F6200CACDBC /* Build configuration list for PBXNativeTarget "ZoeStatus Modern Watch ComplicationsExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A5AAEA02DC41F6200CACDBC /* Debug */,
+				9A5AAEA12DC41F6200CACDBC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
