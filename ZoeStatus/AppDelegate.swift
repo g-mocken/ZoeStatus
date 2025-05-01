@@ -45,7 +45,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WCSessionDelegate {
             }
             
             if message["api"] != nil {
-                reply["api"] = userDefaults.integer(forKey: "api_preference") // cannot be nil
+                reply["api"] = Int(1) // userDefaults.integer(forKey: "api_preference") -  dummy value 1, which is ignored
+                /* Renault is no longer using a consistent version, i.e. battery state only works as v2 and cockpit as v1. */
             }
             if message["units"] != nil {
                 reply["units"] = userDefaults.integer(forKey: "units_preference") // cannot be nil
