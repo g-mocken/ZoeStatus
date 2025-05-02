@@ -37,6 +37,7 @@
 		9A5AAE942DC41F6000CACDBC /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4E5CF22D039F2300D2C761 /* WidgetKit.framework */; };
 		9A5AAE952DC41F6000CACDBC /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4E5CF42D039F2400D2C761 /* SwiftUI.framework */; };
 		9A5AAE9E2DC41F6200CACDBC /* ZoeStatus Modern Watch ComplicationsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9A5AAE932DC41F6000CACDBC /* ZoeStatus Modern Watch ComplicationsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		9A5AAEA42DC4267500CACDBC /* ZEServices_Watchos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA73CED23A154B2001A6234 /* ZEServices_Watchos.framework */; };
 		9A8A4DE62D9DA0DE004963BA /* ClockKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A8A4DE52D9DA0DE004963BA /* ClockKit.framework */; };
 		9A9C859421E40A640022EC47 /* defaultValues.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9A9C859321E409DB0022EC47 /* defaultValues.plist */; };
 		9AA73CF123A154B2001A6234 /* ZEServices_Watchos.h in Headers */ = {isa = PBXBuildFile; fileRef = 9AA73CEF23A154B2001A6234 /* ZEServices_Watchos.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -98,6 +99,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 9A5AAE922DC41F6000CACDBC;
 			remoteInfo = "ZoeStatus Modern Watch ComplicationsExtension";
+		};
+		9A5AAEA62DC4267500CACDBC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9A512F9921B2DDCB007EFAAB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9AA73CEC23A154B2001A6234;
+			remoteInfo = "ZEServices Watchos";
 		};
 		9ABA877D2D976563003254CA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -222,6 +230,7 @@
 		9AC2BEA028F0D5D500AACA6A /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
 		9AC2BEA228F0D5D500AACA6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9AC2BEA628F0D5D500AACA6A /* ZoeStatus Intents Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ZoeStatus Intents Extension.entitlements"; sourceTree = "<group>"; };
+		9AF799062DC5418E00892BF0 /* ZoeStatus Modern Watch ComplicationsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ZoeStatus Modern Watch ComplicationsExtension.entitlements"; sourceTree = "<group>"; };
 		9AFFAEE62D49925F00BE63CC /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -296,6 +305,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A5AAEA42DC4267500CACDBC /* ZEServices_Watchos.framework in Frameworks */,
 				9A5AAE952DC41F6000CACDBC /* SwiftUI.framework in Frameworks */,
 				9A5AAE942DC41F6000CACDBC /* WidgetKit.framework in Frameworks */,
 			);
@@ -345,6 +355,7 @@
 				9AFFAEE62D49925F00BE63CC /* README.md */,
 				9A3BF3FD2D7DB7A1005C8ACA /* Description.txt */,
 				9A4E5D1A2D03A39200D2C761 /* ZoeStatus Modern WidgetExtension.entitlements */,
+				9AF799062DC5418E00892BF0 /* ZoeStatus Modern Watch ComplicationsExtension.entitlements */,
 				9A49E6A02C4DB633005BD26D /* AppIntentVocabulary.plist */,
 				9A512FA321B2DDCB007EFAAB /* ZoeStatus */,
 				9A47C941237F5E00006A5FDB /* ZoeStatus Widget */,
@@ -597,6 +608,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				9A5AAEA72DC4267500CACDBC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				9A5AAE962DC41F6000CACDBC /* ZoeStatus Modern Watch Complications */,
@@ -890,6 +902,11 @@
 			target = 9A5AAE922DC41F6000CACDBC /* ZoeStatus Modern Watch ComplicationsExtension */;
 			targetProxy = 9A5AAE9C2DC41F6200CACDBC /* PBXContainerItemProxy */;
 		};
+		9A5AAEA72DC4267500CACDBC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9AA73CEC23A154B2001A6234 /* ZEServices Watchos */;
+			targetProxy = 9A5AAEA62DC4267500CACDBC /* PBXContainerItemProxy */;
+		};
 		9ABA877E2D976563003254CA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9AA73CEC23A154B2001A6234 /* ZEServices Watchos */;
@@ -944,6 +961,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Modern Watch App/ZoeStatus Modern Watch App.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.4.0.1;
@@ -980,6 +998,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Modern Watch App/ZoeStatus Modern Watch App.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.4.0.1;
@@ -1376,9 +1395,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Modern Watch ComplicationsExtension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 1.4.0.1;
+				DEVELOPMENT_TEAM = J6G8439DVH;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ZoeStatus Modern Watch Complications/Info.plist";
@@ -1391,9 +1412,10 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.grm.ZoeStatus.watchkitapp.ZoeStatus-Modern-Watch-Complications";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -1410,9 +1432,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Modern Watch ComplicationsExtension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 1.4.0.1;
+				DEVELOPMENT_TEAM = J6G8439DVH;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ZoeStatus Modern Watch Complications/Info.plist";
@@ -1425,9 +1449,10 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.grm.ZoeStatus.watchkitapp.ZoeStatus-Modern-Watch-Complications";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;

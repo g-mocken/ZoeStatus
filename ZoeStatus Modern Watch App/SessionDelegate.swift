@@ -66,6 +66,19 @@ class SessionDelegate: NSObject, WCSessionDelegate, ObservableObject {
             userDefaults.set(sc.vehicle, forKey: "vehicle_preference")
 
             userDefaults.synchronize()
+            
+            
+            // share preferences with widget:
+            let sharedDefaults = UserDefaults(suiteName: "group.com.grm.ZoeStatusWatch");
+            sharedDefaults?.set(sc.userName, forKey: "userName")
+            sharedDefaults?.set(sc.password, forKey: "password")
+            sharedDefaults?.set(sc.kamereon, forKey: "kamereon")
+            sharedDefaults?.set(sc.vehicle, forKey: "vehicle")
+            //sharedDefaults?.set(sc.api?.rawValue, forKey: "api")
+            sharedDefaults?.set(sc.units!.rawValue, forKey: "units")
+
+            sharedDefaults?.synchronize()
+            
         }
     }
     

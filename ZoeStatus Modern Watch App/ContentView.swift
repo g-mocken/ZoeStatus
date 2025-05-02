@@ -8,7 +8,7 @@
 
 import SwiftUI
 import ZEServices_Watchos
-
+import WidgetKit
 
 struct ContentView: View {
     
@@ -202,6 +202,12 @@ struct ContentView: View {
     
     func refreshStatus()->(){
         print("Refresh!")
+        if #available(watchOS 10.0, *) {
+            print("reload timelines triggered")
+
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+
         if ((sc.userName == nil) || (sc.password == nil) || (sc.units == nil) ||  (sc.api == nil) ){
             displayMessage(title: "Error", body:"No user credentials present.", action: {requestNewCredentialsButtonPressed()})
         } else {
