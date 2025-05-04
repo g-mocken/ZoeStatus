@@ -105,14 +105,17 @@ struct ContentView: View {
                         Text(rangeString).font(.system(size: fontSize))
                             .minimumScaleFactor(0.5)
                             .lineLimit(1)
+                        Spacer().frame(height: 10) // Add vertical space
                         Text(dateString)
                         Text(timeString)
                         HStack {
                             Text(chargerString)
+                            Spacer()
                             Text(chargingString)
                         }
                         HStack {
                             Text(remainingString)
+                            Spacer()
                             Text(pluggedString)
                         }
                         
