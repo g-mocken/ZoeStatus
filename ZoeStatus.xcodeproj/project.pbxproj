@@ -215,9 +215,6 @@
 		9A5AAE932DC41F6000CACDBC /* ZoeStatus Modern Watch ComplicationsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ZoeStatus Modern Watch ComplicationsExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A8A4DE52D9DA0DE004963BA /* ClockKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ClockKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/ClockKit.framework; sourceTree = DEVELOPER_DIR; };
 		9A9C859321E409DB0022EC47 /* defaultValues.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = defaultValues.plist; sourceTree = "<group>"; };
-		9AA73CC023A020CE001A6234 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
-		9AA73CC223A020CE001A6234 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		9AA73CC423A020CE001A6234 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9AA73CCE23A020CE001A6234 /* InterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceController.swift; sourceTree = "<group>"; };
 		9AA73CD623A020CF001A6234 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9AA73CD823A020CF001A6234 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -360,7 +357,6 @@
 				9A512FA321B2DDCB007EFAAB /* ZoeStatus */,
 				9A47C941237F5E00006A5FDB /* ZoeStatus Widget */,
 				9AA73CFA23A15526001A6234 /* ZEServices */,
-				9AA73CBE23A020CE001A6234 /* ZoeStatus Watch */,
 				9AA73CCD23A020CE001A6234 /* ZoeStatus Watch Extension */,
 				9AC2BE9F28F0D5D500AACA6A /* ZoeStatus Intents Extension */,
 				9A4E5D0F2D03A39100D2C761 /* ZoeStatus Modern Widget */,
@@ -401,16 +397,6 @@
 				9A512FB021B2DDCD007EFAAB /* Info.plist */,
 			);
 			path = ZoeStatus;
-			sourceTree = "<group>";
-		};
-		9AA73CBE23A020CE001A6234 /* ZoeStatus Watch */ = {
-			isa = PBXGroup;
-			children = (
-				9AA73CBF23A020CE001A6234 /* Interface.storyboard */,
-				9AA73CC223A020CE001A6234 /* Assets.xcassets */,
-				9AA73CC423A020CE001A6234 /* Info.plist */,
-			);
-			path = "ZoeStatus Watch";
 			sourceTree = "<group>";
 		};
 		9AA73CCD23A020CE001A6234 /* ZoeStatus Watch Extension */ = {
@@ -942,14 +928,6 @@
 				9A512FAE21B2DDCD007EFAAB /* Base */,
 			);
 			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-		9AA73CBF23A020CE001A6234 /* Interface.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				9AA73CC023A020CE001A6234 /* Base */,
-			);
-			name = Interface.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

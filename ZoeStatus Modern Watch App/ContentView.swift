@@ -26,9 +26,10 @@ struct CustomActionSheetView: View {
                     showSheet = false // set to false only after the action, because displayMessage() in action depends on it
                 }) {
                     HStack {
+                        Text(" ")
                         Image(systemName: "arrow.clockwise")
                         Spacer()
-                        Text("Refresh")
+                        Text("Refresh   ")
                     }
                 }
                 
@@ -38,9 +39,10 @@ struct CustomActionSheetView: View {
                     showSheet = false // set to false only after the action, because displayMessage() in action depends on it
                 }) {
                     HStack {
+                        Text(" ")
                         Image(systemName: "wind.snow")
                         Spacer()
-                        Text("Trigger A/C")
+                        Text("Trigger A/C   ")
                     }
                 }
                 
@@ -49,9 +51,10 @@ struct CustomActionSheetView: View {
                     showSheet = false // set to false only after the action, because displayMessage() in action depends on it
                 }) {
                     HStack {
+                        Text(" ")
                         Image(systemName: "repeat")
                         Spacer()
-                        Text("Transfer credentials")
+                        Text("Transfer credentials   ")
                     }
                 }
                 
