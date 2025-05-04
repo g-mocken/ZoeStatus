@@ -10,14 +10,62 @@ import SwiftUI
 import ZEServices_Watchos
 import WidgetKit
 
+struct CustomActionSheetView: View {
+    @Binding var showSheet: Bool
+    
+    let onRefresh: () -> Void
+    let onTriggerAirConditioning: () -> Void
+    let onRequestNewCredentials: () -> Void
+    
+    var body: some View {
+        ScrollView { // Wrap content in a ScrollView to enable scrolling
+            
+            VStack(spacing: 12) {
+                Button(action: {
+                    onRefresh()
+                    showSheet = false // set to false only after the action, because displayMessage() in action depends on it
+                }) {
+                    HStack {
+                        Image(systemName: "arrow.clockwise")
+                        Spacer()
+                        Text("Refresh")
+                    }
+                }
+                
+                Button(action: {
+                    // Perform edit
+                    onTriggerAirConditioning()
+                    showSheet = false // set to false only after the action, because displayMessage() in action depends on it
+                }) {
+                    HStack {
+                        Image(systemName: "wind.snow")
+                        Spacer()
+                        Text("Trigger A/C")
+                    }
+                }
+                
+                Button(action: {
+                    onRequestNewCredentials()
+                    showSheet = false // set to false only after the action, because displayMessage() in action depends on it
+                }) {
+                    HStack {
+                        Image(systemName: "repeat")
+                        Spacer()
+                        Text("Transfer credentials")
+                    }
+                }
+                
+            }
+            .padding()
+        }
+    }
+}
+
 struct ContentView: View {
     
     let sc=ServiceConnection.shared
     @StateObject private var sessionDelegate = SessionDelegate()
     @StateObject private var alertManager = AlertManager.shared
-
-    @State private var buttonText = "• • •"
-    @State private var showActionSheet = false
 
     @State private var showAlert = false
     @State private var alertMessage = ""
@@ -34,6 +82,10 @@ struct ContentView: View {
     @State private var pluggedString = "🔌 ❌"
     @State private var activityState = false
 
+    @State private var showSheet = false
+    @State private var triggerAlertAfterSheetOrAlert = false
+
+    
     var body: some View {
         ZStack {
             GeometryReader { geometry in
@@ -61,43 +113,47 @@ struct ContentView: View {
                             Text(pluggedString)
                         }
                         
-                        //  Text("Scroll up")
-                        
-                        Button(buttonText) {
-                            showActionSheet.toggle() // Trigger action sheet
+                        Spacer().frame(height: 20) // Adds 20 points of vertical space
+
+                        VStack {
+                            Button("• • •") {
+                                showSheet = true
+                            }
                         }
-                        .scaleEffect(1.0) // Shrinks the button
-                        .buttonStyle(.bordered)
-                        .actionSheet(isPresented: $showActionSheet) {
-                            ActionSheet(
-                                title: Text(""),
-                                message: nil, //Text("Please select an action"),
-                                buttons: [
-                                    .default(Text("Request new credentials")) {
-                                        requestNewCredentialsButtonPressed()
-                                    },
-                                    .default(Text("Refresh")) {
-                                        refreshStatus()
-                                    },
-                                    .default(Text("Trigger A/C")) {
-                                        triggerAirConditioning()
-                                    },
-                                    .cancel(){
-                                        print("cancel menu")
-                                        showActionSheet = false
-                                    }
-                                ]
-                            )
+                        .sheet(isPresented: $showSheet) {
+                            CustomActionSheetView(showSheet: $showSheet, onRefresh: refreshStatus, onTriggerAirConditioning: triggerAirConditioning, onRequestNewCredentials: requestNewCredentialsButtonPressed)
                         }
                     }
                     .padding()
                     .onLongPressGesture {
                         print("long press")
-                        showActionSheet.toggle()
+                        showSheet = true
                     }
-                }.onAppear(){
+                    
+                    
+                                        
+                }
+                .disabled(activityState)
+                .onAppear(){
                     print("onAppear")
                     appear()
+                }
+                .onChange(of: showAlert) { newValue in
+                    if !newValue // when alert is gone
+                    {
+                        if triggerAlertAfterSheetOrAlert {
+                            triggerAlertAfterSheetOrAlert = false
+                            showAlert = true
+                        }
+                    }
+                }.onChange(of: showSheet) { newValue in
+                    if !newValue // when sheet is gone
+                    {
+                        if triggerAlertAfterSheetOrAlert {
+                            triggerAlertAfterSheetOrAlert = false
+                            showAlert = true
+                        }
+                    }
                 }.alert(alertTitle, isPresented: $showAlert) {
                     Button(alertButtonTitle, role: .cancel) {alertButtonFunction()}
                 } message: {
@@ -106,7 +162,7 @@ struct ContentView: View {
                     Button(alertManager.buttonTitle, role: .cancel) {alertManager.buttonFunction()}
                 } message: {
                     Text(alertManager.message)
-                }.disabled(activityState)
+                }
             }
             
             if activityState {
@@ -137,6 +193,7 @@ struct ContentView: View {
             refreshStatus()
             
         }
+
         var level: UInt8?
         var range: Float?
         var dateTime: UInt64?
@@ -221,10 +278,10 @@ struct ContentView: View {
             }
         }
     }
-    
+        
     func requestNewCredentialsButtonPressed() {
         
-        displayMessage(title: "Request credentials", body:"Please make sure the iOS app is launched.", button: "Go",
+        displayMessage(title: "Transfer credentials from iPhone", body:"Please make sure the iOS app is launched.", button: "Go",
                        action: {
             if (sessionDelegate.session.activationState == .activated) {
                 if sessionDelegate.session.isReachable{
@@ -302,8 +359,12 @@ struct ContentView: View {
     }
     func displayMessage(title: String, body: String, button: String = "Dismiss",action:  @escaping  (() -> Void) = {}) {
         print("\(title): \(body)")
-        
-        showAlert = true
+        if showSheet || showAlert {
+            triggerAlertAfterSheetOrAlert = true
+        } else {
+            showAlert = true
+            triggerAlertAfterSheetOrAlert = false
+        }
         alertTitle = title
         alertMessage = body
         alertButtonTitle = button
