@@ -98,13 +98,18 @@ struct ContentView: View {
                 ScrollView { // Wrap content in a ScrollView to enable scrolling
                     
                     VStack(alignment: .leading) { // Align text to the left in the VStack
-                        
-                        Text(levelString).font(.system(size: fontSize))
-                            .minimumScaleFactor(0.5)
-                            .lineLimit(1)
-                        Text(rangeString).font(.system(size: fontSize))
-                            .minimumScaleFactor(0.5)
-                            .lineLimit(1)
+                        VStack{
+                            Text(levelString).font(.system(size: fontSize))
+                                .minimumScaleFactor(0.5)
+                                .lineLimit(1)
+                            Text(rangeString).font(.system(size: fontSize))
+                                .minimumScaleFactor(0.5)
+                                .lineLimit(1)
+                        }
+                        .onLongPressGesture {
+                            print("long press")
+                            showSheet = true
+                        }
                         Spacer().frame(height: 10) // Add vertical space
                         Text(dateString)
                         Text(timeString)
@@ -131,13 +136,6 @@ struct ContentView: View {
                         }
                     }
                     .padding()
-                    .onLongPressGesture {
-                        print("long press")
-                        showSheet = true
-                    }
-                    
-                    
-                                        
                 }
                 .disabled(activityState)
                 .onAppear(){
