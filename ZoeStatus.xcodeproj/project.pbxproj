@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9A23E4342D94B3B500256CDA /* ZoeStatus Modern Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 9A23E4272D94B3B400256CDA /* ZoeStatus Modern Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		9A23E4342D94B3B500256CDA /* ZoeStatus Modern Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 9A23E4272D94B3B400256CDA /* ZoeStatus Modern Watch App.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9A244448239473990001AF9B /* ZEServices.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A244446239473990001AF9B /* ZEServices.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9A24444B239473990001AF9B /* ZEServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A244444239473990001AF9B /* ZEServices.framework */; };
 		9A24444C239473990001AF9B /* ZEServices.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9A244444239473990001AF9B /* ZEServices.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -854,6 +854,7 @@
 /* Begin PBXTargetDependency section */
 		9A23E4332D94B3B500256CDA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = 9A23E4262D94B3B400256CDA /* ZoeStatus Modern Watch App */;
 			targetProxy = 9A23E4322D94B3B500256CDA /* PBXContainerItemProxy */;
 		};
