@@ -53,6 +53,7 @@ public class MyR {
         var accounts:[Accounts]
         struct Accounts: Codable {
             var accountId: String
+            var accountType: String
         }
     }
     
@@ -228,12 +229,12 @@ public class MyR {
                     // Fetch Kamereon account ID from the person-id dependent URL using the retrieved Gigya JWT token
                     let result:KamereonAccountInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers)
                     if result != nil {
-                        os_log("Successfully retrieved Kamereon accounts, Account id 0: %{public}s", log: serviceLog, type: .debug, result!.accounts[0].accountId)
+                        os_log("Successfully retrieved Kamereon accounts, Account id for MYRENAULT: %{public}s", log: serviceLog, type: .debug, (result!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? result!.accounts.first!).accountId)
                         
                         context.kamereonAccountInfo = result // save for later use
                         
                         
-                        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/token")!
+                        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + (context.kamereonAccountInfo!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? context.kamereonAccountInfo!.accounts.first!).accountId + "/kamereon/token")!
                         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                         components.queryItems = [
                             URLQueryItem(name: "country", value: country)
@@ -262,7 +263,7 @@ public class MyR {
                             //                                                        print("idToken:")
                             //                                                        decodeToken(token: result!.idToken)
                             
-                            let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
+                            let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + (context.kamereonAccountInfo!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? context.kamereonAccountInfo!.accounts.first!).accountId + "/vehicles")!
                             var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                             components.queryItems = [
                                 URLQueryItem(name: "country", value: country)
@@ -295,7 +296,7 @@ public class MyR {
                             // server error, statusCode = 404 (as of 2025)
                             os_log("Could not retrieve Kamereon token - trying without anyway", log: serviceLog, type: .debug)
                             
-                            let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/"+context.kamereonAccountInfo!.accounts[0].accountId + "/vehicles")!
+                            let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + (context.kamereonAccountInfo!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? context.kamereonAccountInfo!.accounts.first!).accountId + "/vehicles")!
                             var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
                             components.queryItems = [
                                 URLQueryItem(name: "country", value: country)
@@ -463,7 +464,7 @@ public class MyR {
          */
         // print ("\(context.apiKeysAndUrls!)")
         // print ("\(context.vehiclesInfo!)")
-        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/battery-status")!
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + (context.kamereonAccountInfo!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? context.kamereonAccountInfo!.accounts.first!).accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/battery-status")!
         
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         components.queryItems = [
@@ -642,7 +643,7 @@ public class MyR {
             }
         }
         
-        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/cockpit")!
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + (context.kamereonAccountInfo!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? context.kamereonAccountInfo!.accounts.first!).accountId + "/kamereon/kca/car-adapter/" + version.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/cockpit")!
         
         var components = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)!
         components.queryItems = [
@@ -677,7 +678,7 @@ public class MyR {
     
     public func chargeNowRequestAsync() async -> (Bool) {
         
-        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/actions/charging-start")!
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + (context.kamereonAccountInfo!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? context.kamereonAccountInfo!.accounts.first!).accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/actions/charging-start")!
 
         
         struct StartCharging: Codable {
@@ -753,10 +754,10 @@ public class MyR {
         
         switch command {
         case .read:
-            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/hvac-status")!  // endpoint does no longer exist? error 404 -> missing time for next planned session and missing external temperature
+            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + (context.kamereonAccountInfo!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? context.kamereonAccountInfo!.accounts.first!).accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/hvac-status")!  // endpoint does no longer exist? error 404 -> missing time for next planned session and missing external temperature
 
         case .now, .later, .delete:
-            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/actions/hvac-start")!
+            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + (context.kamereonAccountInfo!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? context.kamereonAccountInfo!.accounts.first!).accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/actions/hvac-start")!
         }
         
         
@@ -896,7 +897,7 @@ public class MyR {
          
          */
         
-        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + context.kamereonAccountInfo!.accounts[0].accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/hvac-sessions")! // endpoint does no longer exist? error 404 -> missing status&time&date of last session
+        let endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + (context.kamereonAccountInfo!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? context.kamereonAccountInfo!.accounts.first!).accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/hvac-sessions")! // endpoint does no longer exist? error 404 -> missing status&time&date of last session
         
         let dateFormatter = DateFormatter()
         let timezone = TimeZone.current.abbreviation() ?? "CET"  // get current TimeZone abbreviation or set to CET
