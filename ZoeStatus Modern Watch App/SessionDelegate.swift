@@ -87,14 +87,15 @@ class SessionDelegate: NSObject, WCSessionDelegate, ObservableObject {
         extractCredentialsFromContext(reply)
         DispatchQueue.main.async{
             AlertManager.shared.displayMessage(title: "Success", body: "Credentials received and stored.", action: {            self.sc.tokenExpiry = nil // require new login
-                // TODO: refreshStatus()
             })
         }
     }
     
     func errorHandler(error: Error) -> Void{
         print("Received error: \(error)")
-        AlertManager.shared.displayMessage(title: "Error", body: "There was a problem while receiving the credentials.")
+        DispatchQueue.main.async{
+            AlertManager.shared.displayMessage(title: "Error", body: "There was a problem while receiving the credentials.")
+        }
     }
     
     func requestCredentials(_ session: WCSession){
@@ -121,22 +122,21 @@ class AlertManager: ObservableObject {
     static let shared = AlertManager() // Singleton
     
     @Published var showAlert = false
-    @Published var title = ""
-    @Published var message = ""
-    @Published var buttonTitle = ""
-    @Published var buttonFunction = {}
+    var alertTitle = ""
+    var message = ""
+    var buttonTitle = ""
+    var buttonFunction = {}
 
-    func displayMessage(title: String, body: String, button: String = "Dismiss",action:  @escaping  (() -> Void) = {}) {
+    var delayedAlertTrigger = false
+    
+    func displayMessage(title: String, body: String, button: String = "Dismiss",action:  @escaping  (() -> Void) = {}, show: Bool = true) {
         print("\(title): \(body)")
        
-        DispatchQueue.main.async {
-            
-            self.showAlert = true
-            self.title = title
-            self.message = body
-            self.buttonTitle = button
-            self.buttonFunction = action
-            
-        }
+        showAlert = show
+        alertTitle = title
+        message = body
+        buttonTitle = button
+        buttonFunction = action
+        
     }
 }

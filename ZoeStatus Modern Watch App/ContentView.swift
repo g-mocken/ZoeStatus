@@ -70,11 +70,6 @@ struct ContentView: View {
     @StateObject private var sessionDelegate = SessionDelegate()
     @StateObject private var alertManager = AlertManager.shared
 
-    @State private var showAlert = false
-    @State private var alertMessage = ""
-    @State private var alertTitle = ""
-    @State private var alertButtonTitle = ""
-    @State private var alertButtonFunction = {}
     @State private var levelString = "🔋 …\u{2009}%"
     @State private var rangeString = "🛣️ …\u{2009}km"
     @State private var dateString = "📅 …"
@@ -86,7 +81,6 @@ struct ContentView: View {
     @State private var activityState = false
 
     @State private var showSheet = false
-    @State private var triggerAlertAfterSheetOrAlert = false
 
     
     var body: some View {
@@ -142,27 +136,30 @@ struct ContentView: View {
                     print("onAppear")
                     appear()
                 }
-                .onChange(of: showAlert) { newValue in
-                    if !newValue // when alert is gone
+                
+  
+                
+                .onChange(of: showSheet) { newValue in
+                    if !newValue // when sheet is gone, show pending alertManager alert
                     {
-                        if triggerAlertAfterSheetOrAlert {
-                            triggerAlertAfterSheetOrAlert = false
-                            showAlert = true
+                        if alertManager.delayedAlertTrigger {
+                            alertManager.delayedAlertTrigger = false
+                            alertManager.showAlert = true
                         }
                     }
-                }.onChange(of: showSheet) { newValue in
-                    if !newValue // when sheet is gone
+                }
+                .onChange(of: alertManager.showAlert) { newValue in
+                    if !newValue // when alertManager's alert is gone, show (next) pending alertManager alert
                     {
-                        if triggerAlertAfterSheetOrAlert {
-                            triggerAlertAfterSheetOrAlert = false
-                            showAlert = true
+                        if alertManager.delayedAlertTrigger {
+                            alertManager.delayedAlertTrigger = false
+                            alertManager.showAlert = true
                         }
                     }
-                }.alert(alertTitle, isPresented: $showAlert) {
-                    Button(alertButtonTitle, role: .cancel) {alertButtonFunction()}
-                } message: {
-                    Text(alertMessage)
-                }.alert(alertManager.title, isPresented: $alertManager.showAlert) {
+                }
+
+                
+                .alert(alertManager.alertTitle, isPresented: $alertManager.showAlert) {
                     Button(alertManager.buttonTitle, role: .cancel) {alertManager.buttonFunction()}
                 } message: {
                     Text(alertManager.message)
@@ -270,7 +267,7 @@ struct ContentView: View {
         }
 
         if ((sc.userName == nil) || (sc.password == nil) || (sc.units == nil) ||  (sc.api == nil) ){
-            displayMessage(title: "Error", body:"No user credentials present.", action: {requestNewCredentialsButtonPressed()})
+            displayMessage(title: "Error", body:"No user credentials present.", action: {requestNewCredentialsButtonPressed() /* force-requesting credentials here does not work in watchos 11 */})
         } else {
             Task {
                 if await handleLoginAsync() {
@@ -302,7 +299,7 @@ struct ContentView: View {
         
         print("A/C trigger!")
         if ((sc.userName == nil) || (sc.password == nil)){
-            displayMessage(title: "Error", body:"No user credentials present.", action: {requestNewCredentialsButtonPressed()})
+            displayMessage(title: "Error", body:"No user credentials present.", action: {requestNewCredentialsButtonPressed() /* force-requesting credentials here does not work in watchos 11 */})
         } else {
             // async variant
             Task {
@@ -362,17 +359,15 @@ struct ContentView: View {
         }
     }
     func displayMessage(title: String, body: String, button: String = "Dismiss",action:  @escaping  (() -> Void) = {}) {
-        print("\(title): \(body)")
-        if showSheet || showAlert {
-            triggerAlertAfterSheetOrAlert = true
+        if showSheet || alertManager.showAlert {
+            alertManager.delayedAlertTrigger = true
+            alertManager.displayMessage(title: title, body: body, button: button, action: action, show: false)
         } else {
-            showAlert = true
-            triggerAlertAfterSheetOrAlert = false
+            alertManager.delayedAlertTrigger = false
+            alertManager.displayMessage(title: title, body: body, button: button, action: action, show: true)
         }
-        alertTitle = title
-        alertMessage = body
-        alertButtonTitle = button
-        alertButtonFunction = action
+
+        
     }
 
     
