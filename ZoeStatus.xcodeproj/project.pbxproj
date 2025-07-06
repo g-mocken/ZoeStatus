@@ -943,7 +943,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Modern Watch App/ZoeStatus Modern Watch App.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.4.2.1;
+				CURRENT_PROJECT_VERSION = 1.4.3.1;
 				DEVELOPMENT_ASSET_PATHS = "\"ZoeStatus Modern Watch App/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -958,7 +958,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -980,7 +980,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Modern Watch App/ZoeStatus Modern Watch App.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.4.2.1;
+				CURRENT_PROJECT_VERSION = 1.4.3.1;
 				DEVELOPMENT_ASSET_PATHS = "\"ZoeStatus Modern Watch App/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -995,7 +995,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1081,7 +1081,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Widget/ZoeStatusWidget.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.4.2.1;
+				CURRENT_PROJECT_VERSION = 1.4.3.1;
 				INFOPLIST_FILE = "ZoeStatus Widget/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1089,7 +1089,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.Widget;
 				PRODUCT_NAME = Zoe;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1106,7 +1106,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Widget/ZoeStatusWidget.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.4.2.1;
+				CURRENT_PROJECT_VERSION = 1.4.3.1;
 				INFOPLIST_FILE = "ZoeStatus Widget/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1114,7 +1114,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.Widget;
 				PRODUCT_NAME = Zoe;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1135,7 +1135,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Modern WidgetExtension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.4.2.1;
+				CURRENT_PROJECT_VERSION = 1.4.3.1;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ZoeStatus Modern Widget/Info.plist";
@@ -1148,7 +1148,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.grm.ZoeStatus.ZoeStatus-Modern-Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1170,7 +1170,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Modern WidgetExtension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.4.2.1;
+				CURRENT_PROJECT_VERSION = 1.4.3.1;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ZoeStatus Modern Widget/Info.plist";
@@ -1183,7 +1183,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.grm.ZoeStatus.ZoeStatus-Modern-Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1325,7 +1325,7 @@
 				CODE_SIGN_ENTITLEMENTS = ZoeStatus/ZoeStatus.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.4.2.1;
+				CURRENT_PROJECT_VERSION = 1.4.3.1;
 				INFOPLIST_FILE = ZoeStatus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 14.0;
@@ -1333,7 +1333,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus;
 				PRODUCT_NAME = ZoeStatus;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1350,7 +1350,7 @@
 				CODE_SIGN_ENTITLEMENTS = ZoeStatus/ZoeStatus.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.4.2.1;
+				CURRENT_PROJECT_VERSION = 1.4.3.1;
 				INFOPLIST_FILE = ZoeStatus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 14.0;
@@ -1358,7 +1358,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus;
 				PRODUCT_NAME = ZoeStatus;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1377,7 +1377,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Modern Watch ComplicationsExtension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.4.2.1;
+				CURRENT_PROJECT_VERSION = 1.4.3.1;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1391,7 +1391,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.grm.ZoeStatus.watchkitapp.ZoeStatus-Modern-Watch-Complications";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1414,7 +1414,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Modern Watch ComplicationsExtension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.4.2.1;
+				CURRENT_PROJECT_VERSION = 1.4.3.1;
 				DEVELOPMENT_TEAM = J6G8439DVH;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1428,7 +1428,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.grm.ZoeStatus.watchkitapp.ZoeStatus-Modern-Watch-Complications";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1518,7 +1518,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Intents Extension/ZoeStatus Intents Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.4.2.1;
+				CURRENT_PROJECT_VERSION = 1.4.3.1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ZoeStatus Intents Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "ZOE Status Intents Extension";
@@ -1530,7 +1530,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.intentsextension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1549,7 +1549,7 @@
 				CODE_SIGN_ENTITLEMENTS = "ZoeStatus Intents Extension/ZoeStatus Intents Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.4.2.1;
+				CURRENT_PROJECT_VERSION = 1.4.3.1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ZoeStatus Intents Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "ZOE Status Intents Extension";
@@ -1561,7 +1561,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.2;
+				MARKETING_VERSION = 1.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.grm.ZoeStatus.intentsextension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
