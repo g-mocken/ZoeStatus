@@ -10,20 +10,45 @@ import SwiftUI
 import ZEServices_Watchos
 import WidgetKit
 
+enum startStop {
+    case start, stop
+}
+
+enum Command {
+    case none, refresh, triggerAC, requestCredentials
+}
+
 struct CustomActionSheetView: View {
-    @Binding var showSheet: Bool
     
-    let onRefresh: () -> Void
-    let onTriggerAirConditioning: () -> Void
-    let onRequestNewCredentials: () -> Void
+    let sc=ServiceConnection.shared
+
+    @Binding var showMainMenuSheet: Bool
+    @Binding var command:Command
+
+    @StateObject private var sessionDelegate = SessionDelegate()
+    @StateObject private var activityManager = ActivityManager.shared
+    @StateObject private var alertManager = AlertManager.shared
+
     
+
+    @State private var showingTransferSheet = false
+    @State private var showingPhoneUnreachableAlert = false
+    @State private var showingNoUserCredentialsAlert = false
+
     var body: some View {
         ScrollView { // Wrap content in a ScrollView to enable scrolling
             
             VStack(spacing: 12) {
                 Button(action: {
-                    onRefresh()
-                    showSheet = false // set to false only after the action, because displayMessage() in action depends on it
+                    
+                    if ((sc.userName == nil) || (sc.password == nil) || (sc.units == nil) ||  (sc.api == nil) ){
+                        showingNoUserCredentialsAlert = true
+                    } else {
+                        showMainMenuSheet = false // closing the sheet and opening the alert would close both
+                    }
+
+                    command = .refresh
+
                 }) {
                     HStack {
                         Text(" ")
@@ -32,11 +57,18 @@ struct CustomActionSheetView: View {
                         Text("Refresh   ")
                     }
                 }
+               
                 
                 Button(action: {
-                    // Perform edit
-                    onTriggerAirConditioning()
-                    showSheet = false // set to false only after the action, because displayMessage() in action depends on it
+
+                    if ((sc.userName == nil) || (sc.password == nil) || (sc.units == nil) ||  (sc.api == nil) ){
+                        showingNoUserCredentialsAlert = true
+                    } else {
+                        showMainMenuSheet = false // closing the sheet and opening the alert would close both
+                    }
+                    
+                    command = .triggerAC
+
                 }) {
                     HStack {
                         Text(" ")
@@ -46,9 +78,17 @@ struct CustomActionSheetView: View {
                     }
                 }
                 
+                .alert("Error", isPresented: $showingNoUserCredentialsAlert) {
+                    Button("OK", role: .cancel) {
+                        showMainMenuSheet = false
+                    }
+                } message: {
+                    Text("No user credentials present.")
+                }
+                
+                
                 Button(action: {
-                    onRequestNewCredentials()
-                    showSheet = false // set to false only after the action, because displayMessage() in action depends on it
+                    showingTransferSheet = true
                 }) {
                     HStack {
                         Text(" ")
@@ -56,18 +96,53 @@ struct CustomActionSheetView: View {
                         Spacer()
                         Text("Transfer credentials   ")
                     }
+                    .sheet(isPresented: $showingTransferSheet) {
+                        ScrollView { // Wrap content in a ScrollView to enable scrolling
+                            VStack(spacing: 12) {
+                                Spacer()
+                                Text("Transfer credentials from iPhone").bold()
+                                Text("Please make sure the iOS app is launched.")
+                                Button("Go!") {
+                                    if (sessionDelegate.session.activationState == .activated) {
+                                        if sessionDelegate.session.isReachable{
+                                            command = .requestCredentials
+                                            showingTransferSheet = false
+                                        } else {
+                                            showingPhoneUnreachableAlert = true
+                                        }
+                                    }
+                                    
+                                }
+                                .alert("Error", isPresented: $showingPhoneUnreachableAlert) {
+                                    Button("OK", role: .cancel) {
+                                        showingTransferSheet = false
+                                    }
+                                } message: {
+                                    Text("iPhone is not reachable.")
+                                }
+                                
+                            }
+                        }
+                    }
                 }
-                
             }
             .padding()
+            .onChange(of: showingTransferSheet) { newValue in
+                if !newValue {
+                    showMainMenuSheet = false // auto-close main sheet after transfer sheet was closed
+                }
+            }
         }
     }
 }
 
 struct ContentView: View {
     
+    
     let sc=ServiceConnection.shared
     @StateObject private var sessionDelegate = SessionDelegate()
+    @StateObject private var activityManager = ActivityManager.shared
+
     @StateObject private var alertManager = AlertManager.shared
 
     @State private var levelString = "🔋 …\u{2009}%"
@@ -78,9 +153,11 @@ struct ContentView: View {
     @State private var chargingString = "⚡️ ❌"
     @State private var remainingString = "⏳ …"
     @State private var pluggedString = "🔌 ❌"
-    @State private var activityState = false
 
     @State private var showSheet = false
+    
+    @State private var testAlert = false
+    @State var command:Command = .none
 
     
     var body: some View {
@@ -126,37 +203,46 @@ struct ContentView: View {
                             }
                         }
                         .sheet(isPresented: $showSheet) {
-                            CustomActionSheetView(showSheet: $showSheet, onRefresh: refreshStatus, onTriggerAirConditioning: triggerAirConditioning, onRequestNewCredentials: requestNewCredentialsButtonPressed)
+                            CustomActionSheetView(showMainMenuSheet: $showSheet, command: $command)
                         }
+                        
                     }
                     .padding()
                 }
-                .disabled(activityState)
+                .disabled(activityManager.activityState)
                 .onAppear(){
                     print("onAppear")
                     appear()
+                    
+
                 }
                 
   
-                
+                .alert("Test", isPresented: $testAlert) {
+                    Button("OK", role: .cancel) { testAlert = false }
+                } message: {
+                    Text("Text")
+                }
                 .onChange(of: showSheet) { newValue in
                     if !newValue // when sheet is gone, show pending alertManager alert
                     {
-                        if alertManager.delayedAlertTrigger {
-                            alertManager.delayedAlertTrigger = false
-                            alertManager.showAlert = true
+                        print("sheet closed")
+
+                        switch command {
+                        case .none:
+                            _ = 0
+                        case .refresh:
+                            refreshStatus(check: false)
+                        case .triggerAC:
+                            triggerAirConditioning()
+                        case .requestCredentials:
+                            activityManager.updateActivity(type: .start)
+                            sessionDelegate.session.sendMessage(sessionDelegate.msg, replyHandler: sessionDelegate.replyHandler, errorHandler: sessionDelegate.errorHandler)
                         }
+                        command = .none
                     }
                 }
-                .onChange(of: alertManager.showAlert) { newValue in
-                    if !newValue // when alertManager's alert is gone, show (next) pending alertManager alert
-                    {
-                        if alertManager.delayedAlertTrigger {
-                            alertManager.delayedAlertTrigger = false
-                            alertManager.showAlert = true
-                        }
-                    }
-                }
+         
 
                 
                 .alert(alertManager.alertTitle, isPresented: $alertManager.showAlert) {
@@ -166,7 +252,7 @@ struct ContentView: View {
                 }
             }
             
-            if activityState {
+            if activityManager.activityState {
                 ZStack {
                     Color.black.opacity(0.5) // Dimmed background
                         .ignoresSafeArea()
@@ -191,7 +277,7 @@ struct ContentView: View {
         if firstRun { // necessary, because this method is called whenever the main screen re-appears
             firstRun = false
             print("First start")
-            refreshStatus()
+            refreshStatus(check:true)
             
         }
 
@@ -253,25 +339,26 @@ struct ContentView: View {
                 pluggedString = (plugged ? "🔌 ✅" : "🔌 ❌")
                 chargingString = (charging ? "⚡️ ✅" : "⚡️ ❌")
             }
-            updateActivity(type:.stop)
+            activityManager.updateActivity(type:.stop)
         }
     
     
     
-    func refreshStatus()->(){
+    func refreshStatus(check: Bool)->(){
         print("Refresh!")
         if #available(watchOS 10.0, *) {
             print("reload timelines triggered")
-
             WidgetCenter.shared.reloadAllTimelines()
         }
-
-        if ((sc.userName == nil) || (sc.password == nil) || (sc.units == nil) ||  (sc.api == nil) ){
-            displayMessage(title: "Error", body:"No user credentials present.", action: {requestNewCredentialsButtonPressed() /* force-requesting credentials here does not work in watchos 11 */})
+     
+        if  ((sc.userName == nil) || (sc.password == nil) || (sc.units == nil) ||  (sc.api == nil) ){
+            if check{
+                displayMessage(title: "Error", body:"No user credentials present.", action: {})
+            }
         } else {
             Task {
                 if await handleLoginAsync() {
-                    updateActivity(type:.start)
+                    activityManager.updateActivity(type:.start)
                     let bs = await sc.batteryStateAsync()
                     batteryState(error: bs.error, charging: bs.charging, plugged: bs.plugged, charge_level: bs.charge_level, remaining_range: bs.remaining_range, last_update: bs.last_update, charging_point: bs.charging_point, remaining_time: bs.remaining_time, battery_temperature: bs.battery_temperature, vehicle_id: bs.vehicle_id)
                     // updateActivity(type:.stop)
@@ -280,33 +367,18 @@ struct ContentView: View {
         }
     }
         
-    func requestNewCredentialsButtonPressed() {
-        
-        displayMessage(title: "Transfer credentials from iPhone", body:"Please make sure the iOS app is launched.", button: "Go",
-                       action: {
-            if (sessionDelegate.session.activationState == .activated) {
-                if sessionDelegate.session.isReachable{
-                    sessionDelegate.session.sendMessage(sessionDelegate.msg, replyHandler: sessionDelegate.replyHandler, errorHandler: sessionDelegate.errorHandler)
-                } else {
-                    displayMessage(title: "Error", body: "iPhone is not reachable.")
-                }
-            }
-        })
-        
-    }
     
     func triggerAirConditioning() {
         
         print("A/C trigger!")
         if ((sc.userName == nil) || (sc.password == nil)){
-            displayMessage(title: "Error", body:"No user credentials present.", action: {requestNewCredentialsButtonPressed() /* force-requesting credentials here does not work in watchos 11 */})
         } else {
             // async variant
             Task {
                 if await handleLoginAsync() {
-                    updateActivity(type: .start)
+                    activityManager.updateActivity(type: .start)
                     _ = await sc.preconditionAsync (command: .read, date: nil)
-                    updateActivity(type:.stop)
+                    activityManager.updateActivity(type:.stop)
                 }
             }
         }
@@ -316,9 +388,9 @@ struct ContentView: View {
         
         if (sc.tokenExpiry == nil){ // never logged in successfully
             
-            updateActivity(type:.start)
+            activityManager.updateActivity(type:.start)
             let r = await sc.loginAsync()
-            updateActivity(type:.stop)
+            activityManager.updateActivity(type:.stop)
             
             if (r.result){
                 return true
@@ -329,9 +401,9 @@ struct ContentView: View {
         } else {
             if sc.isTokenExpired() {
                 //print("Token expired or will expire too soon (or expiry date is nil), must renew")
-                updateActivity(type:.start)
+                activityManager.updateActivity(type:.start)
                 let result = await sc.renewTokenAsync()
-                updateActivity(type:.stop)
+                activityManager.updateActivity(type:.stop)
                 
                 if result {
                     print("renewed expired token!")
@@ -341,9 +413,9 @@ struct ContentView: View {
                     sc.tokenExpiry = nil // force new login next time
                     print("expired token NOT renewed!")
 
-                    updateActivity(type:.start)
+                    activityManager.updateActivity(type:.start)
                     let r = await sc.loginAsync()
-                    updateActivity(type:.stop)
+                    activityManager.updateActivity(type:.stop)
                     
                     if (r.result){
                         return true
@@ -358,43 +430,12 @@ struct ContentView: View {
             }
         }
     }
-    func displayMessage(title: String, body: String, button: String = "Dismiss",action:  @escaping  (() -> Void) = {}) {
-        if showSheet || alertManager.showAlert {
-            alertManager.delayedAlertTrigger = true
-            alertManager.displayMessage(title: title, body: body, button: button, action: action, show: false)
-        } else {
-            alertManager.delayedAlertTrigger = false
-            alertManager.displayMessage(title: title, body: body, button: button, action: action, show: true)
-        }
-
-        
-    }
-
     
-    enum startStop {
-        case start, stop
+    
+    func displayMessage(title: String, body: String, button: String = "Dismiss",action:  @escaping  (() -> Void) = {}) {
+            alertManager.displayMessage(title: title, body: body, button: button, action: action)
     }
 
-    @State var activityCount: Int = 0
-    func updateActivity(type:startStop){
-
-        switch type {
-        case .start:
-            activityState = true
-            activityCount+=1
-            break
-        case .stop:
-            activityCount-=1
-            if activityCount<=0 {
-                if activityCount<0 {
-                    activityCount = 0
-                }
-                activityState = false
-            }
-            break
-        }
-        print("Activity count = \(activityCount)")
-    }
 
 }
 

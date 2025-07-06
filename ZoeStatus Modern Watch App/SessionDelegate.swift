@@ -30,17 +30,14 @@ class SessionDelegate: NSObject, WCSessionDelegate, ObservableObject {
                sc.units = ServiceConnection.Units(rawValue: userDefaults.integer(forKey: "units_preference"))
                sc.kamereon = userDefaults.string(forKey: "kamereon_preference")
                sc.vehicle = userDefaults.integer(forKey: "vehicle_preference")
-
-
-               
            }
        }
-    
+
     let sc=ServiceConnection.shared
 
  
 
-  
+
     // MARK: - Watch Connectivity
 
     var session: WCSession!
@@ -84,38 +81,64 @@ class SessionDelegate: NSObject, WCSessionDelegate, ObservableObject {
     
     func replyHandler(reply: [String:Any])->Void{
         print("Received reply: \(reply)")
+        ActivityManager.shared.updateActivity(type:.stop)
         extractCredentialsFromContext(reply)
         DispatchQueue.main.async{
-            AlertManager.shared.displayMessage(title: "Success", body: "Credentials received and stored.", action: {            self.sc.tokenExpiry = nil // require new login
-            })
+            AlertManager.shared.displayMessage(title: "Success", body: "Credentials received and stored."){ [weak self] in
+                self?.sc.tokenExpiry = nil // require new login
+            }
         }
     }
     
     func errorHandler(error: Error) -> Void{
         print("Received error: \(error)")
+        ActivityManager.shared.updateActivity(type:.stop)
         DispatchQueue.main.async{
             AlertManager.shared.displayMessage(title: "Error", body: "There was a problem while receiving the credentials.")
         }
     }
     
-    func requestCredentials(_ session: WCSession){
-        if (session.activationState == .activated) {
-            if session.isReachable{
-                session.sendMessage(msg, replyHandler: replyHandler, errorHandler: errorHandler)
-            }
-        }
-    }
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         print("activationDidComplete")
         if error == nil {
-            //requestCredentials(session)
+
         }
     }
     
-    
 }
 
+
+class ActivityManager: ObservableObject {
+    static let shared = ActivityManager() // Singleton
+    private var activityCount: Int = 0
+    @Published var activityState = false
+    
+    func updateActivity(type:startStop){
+
+        switch type {
+        case .start:
+            DispatchQueue.main.async {  [weak self] in
+                self?.activityState = true
+            }
+            activityCount+=1
+            break
+        case .stop:
+            activityCount-=1
+            if activityCount<=0 {
+                if activityCount<0 {
+                    activityCount = 0
+                }
+                DispatchQueue.main.async { [weak self] in
+                    self?.activityState = false
+                }
+            }
+            break
+        }
+        print("Activity count = \(activityCount)")
+    }
+
+}
 
 
 class AlertManager: ObservableObject {
@@ -126,13 +149,11 @@ class AlertManager: ObservableObject {
     var message = ""
     var buttonTitle = ""
     var buttonFunction = {}
-
-    var delayedAlertTrigger = false
     
-    func displayMessage(title: String, body: String, button: String = "Dismiss",action:  @escaping  (() -> Void) = {}, show: Bool = true) {
+    func displayMessage(title: String, body: String, button: String = "Dismiss",action:  @escaping  (() -> Void) = {}) {
         print("\(title): \(body)")
-       
-        showAlert = show
+
+        showAlert = true
         alertTitle = title
         message = body
         buttonTitle = button
