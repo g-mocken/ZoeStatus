@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1630"
-   wasCreatedForAppExtension = "YES"
-   version = "1.3">
+   version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES">
+      buildImplicitDependencies = "YES"
+      buildArchitectures = "Automatic">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -15,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9A47C93D237F5E00006A5FDB"
-               BuildableName = "Zoe.appex"
-               BlueprintName = "ZoeStatus Widget"
+               BlueprintIdentifier = "9A23E4262D94B3B400256CDA"
+               BuildableName = "ZoeStatus Modern Watch App.app"
+               BlueprintName = "ZoeStatus Modern Watch App"
                ReferencedContainer = "container:ZoeStatus.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -41,14 +41,13 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
-      <Testables>
-      </Testables>
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = ""
-      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -59,9 +58,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9A47C93D237F5E00006A5FDB"
-            BuildableName = "Zoe.appex"
-            BlueprintName = "ZoeStatus Widget"
+            BlueprintIdentifier = "9A23E4262D94B3B400256CDA"
+            BuildableName = "ZoeStatus Modern Watch App.app"
+            BlueprintName = "ZoeStatus Modern Watch App"
             ReferencedContainer = "container:ZoeStatus.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -71,16 +70,14 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      debugDocumentVersioning = "YES"
-      askForAppToLaunch = "Yes"
-      launchAutomaticallySubstyle = "2">
+      debugDocumentVersioning = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9A512FA021B2DDCB007EFAAB"
-            BuildableName = "ZoeStatus.app"
-            BlueprintName = "ZoeStatus"
+            BlueprintIdentifier = "9A23E4262D94B3B400256CDA"
+            BuildableName = "ZoeStatus Modern Watch App.app"
+            BlueprintName = "ZoeStatus Modern Watch App"
             ReferencedContainer = "container:ZoeStatus.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

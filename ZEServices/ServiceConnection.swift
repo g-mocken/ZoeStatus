@@ -45,6 +45,11 @@ public class ServiceConnection {
     public func getCache()->Cache{
         return cache
     }
+    
+    public func getError()->Int{
+        return myR.lastHttpStatusCode
+    }
+    
     private init(){
         os_log("ServiceConnection log started.", log: serviceLog, type: .default)
     }
@@ -171,7 +176,11 @@ public class ServiceConnection {
 
         let result = await myR.handleLoginProcessAsync()
         if let errorMessage = result.errorMessage {
-            return (result: false, errorMessage: errorMessage)
+            
+            let words = errorMessage.split(separator: " ")  // Split string into words
+            let remainingWords = words.dropFirst(2) // Drop the first two words
+            let errorMessageShort = remainingWords.joined(separator: " ") // Join back to string
+            return (result: false, errorMessage: errorMessageShort)
         } else {
             os_log("Login MyR successful.", log: serviceLog, type: .default)
             tokenExpiry = extractExpiryDate(ofToken: result.token)
