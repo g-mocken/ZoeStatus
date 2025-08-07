@@ -377,7 +377,7 @@ struct ContentView: View {
             Task {
                 if await handleLoginAsync() {
                     activityManager.updateActivity(type: .start)
-                    _ = await sc.preconditionAsync (command: .read, date: nil)
+                    _ = await sc.preconditionAsync (command: .now, date: nil)
                     activityManager.updateActivity(type:.stop)
                 }
             }
