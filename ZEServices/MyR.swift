@@ -400,12 +400,17 @@ public class MyR {
          
          2020-02-07 21:22:04.731187+0100 ZoeStatus[43997:3264106] [ZOE-MYR] raw JSON data: {"data":{"type":"Car","id":"...","attributes":{"timestamp":"2020-02-07T21:21:26+01:00","batteryLevel":63,"batteryTemperature":9,"batteryAutonomy":71,"batteryCapacity":0,"batteryAvailableEnergy":0,"plugStatus":1,"chargingStatus":1.0,"chargingRemainingTime":300,"chargingInstantaneousPower":2300.0}}}
          
-         
+         raw JSON data: {"data":{"id":"...","attributes":{"timestamp":"2026-09-06T17:03:11Z","batteryLevel":77,"batteryAutonomy":82,"plugStatus":1,"chargingStatus":1.0,"chargingRemainingTime":300,"chargingRemainingTimeLastUpdateDateTime":"2026-09-06T17:03:11Z"}}}
+
          
          With errors:
          
          raw JSON data: {"data":{"id":"...","attributes":{"timestamp":"2024-05-31T15:59:12Z","batteryAutonomy":108,"plugStatus":0,"chargingStatus":-1.1}}}
          
+         plugged, but not charging (disabled in  car's planner):
+         
+         raw JSON data: {"data":{"id":"...","attributes":{"timestamp":"2026-09-06T17:08:56Z","batteryLevel":77,"batteryAutonomy":83,"plugStatus":1,"chargingStatus":0.0}}}
+
          
          */
         
