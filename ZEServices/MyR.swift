@@ -762,29 +762,34 @@ public class MyR {
      */
 
     
-    public func preconditionAsync(command:PreconditionCommand, date: Date?) async -> (error: Bool, command:PreconditionCommand, date: Date?, externalTemperature: Float? ) {
+    public func preconditionAsync(command:PreconditionCommand, date: Date?) async -> (error: Bool, command:PreconditionCommand, date: Date?, externalTemperature: Float?, hvacRunning: Bool?, lastUpdate: Date? ) {
         
         let endpointUrl:URL
         
         switch command {
         case .read:
-            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + (context.kamereonAccountInfo!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? context.kamereonAccountInfo!.accounts.first!).accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/hvac-status")!  // endpoint does no longer exist? error 404 -> missing time for next planned session and missing external temperature
+            endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + (context.kamereonAccountInfo!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? context.kamereonAccountInfo!.accounts.first!).accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/hvac-status")!  // returns hvacStatus and lastUpdateTime; no longer returns nextHvacStartDate or externalTemperature
 
         case .now, .later, .delete:
             endpointUrl = URL(string: context.apiKeysAndUrls!.servers.wiredProd.target + "/commerce/v1/accounts/" + (context.kamereonAccountInfo!.accounts.first(where:{ $0.accountType == "MYRENAULT"}) ?? context.kamereonAccountInfo!.accounts.first!).accountId + "/kamereon/kca/car-adapter/" + Version.v1.string + "/cars/" + context.vehiclesInfo!.vehicleLinks.sorted(by: { $0.vin < $1.vin })[vehicle].vin + "/actions/hvac-start")!
         }
         
         
+        /*
+         Sample responses (VIN redacted).
+         A/C off:     {"data":{"id":"...","attributes":{"hvacStatus":"off","socThreshold":20.0,"lastUpdateTime":"2026-08-21T09:04:00Z"}}}
+         A/C running: {"data":{"id":"...","attributes":{"hvacStatus":"on","socThreshold":20.0,"lastUpdateTime":"2026-08-21T12:37:38Z"}}}
+
+         "type", "externalTemperature" and "nextHvacStartDate" are no longer returned, so only
+         the fields that are actually used are decoded here, and all of them are optional.
+         */
         struct PreconditionInfo: Codable {
             var data: Data
             struct Data: Codable {
-                var type: String
-                var id: String
                 var attributes: Attributes
                 struct Attributes: Codable {
-                    var hvacStatus: String
-                    var externalTemperature: Float
-                    var nextHvacStartDate: String?
+                    var hvacStatus: String?
+                    var lastUpdateTime: String?
                 }
             }
         }
@@ -843,7 +848,7 @@ public class MyR {
         } else {
             uploadData = try? JSONEncoder().encode(precondition)
             if (uploadData == nil) {
-                return (false, command, date, nil)
+                return (false, command, date, nil, nil, nil)
             } else {
                 // print(String(data: uploadData!, encoding: .utf8)!)
             }
@@ -858,29 +863,37 @@ public class MyR {
         if (command == .read) { // for .read GET status
             let result:PreconditionInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers, withBody: uploadData)
             if result != nil {
-                    //print("Successfully sent GET request, got: \(result!.data)")
-                    //print("External temperature: \(result!.data.attributes.externalTemperature)")
-                    let date:Date?
-                    if let dateString = result!.data.attributes.nextHvacStartDate {
-                        // e.g. "2020-02-03T06:30:00Z"
-                        let dateFormatter = DateFormatter()
-                        dateFormatter.locale = NSLocale.current
-                        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-                        date = dateFormatter.date(from:dateString)!
-                    } else {
-                        date = nil
-                    }
-                return (error: false, command: command, date: date, externalTemperature: result!.data.attributes.externalTemperature)
+                os_log("Successfully retrieved HVAC state V1:\n hvacStatus: %{public}s\n lastUpdateTime: %{public}s", log: serviceLog, type: .debug, result!.data.attributes.hvacStatus ?? "N/A", result!.data.attributes.lastUpdateTime ?? "N/A")
+
+                // e.g. "2026-08-21T09:04:00Z" - a fixed format must not be parsed with the user's locale
+                let dateFormatter = DateFormatter()
+                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                let lastUpdate = result!.data.attributes.lastUpdateTime.flatMap { dateFormatter.date(from: $0) }
+
+                let hvacRunning:Bool?
+                if let hvacStatus = result!.data.attributes.hvacStatus {
+                    hvacRunning = (hvacStatus == "on")
                 } else {
-                    return (error: true, command: command, date: date, externalTemperature: nil)
+                    hvacRunning = nil // unknown
+                }
+
+                return (error: false,
+                        command: command,
+                        date: nil, // the API no longer provides nextHvacStartDate
+                        externalTemperature: nil, // nor an external temperature
+                        hvacRunning: hvacRunning,
+                        lastUpdate: lastUpdate)
+                } else {
+                    return (error: true, command: command, date: date, externalTemperature: nil, hvacRunning: nil, lastUpdate: nil)
                 }
         } else { // all other commands POST action
             let result:Precondition? = await fetchJsonDataViaHttpAsync(usingMethod: .POST, withComponents: components, withHeaders: headers, withBody: uploadData)
                 if result != nil {
                     // print("Successfully sent POST request, got: \(result!.data)")
-                    return (error: false, command: command, date: date, externalTemperature: nil)
+                    return (error: false, command: command, date: date, externalTemperature: nil, hvacRunning: nil, lastUpdate: nil)
                 } else {
-                    return (error: true, command: command, date: date, externalTemperature: nil)
+                    return (error: true, command: command, date: date, externalTemperature: nil, hvacRunning: nil, lastUpdate: nil)
                 }
         }
     }
