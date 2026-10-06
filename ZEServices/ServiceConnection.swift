@@ -351,7 +351,7 @@ public class ServiceConnection {
     
 
     
-    public func preconditionAsync(command:PreconditionCommand, date: Date?) async ->  (error: Bool, command:PreconditionCommand, date: Date?, externalTemperature: Float? ) {
+    public func preconditionAsync(command:PreconditionCommand, date: Date?) async ->  (error: Bool, command:PreconditionCommand, date: Date?, externalTemperature: Float?, hvacRunning: Bool?, lastUpdate: Date? ) {
         
         os_log("precondition", log: serviceLog, type: .default)
         
@@ -360,7 +360,9 @@ public class ServiceConnection {
             return (error:false,
                     command:command,
                     date:date,
-                    externalTemperature:12.3)
+                    externalTemperature:12.3,
+                    hvacRunning:false,
+                    lastUpdate:date)
         }
         
         switch api {
@@ -370,13 +372,17 @@ public class ServiceConnection {
             return (error:result.error,
                     command:result.command,
                     date:result.date,
-                    externalTemperature:result.externalTemperature)
+                    externalTemperature:result.externalTemperature,
+                    hvacRunning:result.hvacRunning,
+                    lastUpdate:result.lastUpdate)
 
         case .none: // dummy
             return (error:false,
                     command:command,
                     date:date,
-                    externalTemperature:12.3)
+                    externalTemperature:12.3,
+                    hvacRunning:false,
+                    lastUpdate:date)
         }
     }
 

@@ -88,7 +88,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                     
                     updateActivity(type: .start)
                     let pc = await sc.preconditionAsync (command: .read, date: nil)
-                    preconditionState(error: pc.error, command: pc.command, date: pc.date, externalTemperature: pc.externalTemperature )
+                    preconditionState(error: pc.error, command: pc.command, date: pc.date, externalTemperature: pc.externalTemperature, hvacRunning: pc.hvacRunning, lastUpdate: pc.lastUpdate )
                     // updateActivity(type:.stop) // TODO: see above
                     
                     updateActivity(type: .start)
@@ -544,7 +544,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 
                 self.updateActivity(type: .start)
                 let pc = await sc.preconditionAsync (command: .read, date: nil)
-                preconditionState(error: pc.error, command: pc.command, date: pc.date, externalTemperature: pc.externalTemperature )
+                preconditionState(error: pc.error, command: pc.command, date: pc.date, externalTemperature: pc.externalTemperature, hvacRunning: pc.hvacRunning, lastUpdate: pc.lastUpdate )
                 // updateActivity(type:.stop) // TODO: see above
                 
                 self.updateActivity(type: .start)
@@ -664,7 +664,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
     }
         
     
-    func preconditionState(error: Bool, command:PreconditionCommand, date: Date?, externalTemperature: Float? )->(){
+    func preconditionState(error: Bool, command:PreconditionCommand, date: Date?, externalTemperature: Float?, hvacRunning: Bool?, lastUpdate: Date? )->(){
         print("Precondition returns \(error)")
         switch command {
         case .now:
@@ -687,8 +687,19 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             } else {
                 datePickerButton.setTitle("⏰ …", for: .normal) // do not display "error", although it technically would be correct (e.g. error 404 while trying to read status)
             }
-            if command == .read && externalTemperature != nil {
-                temperatureResult.text = "🌡 \(externalTemperature!)°"
+            if command == .read {
+                if externalTemperature != nil {
+                    temperatureResult.text = "🌡 \(externalTemperature!)°"
+                }
+                switch hvacRunning {
+                case .some(true):
+                    preconditionResult.text = "🌬 ✅"
+                case .some(false):
+                    preconditionResult.text = "🌬 ❌"
+                case .none:
+                    preconditionResult.text = "🌬 …"
+                }
+                preconditionLast.text = timestampToDateString(timestamp: lastUpdate.map { UInt64($0.timeIntervalSince1970) * 1000 })
             }
         }
         
@@ -706,7 +717,7 @@ class ViewController: UIViewController, MapViewControllerDelegate {
             else {
                 self.updateActivity(type: .start)
                 let pc = await sc.preconditionAsync(command: command, date: date)
-                self.preconditionState(error: pc.error, command: pc.command, date: pc.date, externalTemperature: pc.externalTemperature)
+                self.preconditionState(error: pc.error, command: pc.command, date: pc.date, externalTemperature: pc.externalTemperature, hvacRunning: pc.hvacRunning, lastUpdate: pc.lastUpdate)
                 // updateActivity(type:.stop)
             }
         }
