@@ -519,7 +519,7 @@ public class MyR {
                 let dateString = result!.data.attributes.lastUpdateTime // e.g. "2020-01-31T17:39:52+01:00"
                 
                 let dateFormatter = DateFormatter()
-                dateFormatter.locale = NSLocale.current
+                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                 dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
                 let date = dateFormatter.date(from:dateString)!
                 let unixMs = UInt64(date.timeIntervalSince1970) * 1000
@@ -578,7 +578,7 @@ public class MyR {
                 let dateString = result!.data.attributes.timestamp // e.g. "2020-01-31T17:39:52+01:00"
                 
                 let dateFormatter = DateFormatter()
-                dateFormatter.locale = NSLocale.current
+                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                 dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
                 let date = dateFormatter.date(from:dateString)!
                 let unixMs = UInt64(date.timeIntervalSince1970) * 1000
@@ -952,7 +952,7 @@ public class MyR {
                 
                 let dateString = result!.data.attributes.hvacSessions[0].hvacSessionStartDate
                 let dateFormatter = DateFormatter()
-                dateFormatter.locale = NSLocale.current
+                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                 dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
                 let date = dateFormatter.date(from:dateString)!
                 let unixMs = UInt64(date.timeIntervalSince1970) * 1000
