@@ -691,15 +691,6 @@ class ViewController: UIViewController, MapViewControllerDelegate {
                 if externalTemperature != nil {
                     temperatureResult.text = "🌡 \(externalTemperature!)°"
                 }
-                switch hvacRunning {
-                case .some(true):
-                    preconditionResult.text = "🌬 ✅"
-                case .some(false):
-                    preconditionResult.text = "🌬 ❌"
-                case .none:
-                    preconditionResult.text = "🌬 …"
-                }
-                preconditionLast.text = timestampToDateString(timestamp: lastUpdate.map { UInt64($0.timeIntervalSince1970) * 1000 })
             }
         }
         

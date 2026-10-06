@@ -778,17 +778,24 @@ public class MyR {
         /*
          Sample responses (VIN redacted).
          A/C off:     {"data":{"id":"...","attributes":{"hvacStatus":"off","socThreshold":20.0,"lastUpdateTime":"2026-08-21T09:04:00Z"}}}
+                      {"data":{"id":"...","attributes":{"hvacStatus":"off","socThreshold":25.0,"lastUpdateTime":"2026-10-06T18:28:53Z"}}}
          A/C running: {"data":{"id":"...","attributes":{"hvacStatus":"on","socThreshold":20.0,"lastUpdateTime":"2026-08-21T12:37:38Z"}}}
 
          "type", "externalTemperature" and "nextHvacStartDate" are no longer returned, so only
          the fields that are actually used are decoded here, and all of them are optional.
+         
+
          */
         struct PreconditionInfo: Codable {
             var data: Data
             struct Data: Codable {
+                var type: String? // used to be "Car", not needed
+                var id: String
                 var attributes: Attributes
                 struct Attributes: Codable {
                     var hvacStatus: String?
+                    var externalTemperature: Float? // used to be present, may come back - make it optional
+                    var nextHvacStartDate: String?
                     var lastUpdateTime: String?
                 }
             }
@@ -863,14 +870,31 @@ public class MyR {
         if (command == .read) { // for .read GET status
             let result:PreconditionInfo? = await fetchJsonDataViaHttpAsync(usingMethod: .GET, withComponents: components, withHeaders: headers, withBody: uploadData)
             if result != nil {
-                os_log("Successfully retrieved HVAC state V1:\n hvacStatus: %{public}s\n lastUpdateTime: %{public}s", log: serviceLog, type: .debug, result!.data.attributes.hvacStatus ?? "N/A", result!.data.attributes.lastUpdateTime ?? "N/A")
-
-                // e.g. "2026-08-21T09:04:00Z" - a fixed format must not be parsed with the user's locale
+                os_log(
+                    "Successfully retrieved HVAC state V1:\n hvacStatus: %{public}s\n nextHvacStartDate: %{public}s\n lastUpdateTime: %{public}s\n externalTemperature:%{public}f",
+                    log: serviceLog,
+                    type: .debug,
+                    result!.data.attributes.hvacStatus ?? "N/A",
+                    result!.data.attributes.nextHvacStartDate ?? "N/A",
+                    result!.data.attributes.lastUpdateTime ?? "N/A",
+                    result!.data.attributes.externalTemperature ?? -999.0
+                )
+                
                 let dateFormatter = DateFormatter()
                 dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                 dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                // e.g. "2020-02-03T06:30:00Z"
+
+                let date:Date?
+                if let dateString = result!.data.attributes.nextHvacStartDate {
+                    date = dateFormatter.date(from:dateString)!
+                } else {
+                    date = nil
+                }
+
                 let lastUpdate = result!.data.attributes.lastUpdateTime.flatMap { dateFormatter.date(from: $0) }
 
+                
                 let hvacRunning:Bool?
                 if let hvacStatus = result!.data.attributes.hvacStatus {
                     hvacRunning = (hvacStatus == "on")
@@ -880,7 +904,7 @@ public class MyR {
 
                 return (error: false,
                         command: command,
-                        date: nil, // the API no longer provides nextHvacStartDate
+                        date: date,
                         externalTemperature: nil, // nor an external temperature
                         hvacRunning: hvacRunning,
                         lastUpdate: lastUpdate)
